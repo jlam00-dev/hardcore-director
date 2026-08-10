@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/hardcore-director-hero.png" alt="硬核导演 — 影视与 AI 视频创作总控 Skill" width="100%" />
+  <img src="./assets/hardcore-director-hero-v2.png" alt="硬核导演 — 影视与 AI 视频创作总控 Skill" width="100%" />
 </p>
 
 <p align="center">
@@ -17,6 +17,10 @@
 
 ---
 
+<p align="center">
+  <img src="./assets/detail-story-to-delivery.png" alt="从故事到交付 — 完整影视制作链路" width="100%" />
+</p>
+
 ## 它不是“提示词大全”
 
 `hardcore-director` 先判断你正处于哪个制作阶段，再读取当前真正需要的方法模块。
@@ -28,6 +32,10 @@
 - **成片能不能交付**：时长、连续性、平台格式、字幕、响度与发布表达都有复核门禁。
 
 > 先解决叙事与可执行性，再叠加风格。
+
+<p align="center">
+  <img src="./assets/detail-command-center.png" alt="八大能力，一个中枢" width="100%" />
+</p>
 
 ## 能力版图
 
@@ -96,6 +104,10 @@ git clone https://github.com/jlam00-dev/hardcore-director.git ~/.codex/skills/ha
 6. **质量复核** — 连续性、总时长、状态变化、声音同步与平台格式。
 7. **交付成品** — 只输出当前阶段真正需要使用的版本。
 
+<p align="center">
+  <img src="./assets/detail-quality-gate.png" alt="先过门禁，再交付" width="100%" />
+</p>
+
 ## 质量门禁
 
 - 每场戏必须有目标、阻力和变化；对白不能替代戏剧动作。
@@ -122,7 +134,10 @@ hardcore-director/
 ├── agents/
 │   └── openai.yaml           # Skill 展示信息
 ├── assets/
-│   └── hardcore-director-hero.png
+│   ├── hardcore-director-hero-v2.png
+│   ├── detail-story-to-delivery.png
+│   ├── detail-command-center.png
+│   └── detail-quality-gate.png
 └── references/               # 编剧、导演、分镜、视听与发布方法库
     └── *.md
 ```
