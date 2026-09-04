@@ -130,13 +130,13 @@ changelog:
 
 ## 示例
 
-请参见 `{baseDir}/references/examples.md` 获取详细策划示例。该文件包含了多种类型（如都市逆袭、甜宠爱情、悬疑推理等）的完整策划方案示例和分析说明。
+请参见 [examples.md](support/drama-planner/examples.md) 获取详细策划示例。该文件包含了多种类型（如都市逆袭、甜宠爱情、悬疑推理等）的完整策划方案示例和分析说明。
 
 ## 详细文档
 
-参见 `{baseDir}/references/` 目录获取更多文档:
-- `guide.md` - 完整策划指南和理论体系
-- `examples.md` - 更多场景策划示例
+参见配套文档：
+- [guide.md](support/drama-planner/guide.md) - 完整策划指南和理论体系
+- [examples.md](support/drama-planner/examples.md) - 更多场景策划示例
 
 ---
 

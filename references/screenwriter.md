@@ -107,7 +107,7 @@ description: 文生视频提示词生成器。从故事想法生成 Storyboard�
 
 > 时间顺序结构在规划表格的"动作"列中体现，确保每个镜头内动作有清晰的时间线。
 
-**示例**：见 [examples.md](references/examples.md)
+**示例**：见 [examples.md](support/screenwriter/examples.md)
 
 ---
 
@@ -176,11 +176,11 @@ description: 文生视频提示词生成器。从故事想法生成 Storyboard�
 - **主体细节**：常规镜头建议 8-15 个物理特征；短镜头保留 4-8 个关键特征
 
 详细技巧：
-- [camera.md](references/camera.md) - 镜头运动、角度、景别
-- [composition.md](references/composition.md) - 构图技巧
-- [lighting.md](references/lighting.md) - 灯光氛围
-- [style.md](references/style.md) - 调色板
-- [audio.md](references/audio.md) - 对话、环境音、音乐、音效
+- [camera.md](support/screenwriter/camera.md) - 镜头运动、角度、景别
+- [composition.md](support/screenwriter/composition.md) - 构图技巧
+- [lighting.md](support/screenwriter/lighting.md) - 灯光氛围
+- [style.md](support/screenwriter/style.md) - 调色板
+- [audio.md](support/screenwriter/audio.md) - 对话、环境音、音乐、音效
 
 ---
 

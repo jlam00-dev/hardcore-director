@@ -156,9 +156,11 @@ changelog:
 
 ## 详细文档
 
-参见 `{baseDir}/references/` 目录获取更多文档:
-- `examples.md` - 详细评估示例（都市逆袭、古装宫斗、现代情感等各类题材）
-- `guide.md` - 详细评估标准和评分细则
+参见配套文档：
+- [examples.md](support/drama-evaluator/examples.md) - 详细评估示例（都市逆袭、古装宫斗、现代情感等各类题材）
+- [guide.md](support/drama-evaluator/guide.md) - 详细评估标准和评分细则
+- [evaluation-standards.md](support/drama-evaluator/evaluation-standards.md) - 完整评分标准
+- [market-analysis.md](support/drama-evaluator/market-analysis.md) - 市场分析框架
 
 ---
 

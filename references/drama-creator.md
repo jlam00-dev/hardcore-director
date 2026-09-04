@@ -263,11 +263,11 @@ changelog:
 
 ## 详细文档
 
-参见 `{baseDir}/references/` 目录获取更多文档:
-- `examples.md` - 详细创作示例
-- `guide.md` - 完整创作指南和理论体系
-- `templates.md` - 各类型短剧创作模板
-- `prompt-patterns.md` - 常用prompt模式
+参见配套文档：
+- [examples.md](support/drama-creator/examples.md) - 详细创作示例
+- [guide.md](support/drama-creator/guide.md) - 完整创作指南和理论体系
+- [templates.md](support/drama-creator/templates.md) - 各类型短剧创作模板
+- [prompt-patterns.md](support/drama-creator/prompt-patterns.md) - 常用 prompt 模式
 
 ---
 

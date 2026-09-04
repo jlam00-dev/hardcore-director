@@ -1,4 +1,4 @@
 interface:
   display_name: "硬核导演"
-  short_description: "从编剧、分镜与提示词到声音、剪辑和发布的影视全流程"
-  default_prompt: "使用 $hardcore-director，把我的想法制作成可直接执行的影视或视频方案。"
+  short_description: "影视总控与 SD2.5、Wan 3.0、MiniMax H3 提示词"
+  default_prompt: "使用 $hardcore-director，先判断我处于哪个制作阶段，再把想法变成可拍摄、可生成、可验收的视频方案。"

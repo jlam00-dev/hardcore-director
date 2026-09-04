@@ -1,40 +1,47 @@
 ---
-name: story-cog
-description: Creative writing and storytelling powered by CellCog. Create stories, novels, screenplays, fan fiction, world building, character development, narrative design. AI-powered creative writing assistant.
+name: creative-writing-cellcog
+description: "AI creative writing and storytelling powered by CellCog. Novels, short stories, screenplays, fan fiction, poetry. World building, character development, narrative design across fantasy, sci-fi, mystery, romance, horror, and literary fiction."
 metadata:
   openclaw:
     emoji: "📖"
+    os: [darwin, linux, windows]
+    requires:
+      bins: [python3]
+      env: [CELLCOG_API_KEY]
 author: CellCog
+homepage: https://cellcog.ai
 dependencies: [cellcog]
 ---
-
-# Story Cog - Storytelling Powered by CellCog
+# Creative Writing - Storytelling Powered by CellCog
 
 Create compelling stories with AI - from short fiction to novels to screenplays to immersive worlds.
 
----
+## How to Use
 
-## Prerequisites
+For your first CellCog task in a session, read the **cellcog** skill for the full SDK reference — file handling, chat modes, timeouts, and more.
 
-This skill requires the `cellcog` skill for SDK setup and API calls.
-
-```bash
-clawhub install cellcog
-```
-
-**Read the cellcog skill first** for SDK setup. This skill shows you what's possible.
-
-**Quick pattern (v1.0+):**
+**OpenClaw (fire-and-forget):**
 ```python
-# Fire-and-forget - returns immediately
 result = client.create_chat(
-    prompt="[your story request]",
+    prompt="[your task prompt]",
     notify_session_key="agent:main:main",
-    task_label="story-creation",
-    chat_mode="agent"  # Agent mode for most stories
+    task_label="my-task",
+    chat_mode="creative",
 )
-# Daemon notifies you when complete - do NOT poll
 ```
+
+**All agents except OpenClaw (blocks until done):**
+```python
+from cellcog import CellCogClient
+client = CellCogClient(agent_provider="openclaw|cursor|claude-code|codex|...")
+result = client.create_chat(
+    prompt="[your task prompt]",
+    task_label="my-task",
+    chat_mode="creative",
+)
+print(result["message"])
+```
+
 
 ---
 
@@ -161,16 +168,17 @@ Deep character work:
 
 ---
 
-## Chat Mode for Stories
+## Choosing Mode & Tier
 
-| Scenario | Recommended Mode |
-|----------|------------------|
-| Short stories, scenes, character work, outlines | `"agent"` |
-| Complex narratives, novel development, deep world building | `"agent team"` |
+**Use `chat_mode="creative"` for creative writing** — the craft-first mode tuned for design taste, visual polish, and voice.
 
-**Use `"agent"` for most creative writing.** Short stories, individual scenes, and character development execute well in agent mode.
+| Scenario | Recommended |
+|----------|-------------|
+| Stories, novels, scripts, world building | `chat_mode="creative"` (default tier `"core"`) |
+| Maximum craft on high-stakes pieces | `chat_mode="creative", chat_tier="max"` |
+| Quick disposable drafts | `chat_mode="agent"` (defaults to `"flash"`) |
 
-**Use `"agent team"` for narrative complexity** - novel-length outlines, intricate plot development, or multi-layered world building that benefits from deep thinking.
+Note: `"creative"` has no `"flash"` tier. Agent Team (`chat_mode="team"`) is reserved for deep research.
 
 ---
 
@@ -232,3 +240,12 @@ Deep character work:
 5. **Show, don't tell**: Ask for scenes, not summaries. "Write the moment she realizes..." not "Describe that she was sad."
 
 6. **Iterate**: First drafts are starting points. Use CellCog to revise, expand, and refine.
+
+---
+
+## If CellCog is not installed
+
+**Claude Code, Cursor, Codex + 70 more agents:** `npx skills add cellcog/skills --skill cellcog`
+**OpenClaw:** `openclaw skills install @cellcog/cellcog`
+**CellCog plugin users:** run `/cellcog-setup` (or `/cellcog:cellcog-setup` depending on your tool)
+**Manual setup:** `pip install -U cellcog` and set `CELLCOG_API_KEY`. See the **cellcog** skill for SDK reference.
