@@ -11,6 +11,12 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+EXCLUDED_PATHS = {".gitignore"}
+EXCLUDED_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".pyc"}
+GITHUB_ASSET_BASE = (
+    "https://raw.githubusercontent.com/jlam00-dev/hardcore-director/"
+    "v2.1.0/assets/"
+)
 SKILLHUB_FIELDS = (
     "slug: hardcore-director\n"
     "version: 2.1.0\n"
@@ -32,7 +38,18 @@ def tracked_files(root: Path) -> list[Path]:
         check=True,
         capture_output=True,
     )
-    return [root / raw.decode("utf-8") for raw in result.stdout.split(b"\0") if raw]
+    files = []
+    for raw in result.stdout.split(b"\0"):
+        if not raw:
+            continue
+        path = root / raw.decode("utf-8")
+        relative = path.relative_to(root)
+        if relative.as_posix() in EXCLUDED_PATHS:
+            continue
+        if relative.suffix.lower() in EXCLUDED_SUFFIXES:
+            continue
+        files.append(path)
+    return files
 
 
 def skillhub_skill_md(path: Path) -> bytes:
@@ -45,6 +62,11 @@ def skillhub_skill_md(path: Path) -> bytes:
     return text.replace(marker, marker + SKILLHUB_FIELDS, 1).encode("utf-8")
 
 
+def skillhub_readme(path: Path) -> bytes:
+    text = path.read_text(encoding="utf-8")
+    return text.replace('src="./assets/', f'src="{GITHUB_ASSET_BASE}').encode("utf-8")
+
+
 def build(root: Path, output: Path) -> str:
     if subprocess.run(["git", "diff", "--quiet", "HEAD", "--"], cwd=root).returncode:
         raise RuntimeError("refusing to package a dirty tracked working tree")
@@ -53,7 +75,12 @@ def build(root: Path, output: Path) -> str:
     with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for path in files:
             relative = path.relative_to(root)
-            data = skillhub_skill_md(path) if relative.as_posix() == "SKILL.md" else path.read_bytes()
+            if relative.as_posix() == "SKILL.md":
+                data = skillhub_skill_md(path)
+            elif relative.as_posix() == "README.md":
+                data = skillhub_readme(path)
+            else:
+                data = path.read_bytes()
             info = zipfile.ZipInfo(f"hardcore-director/{relative.as_posix()}")
             info.date_time = (2026, 9, 5, 0, 0, 0)
             info.compress_type = zipfile.ZIP_DEFLATED
