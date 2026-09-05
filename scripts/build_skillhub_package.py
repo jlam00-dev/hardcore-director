@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EXCLUDED_PATHS = {".gitignore"}
+EXCLUDED_PATHS = {".gitignore", "LICENSE", "VERSION"}
 EXCLUDED_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".pyc"}
 GITHUB_ASSET_BASE = (
     "https://raw.githubusercontent.com/jlam00-dev/hardcore-director/"
