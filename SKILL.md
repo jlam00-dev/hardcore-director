@@ -35,7 +35,7 @@ metadata:
 - 需要“写什么”：编剧/短剧模块；
 - 需要“怎么拍”：角色、场景、构图或分镜模块；
 - 需要“怎么喂给模型”：先读取 [模型提示词路由器](references/prompt-tools/model-router.md)，再只读取一个模型工具；
-- 需要“怎么剪/怎么验”：剪辑、拉片或反推模块；
+- 需要“怎么剪/怎么验”：剪辑、拉片、反推或确定性视频执行模块；
 - 需要“怎么发”：短视频与平台发布模块。
 
 ### 第三步：只补决定性增强
@@ -103,11 +103,14 @@ metadata:
 
 - 对作品做结构化拉片并提取创作参数：[video-analysis.md](references/video-analysis.md)
 - 对广告/竞品反推镜头、色彩、节奏和音频策略：[video-reverse-engineer.md](references/video-reverse-engineer.md)
-- 编辑已有实拍素材、FFmpeg/Remotion/配音/增强/成片流程：[video-editing.md](references/video-editing.md)
+- 编辑已有实拍素材、FFmpeg、配音、增强和常规成片流程：[video-editing.md](references/video-editing.md)
+- 需要精确到帧的动态图形、字幕、批量版本或可复现渲染：读取 [remotion-production.md](references/integrations/remotion-production.md)，再按需调用官方 Remotion Skill。
 
-涉及真实视频文件时，先检查素材、时长、分辨率、帧率、音轨和授权范围。需要实际生成 HTML 视频或 Remotion 成片时，配合当前环境中相应的 HyperFrames 或 Remotion 专项技能执行，本技能负责创作判断与制作统筹。
+涉及真实视频文件时，先检查素材、时长、分辨率、帧率、音轨和授权范围。需要实际生成 HTML 视频时配合当前环境中的 HyperFrames 专项 Skill；需要 Remotion 成片时走本包的 Remotion 适配器。硬核导演负责创作判断、导演母版与最终验收。
 
 用户明确要求由外部服务自动完成长视频生产，并接受素材上传、API key 和额度消耗时，可在完成导演母版后读取 [video-generation-cellcog.md](references/video-generation-cellcog.md) 与 [cellcog.md](references/cellcog.md)。它是可选执行器，不是默认路由；不得因为“能一键生成”跳过脚本、镜头和验收门禁。
+
+用户需要非写实、旁白驱动的解释视频，并明确接受 Higgsfield 服务与额度时，读取 [higgsfield-explainer.md](references/integrations/higgsfield-explainer.md)。它只负责十秒分块式解释视频，不替代电影、广告、UGC 或数字人口播路径。
 
 ### 短视频与发布
 
@@ -163,4 +166,4 @@ metadata:
 
 - 运行 `python3 scripts/validate_package.py` 检查 frontmatter、链接、清单哈希和路径可移植性。
 - 运行 `python3 scripts/check_updates.py --offline` 检查包内漂移；去掉 `--offline` 可只读查询 GitHub、ClawHub 和 Wan 官方站版本信号。
-- 依赖版本、来源和固定提交见 [dependencies.json](manifests/dependencies.json)；候选取舍见 [candidate-review-2026-09-04.md](audits/candidate-review-2026-09-04.md)；第三方条款见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+- 依赖版本、来源和固定提交见 [dependencies.json](manifests/dependencies.json)；旧版 36 项逐项状态见 [component-ledger-v1-to-v2.1.md](audits/component-ledger-v1-to-v2.1.md)；候选取舍见 [candidate-review-2026-09-04.md](audits/candidate-review-2026-09-04.md)；第三方条款见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

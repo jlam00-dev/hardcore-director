@@ -71,19 +71,23 @@
 
 它不会在一次回答里机械加载全部参考，而是按任务裁剪：一个主模块、一个平台适配器、最多两个专项增强。编剧先处理戏剧动作，分镜再处理空间与连续性，平台生成最后转换成对应语法。
 
+旧版曾把 `references/` 下的 36 份顶层能力快照简称为“36 个 Skill”。准确口径是：其中 34 份对应当时的本机 Skill，另有 2 份是内部汇总模块；并非 36 份都有公开版本号或可查询上游。v2.1 已建立逐项账本，不再把“模块数”和“可自动更新依赖数”混算。
+
 ## v2.1 新增
 
 - Seedance 2.5、Wan 3.0、MiniMax H3 三个独立提示词工具；
 - 按“制作阶段 → 主模块 → 平台适配器 → 专项增强”重写调用路径；
 - MiniMax H3 官方 T2VA / I2VA / FL2VA / L2VA / Ref2VA 固定 Schema；
 - 独立分镜帧优先的交付包与连续性台账，多宫格改为按需选项；
-- 更新 `short-drama-writer`、`creative-writing-cellcog` 和传递依赖 `cellcog`；
+- 更新 `short-drama-writer`、`creative-writing-cellcog`、传递依赖 `cellcog`，并按最新上游重构影视配乐适配器；
 - 接入 SkillHub 高评分的 `video-generation-cellcog` 作为明确授权后的可选外部执行器；
-- 依赖清单、只读更新检查、包体校验、候选审计和第三方来源说明。
+- 接入高热度的官方 Remotion Skill 路由，补齐可编程视频、字幕、批量版本与确定性渲染；
+- 接入 Higgsfield 非写实旁白解释视频路径，保留登录、上传和额度授权门禁；
+- 为旧版 36 项建立全量状态账本；依赖清单、只读更新检查、包体校验、候选审计和第三方来源说明不再只覆盖 11 项。
 
-## 安装状态
+## 安装与发布状态
 
-v2.1 当前是隔离验收包，尚未推送 GitHub 或发布 SkillHub，也没有覆盖本机现役 `hardcore-director`。验收通过并发布后，再从对应的 `v2.1.0` Release/Tag 安装；不要把 GitHub `main` 当作这个隔离包。
+v2.1 当前是隔离验收包，尚未推送 GitHub 或发布 SkillHub，也没有覆盖本机现役 `hardcore-director`。自动校验通过不等于取得公开再发布权：发布前仍须确认 17 个来源未核实的本机快照、2 个历史混合模块的权属处理，并选择仓库根许可证。具体门槛见 [`publication-gate-v2.1.md`](./audits/publication-gate-v2.1.md)。完成该门槛后，再从对应的 `v2.1.0` Release/Tag 安装；不要把 GitHub `main` 当作这个隔离包。
 
 安装后可直接点名调用：
 
@@ -140,7 +144,7 @@ Wan 3.0 的公开官方页面尚未给出一套固定字段规范，因此 v2.1 
 
 ## 外部执行器边界
 
-CellCog 长视频生产只在用户明确接受服务商、素材上传、API key 和额度消耗后使用。默认只完成本地的创作、分镜、提示词与验收设计，不自动上传素材、不自动消费额度、不自动发布。
+CellCog 长视频生产和 Higgsfield 解释视频只在用户明确接受对应服务商、素材上传、API key/登录和额度消耗后使用。Remotion 只在需要可编程、确定性视频时进入执行路径。默认只完成本地的创作、分镜、提示词与验收设计，不自动安装外部 Skill、不自动上传素材、不自动消费额度、不自动发布。
 
 ## 目录结构
 
@@ -176,9 +180,9 @@ python3 scripts/check_updates.py --offline
 python3 scripts/check_updates.py
 ```
 
-`check_updates.py` 只读取本地文件和公开上游，不自动下载、覆盖或发布任何 Skill。返回码：`0` 当前无异常，`1` 有本地漂移或发现更新，`2` 上游检查失败。
+`check_updates.py` 对所有顶层能力模块做哈希检查，并对存在公开上游的项目查询版本或提交；本机原创/内部模块明确标为不可自动升级，而不是从统计中消失。脚本不会自动下载、覆盖或发布任何 Skill。返回码：`0` 当前无异常，`1` 有本地漂移或发现更新，`2` 上游检查失败。
 
-来源与许可证边界见 [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md)。公开发布前仍需为本包原创部分选择根许可证，并完成旧 `references/` 的逐文件来源复核。
+旧版 36 项的去向见 [`component-ledger-v1-to-v2.1.md`](./audits/component-ledger-v1-to-v2.1.md)，来源与许可证边界见 [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md)，正式发布前的待决项见 [`publication-gate-v2.1.md`](./audits/publication-gate-v2.1.md)。
 
 ## 设计原则
 

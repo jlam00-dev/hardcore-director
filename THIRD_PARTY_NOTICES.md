@@ -16,6 +16,11 @@ This package combines original routing instructions with attributed third-party 
 - Storyboard packaging and continuity checks: `agentara/skills`, MIT, https://github.com/agentara/skills
 - Seedance 2.5 staging, reference exclusions and job-splitting patterns: `OSideMedia/higgsfield-ai-prompt-skill`, MIT, https://github.com/OSideMedia/higgsfield-ai-prompt-skill
 - Video editing workflow: `affaan-m/ECC`, MIT, https://github.com/affaan-m/ECC
+- Film-music prompt and mastering practices: `bitwize-music-studio/claude-ai-music-skills`, CC0-1.0, https://github.com/bitwize-music-studio/claude-ai-music-skills
+- Douyin safety-check inspiration: `CCCpan/chinese-sensitive-words-mcp`, MIT, https://github.com/CCCpan/chinese-sensitive-words-mcp
+- Douyin planning inspiration: `yaojingang/yao-open-prompts`, MIT, https://github.com/yaojingang/yao-open-prompts
+- Remotion production routing: `remotion-dev/skills`. This package links to the external Skill and does not vendor its rule set; the upstream repository did not expose a standard root license during this audit.
+- Higgsfield explainer routing: `higgsfield-ai/skills`, MIT, https://github.com/higgsfield-ai/skills
 
 ## First-party specifications
 
@@ -23,6 +28,10 @@ This package combines original routing instructions with attributed third-party 
 - Wan 3.0: official Wan creation site; the package labels its Wan prompt structure as a local production template because no fixed public prompt schema was found during this release audit.
 - MiniMax H3: MiniMax official model repository and prompt-writing guides. The repository did not expose a recognized root license during this audit, so the package does not vendor the complete official Skill; it provides an original compatibility guide using required field names and links to the first-party source.
 
+## Historical module ledger
+
+The status of every historical top-level reference is recorded in `audits/component-ledger-v1-to-v2.1.md`. Local/original modules without a versioned upstream are integrity-checked but cannot be described as “latest.” Do not represent third-party snapshots as original work or silently relicense them under the package's future root license.
+
 ## Publication gate
 
-The repository currently has no declared root license. Before publishing v2.1, choose a license for the original material and complete a file-by-file provenance review of the historical `references/` directory. Do not represent third-party snapshots as original work.
+This review package has no root `LICENSE`. Seventeen local snapshots are marked `local-authorship-unverified`, and two internal historical modules are marked `historical-provenance-mixed`. They may be used for private local review, but they must not be publicly redistributed until their ownership and license treatment are confirmed, rewritten, or excluded. See `audits/publication-gate-v2.1.md` for the exact release gate.

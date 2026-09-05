@@ -1,82 +1,75 @@
 ---
 name: short-video-hook-lab
-description: Generate, test, and refine short-video hooks for TikTok, Reels, and Shorts with retention-first structure. Use when the user wants stronger openings, better first-3-second performance, multiple hook variants, or rewrite support for low-retention scripts.
+description: 为短视频设计可兑现、可拍摄、可测试的开场钩子，并把入选钩子交接到后续脚本与镜头。
+metadata:
+  implementation: hardcore-director-original
+  version: "2.1.0"
 ---
 
-# Short Video Hook Lab
+# 短视频钩子实验室
 
-## Skill Card
+钩子的任务不是制造一句夸张文案，而是在最短时间内让目标观众理解“这条内容与我有关，并且后面有值得继续看的东西”。
 
-- **Category:** Creator Content
-- **Core problem:** How to improve first-3-second retention?
-- **Best for:** Hook iteration before recording
-- **Expected input:** Raw script or opening lines + target audience + product angle
-- **Expected output:** Ranked hook variants with rationale and filming complexity
-- **Creatop handoff:** Push winning hook into Creatop script composer
+## 输入
 
-## Overview
+- 目标观众与他们此刻的具体问题；
+- 视频承诺、可提供的证据和最终行动；
+- 平台、时长、出镜方式与可拍素材；
+- 必须避免的事实、法律、品牌或表达风险。
 
-Generate high-retention openings that are specific, shootable, and platform-native.
+信息不足时先写出假设，不能虚构数字、身份、成绩、案例或紧迫性。
 
-## Workflow
+## 钩子家族
 
-### 1) Capture context
+只选择与内容证据匹配的家族：
 
-Collect:
-- target audience
-- core promise
-- desired action (watch/comment/click/buy)
-- platform (TikTok / Reels / Shorts)
+- 结果前置：先展示可验证结果，再解释路径；
+- 问题命中：用观众正在经历的具体场景开门；
+- 反常识：指出普遍做法与实际结果的冲突；
+- 失败切口：先展示错误代价或失败现场；
+- 过程悬念：展示即将完成但尚未揭晓的动作；
+- 身份共鸣：点名特定人群、阶段或使用情境；
+- 证据切口：真实数据、实物、屏幕、对比或测试先出现。
 
-If key context is missing, infer minimal defaults and mark assumptions.
+不默认凑固定数量。初筛通常生成 6–10 条不同机制的版本；同义改写不算新版本。
 
-### 2) Generate 12 hook variants
+## 评分
 
-Cover 6 families:
-- contrarian
-- checklist
-- mistake/fix
-- proof-first
-- personal observation
-- urgent timing
+每条按 1–5 分评估：
 
-Evidence rule for proof-first hooks:
-- Use real metrics only when verified.
-- If not verified, avoid precise numbers and use non-fabricated wording.
+| 维度 | 问题 |
+| --- | --- |
+| 目标命中 | 目标观众能否立刻判断与自己有关？ |
+| 承诺清晰 | 看完能得到什么是否具体？ |
+| 证据强度 | 后文是否真的能兑现开场？ |
+| 可拍摄性 | 开场能否用现有素材和动作完成？ |
+| 继续动力 | 下一句或下一镜是否自然产生问题？ |
+| 风险 | 是否夸大、误导、侵权或触发平台风险？ |
 
-### 3) Score and select
+风险项不参与平均；出现不可接受风险直接淘汰。
 
-Score each hook (1–5):
-- clarity
-- curiosity
-- specificity
-- filmability
-- promise-action fit (optional tie-break)
+## 交付
 
-Pick Top 3 + 1 backup.
+输出前三名和一个低风险备选：
 
-### 4) Build micro execution pack
+```text
+钩子台词：
+第一镜动作：
+首屏文字：
+第 2–10 秒兑现路径：
+需要的证据：
+主要风险：
+适合测试的变量：
+```
 
-For each selected hook, provide:
-- hook line
-- 10-second flow (3 bullets)
-- on-screen text
-- CTA line
-- filming complexity (low/medium/high)
+同一轮 A/B 测试只改变一个变量，例如第一句、第一镜或首屏文字；不要同时改变选题、结构和 CTA。
 
-## Output rules
+## 门禁
 
-- Keep language conversational and human.
-- Avoid clickbait that cannot be fulfilled.
-- Prefer concrete wording over vague hype.
-- If uncertain, choose clarity over cleverness.
-## License
+- 第一镜已经发生动作或出现证据，不是站着解释背景；
+- 开场承诺会在视频主体中兑现；
+- “全网、唯一、保证、必然”等绝对表达有可靠依据，否则删除；
+- 没有为了悬念故意隐瞒影响判断的关键信息；
+- 钩子与后续脚本的语气、人物和场景连续。
 
-Copyright (c) 2026 **Razestar**.
-
-This skill is provided under **CC BY-NC-SA 4.0** for non-commercial use.
-You may reuse and adapt it with attribution to Razestar, and share derivatives
-under the same license.
-
-Commercial use requires a separate paid commercial license from **Razestar**.
-No trademark rights are granted.
+本文件为硬核导演 v2.1 原创实现，不复制旧版第三方 `short-video-hook-lab` 的非商业文本。

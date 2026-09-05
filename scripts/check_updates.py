@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only update and integrity checker for hardcore-director v2.1."""
+"""Read-only source-watch and integrity checker for hardcore-director v2.1."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ def sha256_file(path: Path) -> str:
 def load_manifest(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         data = json.load(handle)
-    if data.get("schema_version") != 1 or not isinstance(data.get("components"), list):
+    if data.get("schema_version") not in {1, 2} or not isinstance(data.get("components"), list):
         raise ValueError("unsupported or malformed dependency manifest")
     return data
 
@@ -92,11 +92,40 @@ def inspect_web_pattern(upstream: dict[str, Any]) -> str:
     return match.group(1)
 
 
+def inspect_upstream(component: dict[str, Any], upstream: dict[str, Any]) -> dict[str, Any]:
+    kind = upstream.get("kind")
+    if kind == "clawhub":
+        latest = inspect_clawhub(upstream["ref"])
+        expected = str(upstream.get("pinned_version", component["bundled_version"]))
+        source_ref = upstream["ref"]
+    elif kind == "github_path":
+        latest = latest_github_path_commit(upstream)
+        expected = upstream["pinned_commit"]
+        source_ref = f"{upstream['repo']}:{upstream['path']}"
+    elif kind == "web_pattern":
+        latest = inspect_web_pattern(upstream)
+        expected = upstream["pinned_value"]
+        source_ref = upstream["url"]
+    else:
+        raise ValueError(f"unsupported upstream kind: {kind!r}")
+    return {
+        "kind": kind,
+        "ref": source_ref,
+        "latest": latest,
+        "expected": expected,
+        "changed": latest != expected,
+    }
+
+
 def check_component(
     component: dict[str, Any], *, root: Path, offline: bool
 ) -> dict[str, Any]:
+    upstream = component.get("upstream", {})
+    source_mode = "local_only" if upstream.get("kind") == "local_only" else "tracked"
     result: dict[str, Any] = {
         "id": component["id"],
+        "policy": component.get("update_policy", "sync_after_review"),
+        "source_mode": source_mode,
         "local": "ok",
         "upstream": "skipped" if offline else "unknown",
         "details": [],
@@ -115,29 +144,30 @@ def check_component(
     if offline:
         return result
 
-    upstream = component.get("upstream", {})
     kind = upstream.get("kind")
+    if kind == "local_only":
+        result["upstream"] = "not_applicable"
+        result["details"].append("no versioned public upstream; integrity check only")
+        return result
+
     try:
-        if kind == "clawhub":
-            latest = inspect_clawhub(upstream["ref"])
-            expected = str(component["bundled_version"])
-        elif kind == "github_path":
-            latest = latest_github_path_commit(upstream)
-            expected = upstream["pinned_commit"]
-        elif kind == "web_pattern":
-            latest = inspect_web_pattern(upstream)
-            expected = upstream["pinned_value"]
-        else:
-            result["upstream"] = "skipped"
-            result["details"].append(f"unsupported upstream kind: {kind!r}")
-            return result
-        result["latest"] = latest
-        result["expected"] = expected
-        if latest == expected:
+        configured = [upstream, *component.get("additional_upstreams", [])]
+        sources = [inspect_upstream(component, item) for item in configured]
+        result["sources"] = sources
+        result["latest"] = sources[0]["latest"]
+        result["expected"] = sources[0]["expected"]
+        changed = [item for item in sources if item["changed"]]
+        if not changed:
             result["upstream"] = "current"
         else:
-            result["upstream"] = "update_available"
-            result["details"].append(f"pinned {expected}, latest {latest}")
+            if component.get("update_policy") == "source_watch":
+                result["upstream"] = "review_available"
+            else:
+                result["upstream"] = "update_available"
+            for item in changed:
+                result["details"].append(
+                    f"{item['ref']}: pinned {item['expected']}, latest {item['latest']}"
+                )
     except Exception as exc:  # network and registry failures must remain visible
         result["upstream"] = "error"
         result["details"].append(str(exc))
@@ -147,8 +177,11 @@ def check_component(
 def summarize(results: list[dict[str, Any]]) -> dict[str, int]:
     return {
         "checked": len(results),
+        "source_tracked": sum(item.get("source_mode") == "tracked" for item in results),
+        "local_only": sum(item.get("source_mode") == "local_only" for item in results),
         "local_issues": sum(item["local"] != "ok" for item in results),
         "updates": sum(item["upstream"] == "update_available" for item in results),
+        "reviews": sum(item["upstream"] == "review_available" for item in results),
         "errors": sum(item["upstream"] == "error" for item in results),
     }
 
@@ -156,14 +189,14 @@ def summarize(results: list[dict[str, Any]]) -> dict[str, int]:
 def exit_code(summary: dict[str, int]) -> int:
     if summary["errors"]:
         return 2
-    if summary["local_issues"] or summary["updates"]:
+    if summary["local_issues"] or summary["updates"] or summary["reviews"]:
         return 1
     return 0
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Check bundled hashes and optional GitHub/ClawHub/Web updates without changing files."
+        description="Check all module hashes and optional GitHub/ClawHub/Web source signals without changing files."
     )
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--offline", action="store_true", help="Only verify local integrity")
@@ -201,8 +234,9 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  - {detail}")
         print(
             "summary: "
-            f"checked={summary['checked']} local_issues={summary['local_issues']} "
-            f"updates={summary['updates']} errors={summary['errors']}"
+            f"checked={summary['checked']} source_tracked={summary['source_tracked']} "
+            f"local_only={summary['local_only']} local_issues={summary['local_issues']} "
+            f"updates={summary['updates']} reviews={summary['reviews']} errors={summary['errors']}"
         )
     return exit_code(summary)
 

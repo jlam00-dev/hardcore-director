@@ -1,11 +1,12 @@
 ---
-version: "2.0.0"
-name: Short Drama Writer
-description: "Short Drama Writer. Use when you need short drama writer capabilities. Triggers on: short drama writer."
-  短剧剧本生成器。竖屏短剧、微短剧、剧情设计、角色塑造。Short drama script generator for vertical video dramas, plot design, character building. 短剧脚本、微短剧、编剧工具。Use when writing short drama scripts.
-author: BytesAgain
-homepage: https://bytesagain.com
-source: https://github.com/bytesagain/ai-skills
+name: short-drama-writer
+description: 短剧剧本生成器。用于竖屏短剧、微短剧、剧情设计、角色塑造、对白、钩子和商业化方向。
+metadata:
+  upstream_name: Short Drama Writer
+  upstream_version: "2.3.6"
+  author: BytesAgain
+  homepage: https://bytesagain.com
+  source: https://github.com/bytesagain/ai-skills
 ---
 # Short Drama Writer
 

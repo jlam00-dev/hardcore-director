@@ -13,6 +13,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ALLOWED_FRONTMATTER = {"name", "description", "license", "compatibility", "metadata", "allowed-tools"}
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
+REQUIRED_COMPONENT_FIELDS = {
+    "id",
+    "role",
+    "update_policy",
+    "bundled_path",
+    "sha256",
+    "bundled_version",
+    "license",
+    "upstream",
+}
 
 
 def sha256_file(path: Path) -> str:
@@ -74,24 +84,67 @@ def validate_manifest() -> list[str]:
     except Exception as exc:
         return [f"cannot parse dependency manifest: {exc}"]
     version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    if manifest.get("schema_version") != 2:
+        errors.append("dependency manifest schema_version must be 2")
     if manifest.get("package", {}).get("version") != version:
         errors.append("VERSION and dependency manifest version differ")
-    seen = set()
-    for item in manifest.get("components", []):
+    components = manifest.get("components", [])
+    if not isinstance(components, list):
+        return [*errors, "dependency manifest components must be a list"]
+
+    seen_ids = set()
+    seen_paths = set()
+    for item in components:
+        missing_fields = sorted(REQUIRED_COMPONENT_FIELDS - set(item))
+        if missing_fields:
+            errors.append(
+                f"manifest component {item.get('id', '<unknown>')} missing fields: "
+                + ", ".join(missing_fields)
+            )
         component_id = item.get("id")
         if not component_id:
             errors.append("manifest component has no id")
             continue
-        if component_id in seen:
+        if component_id in seen_ids:
             errors.append(f"duplicate component id: {component_id}")
-        seen.add(component_id)
-        local_path = ROOT / item.get("bundled_path", "")
+        seen_ids.add(component_id)
+        bundled_path = item.get("bundled_path", "")
+        if bundled_path in seen_paths:
+            errors.append(f"duplicate manifest path: {bundled_path}")
+        seen_paths.add(bundled_path)
+        local_path = ROOT / bundled_path
         if not local_path.is_file():
-            errors.append(f"manifest path missing for {component_id}: {item.get('bundled_path')}")
+            errors.append(f"manifest path missing for {component_id}: {bundled_path}")
             continue
         actual = sha256_file(local_path)
         if actual != item.get("sha256"):
             errors.append(f"manifest hash mismatch for {component_id}")
+
+    discovered_paths = {
+        str(path.relative_to(ROOT))
+        for pattern in ("references/*.md", "references/prompt-tools/*.md", "references/integrations/*.md")
+        for path in ROOT.glob(pattern)
+        if path.is_file()
+    }
+    missing_from_manifest = sorted(discovered_paths - seen_paths)
+    extra_in_manifest = sorted(seen_paths - discovered_paths)
+    for path in missing_from_manifest:
+        errors.append(f"top-level module missing from manifest: {path}")
+    for path in extra_in_manifest:
+        errors.append(f"manifest component is not a top-level module: {path}")
+
+    summary = manifest.get("inventory_summary", {})
+    declared_total = summary.get("v2_1_top_level_modules")
+    if declared_total != len(discovered_paths):
+        errors.append(
+            "inventory_summary.v2_1_top_level_modules does not match discovered top-level modules"
+        )
+    if len(components) != len(discovered_paths):
+        errors.append("manifest component count does not match discovered top-level modules")
+    if summary.get("v1_top_level_modules", 0) + summary.get("v2_1_new_top_level_modules", 0) != declared_total:
+        errors.append("inventory summary does not reconcile v1 modules plus v2.1 additions")
+    if summary.get("v1_public_source_trackable", 0) + summary.get("v1_local_or_internal", 0) != summary.get("v1_top_level_modules"):
+        errors.append("inventory summary does not reconcile the v1 source categories")
     return errors
 
 
@@ -124,7 +177,7 @@ def main() -> int:
             print(f"ERROR: {error}")
         print(f"validation failed: {len(errors)} issue(s)")
         return 1
-    print("validation passed: frontmatter, links, manifest hashes, and portability")
+    print("validation passed: frontmatter, links, 45-module ledger, manifest hashes, and portability")
     return 0
 
 
