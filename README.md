@@ -5,6 +5,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Codex-Skill-111111?style=for-the-badge" alt="Codex Skill" />
   <img src="https://img.shields.io/badge/Version-2.1.0-4A7A5B?style=for-the-badge" alt="Version 2.1.0" />
+  <img src="https://img.shields.io/badge/License-MIT-3D6B8E?style=for-the-badge" alt="MIT License" />
   <img src="https://img.shields.io/badge/Language-中文-D74A3A?style=for-the-badge" alt="中文" />
   <img src="https://img.shields.io/badge/Workflow-Film%20Production-30363D?style=for-the-badge" alt="Film Production" />
 </p>
@@ -85,9 +86,9 @@
 - 接入 Higgsfield 非写实旁白解释视频路径，保留登录、上传和额度授权门禁；
 - 为旧版 36 项建立全量状态账本；依赖清单、只读更新检查、包体校验、候选审计和第三方来源说明不再只覆盖 11 项。
 
-## 安装与发布状态
+## 安装与发布
 
-v2.1 当前是隔离验收包，尚未推送 GitHub 或发布 SkillHub，也没有覆盖本机现役 `hardcore-director`。自动校验通过不等于取得公开再发布权：发布前仍须确认 17 个来源未核实的本机快照、2 个历史混合模块的权属处理，并选择仓库根许可证。具体门槛见 [`publication-gate-v2.1.md`](./audits/publication-gate-v2.1.md)。完成该门槛后，再从对应的 `v2.1.0` Release/Tag 安装；不要把 GitHub `main` 当作这个隔离包。
+v2.1.0 的固定发行源是 GitHub `v2.1.0` Release/Tag 与 SkillHub 2.1.0。不要把持续变化的 GitHub `main` 当作固定版本。仓库原创部分采用 MIT；第三方快照和改编内容继续遵守各自许可证与来源说明。
 
 安装后可直接点名调用：
 
@@ -182,7 +183,7 @@ python3 scripts/check_updates.py
 
 `check_updates.py` 对所有顶层能力模块做哈希检查，并对存在公开上游的项目查询版本或提交；本机原创/内部模块明确标为不可自动升级，而不是从统计中消失。脚本不会自动下载、覆盖或发布任何 Skill。返回码：`0` 当前无异常，`1` 有本地漂移或发现更新，`2` 上游检查失败。
 
-旧版 36 项的去向见 [`component-ledger-v1-to-v2.1.md`](./audits/component-ledger-v1-to-v2.1.md)，来源与许可证边界见 [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md)，正式发布前的待决项见 [`publication-gate-v2.1.md`](./audits/publication-gate-v2.1.md)。
+旧版 36 项的去向见 [`component-ledger-v1-to-v2.1.md`](./audits/component-ledger-v1-to-v2.1.md)，来源与许可证边界见 [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md)，发布门槛关闭记录见 [`publication-gate-v2.1.md`](./audits/publication-gate-v2.1.md)。
 
 ## 设计原则
 

@@ -8,7 +8,7 @@ This package combines original routing instructions with attributed third-party 
 - `references/story-cog.md` — `@cellcog/creative-writing-cellcog` v1.0.15, MIT-0, source: https://clawhub.ai/cellcog/skills/creative-writing-cellcog
 - `references/cellcog.md` — `@cellcog/cellcog` v2.0.21, MIT-0, source: https://clawhub.ai/cellcog/skills/cellcog
 - `references/video-generation-cellcog.md` — `@cellcog/video-generation-cellcog` v1.0.18, MIT-0, source: https://clawhub.ai/cellcog/skills/video-generation-cellcog
-- Other historical snapshots in `references/` retain their original authorship and terms. Their provenance must be reviewed before any public redistribution.
+- Other bundled or adapted modules are enumerated in `manifests/dependencies.json` and retain their original authorship and terms. The repository MIT license does not override a listed third-party license.
 
 ## Adapted concepts
 
@@ -30,8 +30,8 @@ This package combines original routing instructions with attributed third-party 
 
 ## Historical module ledger
 
-The status of every historical top-level reference is recorded in `audits/component-ledger-v1-to-v2.1.md`. Local/original modules without a versioned upstream are integrity-checked but cannot be described as “latest.” Do not represent third-party snapshots as original work or silently relicense them under the package's future root license.
+The status of every historical top-level reference is recorded in `audits/component-ledger-v1-to-v2.1.md`. Local/original modules without a versioned upstream are integrity-checked but cannot be described as “latest.” On 2026-09-05, the publisher confirmed authority to release the seventeen previously unverified local snapshots under MIT. Do not represent third-party snapshots as original work or silently relicense them under the package's root license.
 
 ## Publication gate
 
-This review package has no root `LICENSE`. Seventeen local snapshots are marked `local-authorship-unverified`, and two internal historical modules are marked `historical-provenance-mixed`. They may be used for private local review, but they must not be publicly redistributed until their ownership and license treatment are confirmed, rewritten, or excluded. See `audits/publication-gate-v2.1.md` for the exact release gate.
+The v2.1 publication gate is closed: the publisher confirmed the seventeen local snapshots, the two mixed-provenance internal files were replaced with original compatibility modules, and the repository now includes an MIT `LICENSE`. Third-party materials remain under their listed licenses. See `audits/publication-gate-v2.1.md` for the audit trail.

@@ -32,7 +32,7 @@
       "bundled_path": "references/ai-scene-design.md",
       "sha256": "8c853a774fdc5eedc19f094c9264d1ad52d9fb625da9febd13eb4904285a896e",
       "bundled_version": "local-unversioned",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -42,7 +42,7 @@
       "bundled_path": "references/ang-lee-perspective.md",
       "sha256": "f3add75624411017e6ab06e606ef9b674e2044846002a808d92df628688d9bb2",
       "bundled_version": "local-unversioned",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -72,7 +72,7 @@
       "bundled_path": "references/composition-to-prompt.md",
       "sha256": "d112e861ea421d1f4ba24e6f7e0714931231d11cda26472945c2f5cb07722e8f",
       "bundled_version": "local-unversioned",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -92,7 +92,7 @@
       "bundled_path": "references/douyin-script.md",
       "sha256": "b30d263843f9cde6e8a1c3907145f5ca437e8b530553f2e3d9c381c0a5604375",
       "bundled_version": "local-unversioned",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -194,17 +194,17 @@
       "bundled_path": "references/king-hu-perspective.md",
       "sha256": "da596209370d8d5943a1a2fb58bc55f59b8e302bfcfadb79d3230d4852a48f4e",
       "bundled_version": "local-unversioned",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
       "id": "legacy-filmmaking-v1",
-      "role": "internal_archive",
+      "role": "original_compatibility",
       "update_policy": "local_integrity_only",
       "bundled_path": "references/legacy-filmmaking-v1.md",
-      "sha256": "1ba37becb7a3e0e8b45a6765875e69f7cebfec466ec90daecc31f3bfefa7c036",
-      "bundled_version": "internal-v1",
-      "license": "historical-provenance-mixed",
+      "sha256": "59bf85084240677def77fc4f63e147ce7fd51ef76cba71aef766c446ba35e871",
+      "bundled_version": "2.1.0",
+      "license": "MIT; original compatibility layer",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -214,7 +214,7 @@
       "bundled_path": "references/miyazaki-perspective.md",
       "sha256": "12f6d56c0032351378105b43359ec838cdefbc64507b86bc84b8f4a2bd940d3e",
       "bundled_version": "local-unversioned",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -267,7 +267,7 @@
       "bundled_path": "references/rhythm-to-prompt.md",
       "sha256": "e30aa9855dad0c21d7692373bc78a059b34c96ba3fe9fc45a77e82b691388d2b",
       "bundled_version": "local-unversioned",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -282,12 +282,12 @@
     },
     {
       "id": "seedance-perform-v5-single",
-      "role": "internal_integration",
+      "role": "original_compatibility",
       "update_policy": "local_integrity_only",
       "bundled_path": "references/seedance-perform-v5-single.md",
-      "sha256": "6e746b4c7baaf71320e744c52777e672bc72e7235dfd8f670d571d6c6129e311",
-      "bundled_version": "internal-v1",
-      "license": "historical-provenance-mixed",
+      "sha256": "9a84074ff6a87438e80c4875eef913e19505698f6eed2ef8975a8d18b5bc4467",
+      "bundled_version": "2.1.0",
+      "license": "MIT; original compatibility adapter",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -337,7 +337,7 @@
       "bundled_path": "references/sound-design-to-prompt.md",
       "sha256": "4fdc3c0bb43a9848d75dbc3a275c4c9f392ef9c29c987d760354389177bfbd64",
       "bundled_version": "1.0",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -367,7 +367,7 @@
       "bundled_path": "references/style-fusion.md",
       "sha256": "9b7d0b4ca49bfa6bc2fcf6d99b0fb3611e62608516f8eb505545b82dbf3a16c9",
       "bundled_version": "1.0",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -377,7 +377,7 @@
       "bundled_path": "references/stylized-color-grading.md",
       "sha256": "c67fe9bbcc0044bef0008f0bc6fd3b8d2918a33125b9db0100cdb60e4f8b07ea",
       "bundled_version": "1.0",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -387,7 +387,7 @@
       "bundled_path": "references/takeshi-kitano-perspective.md",
       "sha256": "43dd711b3cf573fc9350a5433ef87c23f24e7efca0d7d13c6d67404eb0f09a3f",
       "bundled_version": "local-unversioned",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -397,7 +397,7 @@
       "bundled_path": "references/tarkovsky-perspective.md",
       "sha256": "000ad9e8b75e5b936ae07d1d1c435a4363713cc7af56e52a77f30f221e642f40",
       "bundled_version": "local-unversioned",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -407,7 +407,7 @@
       "bundled_path": "references/tint-to-prompt.md",
       "sha256": "2dc5cba492ffc8d1b289b5f25e25701aa2ad57c3130f8a6e35331533fa8769a4",
       "bundled_version": "1.0",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -417,7 +417,7 @@
       "bundled_path": "references/video-analysis.md",
       "sha256": "9f4cda94beaa4a082ab56a1dd0313241b6b0caa2e40469c72ccc7401ed8f88cb",
       "bundled_version": "local-unversioned",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -448,7 +448,7 @@
       "bundled_path": "references/video-prompt-writer.md",
       "sha256": "ce354011843eee022f35fa26fecac7c5ddc821f0a42ae459e426310624af5544",
       "bundled_version": "local-unversioned",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -458,7 +458,7 @@
       "bundled_path": "references/video-reverse-engineer.md",
       "sha256": "dff5b449f92993c67f4f09961c00dae78d2a4ec07dfb9b0c9307171c3f371201",
       "bundled_version": "local-unversioned",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     },
     {
@@ -468,7 +468,7 @@
       "bundled_path": "references/wong-kar-wai-perspective.md",
       "sha256": "e6225a03404f2d7cce9417187c752aff55d4637477052cec290e7fd6fd365e97",
       "bundled_version": "local-unversioned",
-      "license": "local-authorship-unverified",
+      "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {"kind": "local_only"}
     }
   ]
