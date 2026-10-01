@@ -1,24 +1,19 @@
 ---
 name: video-editing
 description: AI-assisted video editing workflows for cutting, structuring, and augmenting real footage. Covers the full pipeline from raw capture through FFmpeg, Remotion, ElevenLabs, fal.ai, and final polish in Descript or CapCut. Use when the user wants to edit video, cut footage, create vlogs, or build video content.
-origin: ECC
+metadata:
+  origin: ECC
 ---
 
 # Video Editing
 
-AI-assisted editing for real footage. Not generation from prompts. Editing existing video fast.
-
-## TL;DR
-```
-原始素材 → 判断类型（访谈/混剪/品牌片）→ 选择工具链（FFmpeg/CapCut/Descript）→ 剪辑输出
-```
+来源：ECC `skills/video-editing/SKILL.md`，固定提交 `928c1dea72f5c330442fc1f595563398b8f389f7`。本包保留剪辑工作流，并补充本地执行与授权边界。
 
 ## 启动检查点
 
-激活后先确认：
-1. **素材来源**：实拍素材 / 混剪 / AI生成素材？
-2. **目标平台**：小红书 / 抖音 / B站 / 微博？
-3. **输出格式**：横版(16:9) / 竖版(9:16) / 方形(1:1)？
+先提取素材来源、目标平台、画幅、时长与声音要求；已明确的信息不重复询问。按交付需要选择工具，不要求安装或经过全部工具。外部配音、生成、VideoDB 和云端处理只有在用户授权服务、成本与上传范围后才使用；剪辑任务本身不授权这些动作。
+
+AI-assisted editing for real footage. Not generation from prompts. Editing existing video fast.
 
 ## When to Activate
 
@@ -35,16 +30,38 @@ AI video editing is useful when you stop asking it to create the whole video and
 
 ## The Pipeline
 
+For measured reference-driven work, ECC also offers optional `taste-distillation`
+and `taste-application` workflows. They are not bundled dependencies here; only use
+them when available and relevant. Otherwise use the packaged video-analysis or
+video-reverse-engineer module to measure the reference and create an edit plan.
+Existing footage is sufficient; generation is optional.
+
+Before live editor or DAW changes, save a versioned project checkpoint and
+verify the file exists. Save and verify another checkpoint after the changes.
+An API readback proves the current in-memory state, not that it was saved.
+Keep rendered media, editable projects, and creative approval as separate
+states in the handoff.
+
+For MIDI-driven audio, check pitches against the receiving rack's note mapping
+and audition the result; successful clip creation can still produce silence.
+For reconstructed projects, validate through native load and save, sort events
+in timeline order, verify sample links and mute states, then check and audition
+the exact exported audio for unintended silence. XML parsing alone does not
+prove that the DAW accepted every clip or produced audible output.
+Check a bridge's capability handshake before invoking newer commands. Do not
+enable upload or training-data telemetry as a side effect of a creative task;
+use a supported local control path when consent or capability is absent.
+
 ```
 Screen Studio / raw footage
-  → Codex / Codex
+  → Claude / Codex
   → FFmpeg
   → Remotion
   → ElevenLabs / fal.ai
   → Descript or CapCut
 ```
 
-Each layer has a specific job. Do not skip layers. Do not try to make one tool do everything.
+Each layer has a specific job. Select the tools needed by this edit; a local FFmpeg workflow does not require a cloud generation layer.
 
 ## Layer 1: Capture (Screen Studio / Raw Footage)
 
@@ -55,9 +72,9 @@ Collect the source material:
 
 Output: raw files ready for organization.
 
-## Layer 2: Organization (Codex / Codex)
+## Layer 2: Organization (Claude / Codex)
 
-Use Codex or Codex to:
+Use Claude Code or Codex to:
 - **Transcribe and label**: generate transcript, identify topics and themes
 - **Plan structure**: decide what stays, what gets cut, what order works
 - **Identify dead sections**: find pauses, tangents, repeated takes
@@ -289,7 +306,7 @@ ffmpeg -i input.mp4 -af silencedetect=noise=-30dB:d=2 -f null - 2>&1 | grep sile
 
 ### Highlight extraction
 
-Use Codex to analyze transcript + scene timestamps:
+Use Claude to analyze transcript + scene timestamps:
 ```
 "Given this transcript with timestamps and these scene change points,
 identify the 5 most engaging 30-second clips for social media."
@@ -299,7 +316,7 @@ identify the 5 most engaging 30-second clips for social media."
 
 | Tool | Strength | Weakness |
 |------|----------|----------|
-| Codex / Codex | Organization, planning, code generation | Not the creative taste layer |
+| Claude / Codex | Organization, planning, code generation | Not the creative taste layer |
 | FFmpeg | Deterministic cuts, batch processing, format conversion | No visual editing UI |
 | Remotion | Programmable overlays, composable scenes, reusable templates | Learning curve for non-devs |
 | Screen Studio | Polished screen recordings immediately | Only screen capture |
@@ -314,6 +331,12 @@ identify the 5 most engaging 30-second clips for social media."
 4. **Remotion for repeatability.** If you'll do it more than once, make it a Remotion component.
 5. **Generate selectively.** Only use AI generation for assets that don't exist, not for everything.
 6. **Taste is the last layer.** AI clears repetitive work. You make the final creative calls.
+
+## Native Fusion Presets
+
+[ITO Production v1](https://github.com/affaan-m/ECC/blob/928c1dea72f5c330442fc1f595563398b8f389f7/skills/video-editing/assets/fusion/ito-production-v1/README.md) provides restrained highlight bloom, opposing RGB spatial offsets and a luminance/edge halo. The upstream reports that those files passed native import, save/reopen and short motion-render checks after two-source visual review; this package has not rerun those checks. These are starting values requiring shot-specific review; the halo does not detect or track subjects.
+
+[ITO V28](https://github.com/affaan-m/ECC/blob/928c1dea72f5c330442fc1f595563398b8f389f7/skills/video-editing/assets/fusion/ito-v28/README.md) contains Fusion graph snippets that the upstream reports as preserved and native-verified and an idempotent Lua installer. These are technical compatibility examples, **not recommended production defaults**: their documented visual limitations require tuning and taste review before use. See the bundle provenance for the scope of prior import and render checks.
 
 ## Related Skills
 

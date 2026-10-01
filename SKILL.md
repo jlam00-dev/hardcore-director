@@ -3,7 +3,7 @@ name: hardcore-director
 description: 硬核导演，影视与视频创作总控技能。用于故事开发、电影/短片/剧集/竖屏短剧编剧、角色与场景、导演判断、分镜、Seedance 2.5、Wan 3.0、MiniMax H3 等 AI 视频提示词、表演与运镜、色彩、节奏、声音、拉片、实拍剪辑和短视频发布。用户要求从创意到可拍摄/可生成/可交付的视频方案，或点名硬核导演、剧本、分镜、AI 视频提示词、Seedance、Wan、MiniMax、即梦、可灵、海螺时使用；不要用于只需执行单一确定性媒体命令且已有专用工具的任务。
 license: MIT
 metadata:
-  version: "2.1.0"
+  version: "2.2.0"
 ---
 
 # 硬核导演
@@ -88,6 +88,7 @@ metadata:
 - 旧版或未指定版本的单段 Seedance 任务只有在确认不是 2.5 后才读取 [seedance-perform-v5-single.md](references/seedance-perform-v5-single.md)；不再把它作为模糊请求的默认路由。
 - 需要先从故事形成镜头链：先读 [screenwriter.md](references/screenwriter.md)，再读通用提示词文件。
 - 需要可复用分镜文件、独立镜头图或联系表：读取 [storyboard-package.md](references/integrations/storyboard-package.md)。默认独立帧优先，多宫格只在用户明确需要时使用。
+- 多镜头分镜与批量提示词：按 [分镜机器门禁](references/integrations/storyboard-quality-gates.md) 生成项目台账并运行本地校验，先修复节拍、时长、素材映射和连续性声明，再进入平台适配。
 - 需要节奏、色彩、构图或声音专项增强：再分别读取对应专项文件，不重复同义描述。
 
 模型提示词的默认交付顺序为：推荐参数（正文外）→ 素材职责 → 起始状态 → 时间线/动作因果 → 镜头与表演 → 声音 → 终止状态 → 不变量与针对性排除项。用户只要最终提示词时不展示内部导演母版。
@@ -106,6 +107,7 @@ metadata:
 - 对广告/竞品反推镜头、色彩、节奏和音频策略：[video-reverse-engineer.md](references/video-reverse-engineer.md)
 - 编辑已有实拍素材、FFmpeg、配音、增强和常规成片流程：[video-editing.md](references/video-editing.md)
 - 需要精确到帧的动态图形、字幕、批量版本或可复现渲染：读取 [remotion-production.md](references/integrations/remotion-production.md)，再按需调用官方 Remotion Skill。
+- 产品/软件宣传片需要镜头设计：读取 [产品宣传片镜头词典](references/integrations/product-promo-shotcraft.md)，选择能表达真实功能的镜头，再衔接分镜门禁与 Remotion 或模型路径。
 
 涉及真实视频文件时，先检查素材、时长、分辨率、帧率、音轨和授权范围。需要实际生成 HTML 视频时配合当前环境中的 HyperFrames 专项 Skill；需要 Remotion 成片时走本包的 Remotion 适配器。硬核导演负责创作判断、导演母版与最终验收。
 
@@ -149,6 +151,7 @@ metadata:
 - 角色服装、妆发、伤痕、道具状态、光线方向与前后镜连续。
 - 镜头时长之和等于总时长；平台字段、画幅和素材引用格式正确。
 - 参考素材各自只有一个主职责，并写出不应迁移的属性；下一段从上一段终止状态开始。
+- 多镜头机器台账须通过 `python3 scripts/validate_storyboard.py <项目分镜.json>`；对白预算仅为估算，视觉连续性与最终音画仍需实际看验。
 - 平台参数与提示词正文分开；时间戳是节奏预算时，不承诺逐帧命中。
 
 ### 分析与反推
@@ -166,5 +169,7 @@ metadata:
 本目录保存了整合前的完整来源，便于追溯而不污染主流程：[legacy-filmmaking-v1.md](references/legacy-filmmaking-v1.md)。这些参考是方法库，不代表每次都必须同时使用。
 
 - 运行 `python3 scripts/validate_package.py` 检查 frontmatter、链接、清单哈希和路径可移植性。
+- 运行 `python3 scripts/validate_storyboard.py references/support/storyboard-example.json --json` 检查分镜合同示例；实际任务换成项目台账。
 - 运行 `python3 scripts/check_updates.py --offline` 检查包内漂移；去掉 `--offline` 可只读查询 GitHub、ClawHub 和 Wan 官方站版本信号。
 - 依赖版本、来源和固定提交见 [dependencies.json](manifests/dependencies.json)；旧版 36 项逐项状态见 [component-ledger-v1-to-v2.1.md](audits/component-ledger-v1-to-v2.1.md)；候选取舍见 [candidate-review-2026-09-04.md](audits/candidate-review-2026-09-04.md)；第三方条款见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+- v2.2 的本地升级、候选取舍与验收范围见 [upgrade-review-v2.2.md](audits/upgrade-review-v2.2.md)。

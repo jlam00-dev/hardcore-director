@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only source-watch and integrity checker for hardcore-director v2.1."""
+"""Read-only source-watch and integrity checker for hardcore-director."""
 
 from __future__ import annotations
 
@@ -11,7 +11,11 @@ import re
 import shutil
 import subprocess
 import sys
+import time
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
 import urllib.parse
+import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any
@@ -37,17 +41,43 @@ def load_manifest(path: Path) -> dict[str, Any]:
     return data
 
 
-def http_text(url: str, *, accept: str = "application/json") -> str:
+def _http_text_once(url: str, *, accept: str = "application/json") -> str:
     headers = {
         "Accept": accept,
-        "User-Agent": "hardcore-director-update-check/2.1",
+        "User-Agent": "hardcore-director-update-check/2.2",
     }
     token = os.environ.get("GITHUB_TOKEN")
-    if token and "api.github.com" in url:
+    parsed = urllib.parse.urlparse(url)
+    github = parsed.hostname == "api.github.com"
+    if github and not token and shutil.which("gh"):
+        # Use already configured credentials through gh; never print or persist tokens.
+        endpoint = parsed.path.lstrip("/") + (f"?{parsed.query}" if parsed.query else "")
+        result = subprocess.run(
+            ["gh", "api", "--hostname", "github.com", "--method", "GET", "-H", f"Accept: {accept}", endpoint],
+            capture_output=True, text=True, check=False, timeout=30,
+        )
+        if result.returncode == 0:
+            return result.stdout
+        # gh may be installed but unconfigured; public HTTP remains a read-only fallback.
+    if token and github:
         headers["Authorization"] = f"Bearer {token}"
     request = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(request, timeout=30) as response:
         return response.read().decode("utf-8", "replace")
+
+
+def http_text(url: str, *, accept: str = "application/json") -> str:
+    for attempt in range(2):
+        try:
+            return _http_text_once(url, accept=accept)
+        except urllib.error.HTTPError as exc:
+            if attempt or exc.code not in {429, 500, 502, 503, 504}:
+                raise
+        except (urllib.error.URLError, TimeoutError):
+            if attempt:
+                raise
+        time.sleep(0.4)
+    raise RuntimeError("unreachable HTTP retry state")
 
 
 def latest_github_path_commit(upstream: dict[str, Any]) -> str:
@@ -62,22 +92,13 @@ def latest_github_path_commit(upstream: dict[str, Any]) -> str:
 
 
 def inspect_clawhub(skill_ref: str) -> str:
-    if not shutil.which("npx"):
-        raise RuntimeError("npx is required for ClawHub checks")
-    result = subprocess.run(
-        ["npx", "-y", "clawhub@latest", "inspect", skill_ref, "--json"],
-        check=False,
-        capture_output=True,
-        text=True,
-        timeout=90,
-    )
-    if result.returncode != 0:
-        detail = (result.stderr or result.stdout).strip()
-        raise RuntimeError(f"ClawHub inspect failed: {detail}")
-    start = result.stdout.find("{")
-    if start < 0:
-        raise RuntimeError("ClawHub did not return JSON")
-    payload = json.loads(result.stdout[start:])
+    normalized = skill_ref.lstrip("@")
+    owner, _, slug = normalized.rpartition("/")
+    slug = slug or normalized
+    url = "https://clawhub.ai/api/v1/skills/" + urllib.parse.quote(slug, safe="")
+    payload = json.loads(http_text(url))
+    if owner and payload.get("owner", {}).get("handle", "").lower() != owner.lower():
+        raise RuntimeError(f"ClawHub owner mismatch for {skill_ref}")
     version = payload.get("latestVersion", {}).get("version")
     if not version:
         raise RuntimeError("ClawHub response has no latest version")
@@ -150,13 +171,30 @@ def check_component(
         result["details"].append("no versioned public upstream; integrity check only")
         return result
 
-    try:
-        configured = [upstream, *component.get("additional_upstreams", [])]
-        sources = [inspect_upstream(component, item) for item in configured]
-        result["sources"] = sources
+    configured = [upstream, *component.get("additional_upstreams", [])]
+    sources = []
+    failures = []
+    for item in configured:
+        try:
+            sources.append(inspect_upstream(component, item))
+        except Exception as exc:
+            ref = item.get("repo", item.get("ref", item.get("url", "unknown")))
+            failures.append({"ref": ref, "path": item.get("path"), "error": str(exc)})
+    result["sources"] = sources
+    if sources:
         result["latest"] = sources[0]["latest"]
         result["expected"] = sources[0]["expected"]
-        changed = [item for item in sources if item["changed"]]
+    changed = [item for item in sources if item["changed"]]
+    result["has_changes"] = bool(changed)
+    for item in changed:
+        result["details"].append(
+            f"{item['ref']}: pinned {item['expected']}, latest {item['latest']}"
+        )
+    if failures:
+        result["upstream"] = "error"
+        result["source_errors"] = failures
+        result["details"].extend(f"{item['ref']}: {item['error']}" for item in failures)
+    else:
         if not changed:
             result["upstream"] = "current"
         else:
@@ -164,13 +202,6 @@ def check_component(
                 result["upstream"] = "review_available"
             else:
                 result["upstream"] = "update_available"
-            for item in changed:
-                result["details"].append(
-                    f"{item['ref']}: pinned {item['expected']}, latest {item['latest']}"
-                )
-    except Exception as exc:  # network and registry failures must remain visible
-        result["upstream"] = "error"
-        result["details"].append(str(exc))
     return result
 
 
@@ -202,7 +233,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--offline", action="store_true", help="Only verify local integrity")
     parser.add_argument("--only", action="append", default=[], help="Check one component id; repeatable")
     parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON")
+    parser.add_argument("--workers", type=int, default=4, help="Parallel component checks (1–8), no file writes; existing gh auth avoids anonymous limits")
     args = parser.parse_args(argv)
+    if not 1 <= args.workers <= 8:
+        parser.error("--workers must be between 1 and 8")
 
     manifest_path = args.manifest.resolve()
     root = manifest_path.parents[1]
@@ -221,9 +255,10 @@ def main(argv: list[str] | None = None) -> int:
             print(f"ERROR: unknown component(s): {', '.join(sorted(missing))}", file=sys.stderr)
             return 2
 
-    results = [check_component(item, root=root, offline=args.offline) for item in selected]
+    with ThreadPoolExecutor(max_workers=args.workers) as executor:
+        results = list(executor.map(lambda item: check_component(item, root=root, offline=args.offline), selected))
     summary = summarize(results)
-    payload = {"package": manifest["package"], "offline": args.offline, "summary": summary, "results": results}
+    payload = {"package": manifest["package"], "checked_at": datetime.now(timezone.utc).isoformat(), "offline": args.offline, "summary": summary, "results": results}
 
     if args.json:
         print(json.dumps(payload, ensure_ascii=False, indent=2))

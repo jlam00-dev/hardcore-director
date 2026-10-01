@@ -119,6 +119,45 @@ class UpdateCheckerTests(unittest.TestCase):
         loaded = MODULE.load_manifest(manifest)
         self.assertEqual(loaded["components"][0]["id"], "sample")
 
+    @mock.patch.object(MODULE, "http_text")
+    def test_clawhub_uses_read_only_http_and_checks_owner(self, http):
+        http.return_value = json.dumps({"owner": {"handle": "cellcog"}, "latestVersion": {"version": "2.0.21"}})
+        self.assertEqual(MODULE.inspect_clawhub("@cellcog/cellcog"), "2.0.21")
+        self.assertEqual(http.call_args.args[0], "https://clawhub.ai/api/v1/skills/cellcog")
+        with self.assertRaisesRegex(RuntimeError, "owner mismatch"):
+            MODULE.inspect_clawhub("@other/cellcog")
+
+    @mock.patch.object(MODULE, "latest_github_path_commit", side_effect=["new-commit", RuntimeError("not found")])
+    def test_secondary_failure_retains_primary_update_evidence(self, _inspect):
+        temporary, root, component = self.make_fixture()
+        self.addCleanup(temporary.cleanup)
+        component["upstream"] = {"kind": "github_path", "repo": "demo/primary", "path": "SKILL.md", "pinned_commit": "old"}
+        component["additional_upstreams"] = [{"kind": "github_path", "repo": "demo/missing", "path": "rules.md", "pinned_commit": "old"}]
+        result = MODULE.check_component(component, root=root, offline=False)
+        self.assertEqual(result["upstream"], "error")
+        self.assertTrue(result["has_changes"])
+        self.assertEqual(result["sources"][0]["latest"], "new-commit")
+        self.assertEqual(len(result["source_errors"]), 1)
+
+    @mock.patch.dict(MODULE.os.environ, {}, clear=True)
+    @mock.patch.object(MODULE.shutil, "which", return_value="/usr/bin/gh")
+    @mock.patch.object(MODULE.subprocess, "run")
+    def test_github_uses_existing_gh_auth_without_exposing_credentials(self, run, _which):
+        run.return_value = mock.Mock(returncode=0, stdout='{"ok":true}')
+        self.assertEqual(MODULE.http_text("https://api.github.com/repos/demo/repo/commits?per_page=1"), '{"ok":true}')
+        command = run.call_args.args[0]
+        self.assertIn("GET", command)
+        self.assertEqual(command[-1], "repos/demo/repo/commits?per_page=1")
+        self.assertFalse(any("Authorization" in item for item in command))
+
+    @mock.patch.object(MODULE.time, "sleep")
+    @mock.patch.object(MODULE, "_http_text_once")
+    def test_transient_connection_error_retries_once(self, fetch, sleep):
+        fetch.side_effect = [MODULE.urllib.error.URLError("TLS EOF"), "ok"]
+        self.assertEqual(MODULE.http_text("https://clawhub.ai/api/v1/skills/cellcog"), "ok")
+        self.assertEqual(fetch.call_count, 2)
+        sleep.assert_called_once_with(0.4)
+
 
 if __name__ == "__main__":
     unittest.main()

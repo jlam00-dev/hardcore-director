@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "aspect_ratio": "16:9",
+  "fps": 30,
+  "total_frames": 300,
+  "limits": {"max_shot_frames": 180, "speech_units_per_second": 4.5},
+  "beats": [{"id": "reveal"}, {"id": "use"}],
+  "assets": [{"id": "product", "approved_version": "example-placeholder"}],
+  "shots": [
+    {
+      "id": "s1", "scene_id": "room", "purpose": "展示产品",
+      "start_frame": 0, "end_frame": 150, "beat_ids": ["reveal"],
+      "references": [{"asset_id": "product", "role": "product", "exclude": "背景和光线"}],
+      "start_state": {"hero.hand": "right", "product.open": false},
+      "end_state": {"hero.hand": "right", "product.open": false},
+      "dialogue": [{"speaker": "旁白", "text": "打开就能用。", "start_frame": 30, "end_frame": 120}]
+    },
+    {
+      "id": "s2", "scene_id": "room", "purpose": "完成操作",
+      "start_frame": 150, "end_frame": 300, "beat_ids": ["use"],
+      "start_state": {"hero.hand": "right", "product.open": false},
+      "end_state": {"hero.hand": "right", "product.open": true}
+    }
+  ]
+}

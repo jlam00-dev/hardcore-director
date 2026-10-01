@@ -2,17 +2,21 @@
   "schema_version": 2,
   "package": {
     "name": "hardcore-director",
-    "version": "2.1.0",
+    "version": "2.2.0",
     "baseline_repository": "jlam00-dev/hardcore-director",
     "baseline_commit": "52687dbaed4249886fd870d943481175f2809c08",
-    "assembled_at": "2026-09-05"
+    "assembled_at": "2026-10-01",
+    "upgrade_base_commit": "b450d8367aeb46db135c0134636fadcfb617b96c",
+    "release_status": "release"
   },
   "inventory_summary": {
     "v1_top_level_modules": 36,
     "v1_public_source_trackable": 15,
     "v1_local_or_internal": 21,
     "v2_1_new_top_level_modules": 9,
-    "v2_1_top_level_modules": 45
+    "v2_1_top_level_modules": 45,
+    "top_level_modules": 47,
+    "new_modules_since_v2_1": 2
   },
   "components": [
     {
@@ -20,10 +24,47 @@
       "role": "original_adapter",
       "update_policy": "source_watch",
       "bundled_path": "references/ai-music-generator.md",
-      "sha256": "563d8e80294c2731ac2fc6c96c88cb8f4a77d2754bea445a0e0912b5d0c25aa8",
-      "bundled_version": "adapter:2.1.0/upstream:0.101.0",
+      "sha256": "448289acb58fe4bdd0f52d3441b0f76ca9773b95d049c1dce94e9ae6fbede1dd",
+      "bundled_version": "adapter:2.2.0/Suno-v6-reviewed",
       "license": "package-original; upstream CC0-1.0",
-      "upstream": {"kind": "github_path", "repo": "bitwize-music-studio/claude-ai-music-skills", "path": "skills/suno-engineer/SKILL.md", "ref": "main", "pinned_commit": "9f94c51ae727426c31cc49f7d45ceb68c7f95cc5"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "bitwize-music-studio/claude-ai-music-skills",
+        "path": "skills/suno-engineer/SKILL.md",
+        "ref": "main",
+        "pinned_commit": "3b292b08776796f593d7abf816c19a9ff652733d"
+      },
+      "additional_upstreams": [
+        {
+          "kind": "github_path",
+          "repo": "bitwize-music-studio/claude-ai-music-skills",
+          "path": "reference/suno/best-practices.md",
+          "ref": "main",
+          "pinned_commit": "3b292b08776796f593d7abf816c19a9ff652733d"
+        },
+        {
+          "kind": "github_path",
+          "repo": "bitwize-music-studio/claude-ai-music-skills",
+          "path": "reference/suno/models.md",
+          "ref": "main",
+          "pinned_commit": "3b292b08776796f593d7abf816c19a9ff652733d"
+        },
+        {
+          "kind": "github_path",
+          "repo": "bitwize-music-studio/claude-ai-music-skills",
+          "path": "reference/suno/creative-sliders.md",
+          "ref": "main",
+          "pinned_commit": "3b292b08776796f593d7abf816c19a9ff652733d"
+        },
+        {
+          "kind": "github_path",
+          "repo": "bitwize-music-studio/claude-ai-music-skills",
+          "path": "reference/suno/structure-tags.md",
+          "ref": "main",
+          "pinned_commit": "3b292b08776796f593d7abf816c19a9ff652733d"
+        }
+      ],
+      "reviewed_at": "2026-10-01"
     },
     {
       "id": "ai-scene-design",
@@ -33,7 +74,9 @@
       "sha256": "8c853a774fdc5eedc19f094c9264d1ad52d9fb625da9febd13eb4904285a896e",
       "bundled_version": "local-unversioned",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "ang-lee-perspective",
@@ -43,7 +86,9 @@
       "sha256": "f3add75624411017e6ab06e606ef9b674e2044846002a808d92df628688d9bb2",
       "bundled_version": "local-unversioned",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "cellcog",
@@ -53,7 +98,10 @@
       "sha256": "37440c17bb82c8c9f8a075183311cf37ad4ac4cc367f94ec6eaf0dfe7348ed8c",
       "bundled_version": "2.0.21",
       "license": "MIT-0",
-      "upstream": {"kind": "clawhub", "ref": "@cellcog/cellcog"}
+      "upstream": {
+        "kind": "clawhub",
+        "ref": "@cellcog/cellcog"
+      }
     },
     {
       "id": "character-design",
@@ -63,7 +111,9 @@
       "sha256": "64e7b1ed4214465f67416981d689f7fcad2d76136e1bae0a1cd7321b6143b6dd",
       "bundled_version": "5.0",
       "license": "MIT; local attribution",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "composition-to-prompt",
@@ -73,7 +123,9 @@
       "sha256": "d112e861ea421d1f4ba24e6f7e0714931231d11cda26472945c2f5cb07722e8f",
       "bundled_version": "local-unversioned",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "douyin-safety-rewriter",
@@ -83,7 +135,13 @@
       "sha256": "13b3b671e80fcf725e6d9ee81073fb43fab8d15b214475cd4151deb8bdbfa1c8",
       "bundled_version": "adapter:local",
       "license": "package adapter; upstream MIT",
-      "upstream": {"kind": "github_path", "repo": "CCCpan/chinese-sensitive-words-mcp", "path": "README.md", "ref": "main", "pinned_commit": "c7abcbf7fce7b2cb522dd4e66e4a2ebd054338c2"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "CCCpan/chinese-sensitive-words-mcp",
+        "path": "README.md",
+        "ref": "main",
+        "pinned_commit": "c7abcbf7fce7b2cb522dd4e66e4a2ebd054338c2"
+      }
     },
     {
       "id": "douyin-script",
@@ -93,7 +151,9 @@
       "sha256": "b30d263843f9cde6e8a1c3907145f5ca437e8b530553f2e3d9c381c0a5604375",
       "bundled_version": "local-unversioned",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "douyin-viral-planner",
@@ -103,7 +163,13 @@
       "sha256": "84b7dbfc7f81f39e970cd131a5314475db95dbb9d26e3586b6ef669b62293f90",
       "bundled_version": "adapter:local",
       "license": "package adapter; upstream MIT",
-      "upstream": {"kind": "github_path", "repo": "yaojingang/yao-open-prompts", "path": "prompts/06-ai-content/douyin-viral-planner.md", "ref": "main", "pinned_commit": "c7758f7076484e0ee0be393cbe4a138bc4beeab6"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "yaojingang/yao-open-prompts",
+        "path": "prompts/06-ai-content/douyin-viral-planner.md",
+        "ref": "main",
+        "pinned_commit": "c7758f7076484e0ee0be393cbe4a138bc4beeab6"
+      }
     },
     {
       "id": "drama-creator",
@@ -113,7 +179,13 @@
       "sha256": "34e978702a4c0935d0ff667e3361fcbb9ce81f131130bf0cf891ae44df4bf963",
       "bundled_version": "git:5e1b25476b1d989710cad1f7a623d17c28e0e140",
       "license": "MIT",
-      "upstream": {"kind": "github_path", "repo": "GongLingRui/screen-creative-skills", "path": "category/creation/drama-creator/SKILL.md", "ref": "master", "pinned_commit": "5e1b25476b1d989710cad1f7a623d17c28e0e140"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "GongLingRui/screen-creative-skills",
+        "path": "category/creation/drama-creator/SKILL.md",
+        "ref": "master",
+        "pinned_commit": "5e1b25476b1d989710cad1f7a623d17c28e0e140"
+      }
     },
     {
       "id": "drama-evaluator",
@@ -123,7 +195,13 @@
       "sha256": "630ebba4f1167fcf230979e0fcf4c05fbc0f9c19c71f5dc384aca2bbaaddff0c",
       "bundled_version": "git:5e1b25476b1d989710cad1f7a623d17c28e0e140",
       "license": "MIT",
-      "upstream": {"kind": "github_path", "repo": "GongLingRui/screen-creative-skills", "path": "category/evaluation/drama-evaluator/SKILL.md", "ref": "master", "pinned_commit": "5e1b25476b1d989710cad1f7a623d17c28e0e140"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "GongLingRui/screen-creative-skills",
+        "path": "category/evaluation/drama-evaluator/SKILL.md",
+        "ref": "master",
+        "pinned_commit": "5e1b25476b1d989710cad1f7a623d17c28e0e140"
+      }
     },
     {
       "id": "drama-planner",
@@ -133,17 +211,30 @@
       "sha256": "47117f727a7814697f52a25fa6ccf7d31b2f7c3d55ee85411563416db57fdd92",
       "bundled_version": "git:5e1b25476b1d989710cad1f7a623d17c28e0e140",
       "license": "MIT",
-      "upstream": {"kind": "github_path", "repo": "GongLingRui/screen-creative-skills", "path": "category/creation/drama-planner/SKILL.md", "ref": "master", "pinned_commit": "5e1b25476b1d989710cad1f7a623d17c28e0e140"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "GongLingRui/screen-creative-skills",
+        "path": "category/creation/drama-planner/SKILL.md",
+        "ref": "master",
+        "pinned_commit": "5e1b25476b1d989710cad1f7a623d17c28e0e140"
+      }
     },
     {
       "id": "humanizer-zh",
       "role": "bundled_snapshot",
       "update_policy": "sync_after_review",
       "bundled_path": "references/humanizer-zh.md",
-      "sha256": "e0edbdbc9008644263d5573fb59beac95794e188fd99c35012bfd79e9ae4beeb",
-      "bundled_version": "git:b4b4fe5c9bc4f14f1be0614f8c2c234161734a6e",
+      "sha256": "95627fd4437d886f98032ccc62d79136e6310f1fc04e354bb86431795ff206df",
+      "bundled_version": "git:f4518a8eab97b8bfebc66a89d34320a89bef6930",
       "license": "MIT",
-      "upstream": {"kind": "github_path", "repo": "op7418/Humanizer-zh", "path": "SKILL.md", "ref": "main", "pinned_commit": "b4b4fe5c9bc4f14f1be0614f8c2c234161734a6e"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "op7418/Humanizer-zh",
+        "path": "SKILL.md",
+        "ref": "main",
+        "pinned_commit": "f4518a8eab97b8bfebc66a89d34320a89bef6930"
+      },
+      "reviewed_at": "2026-10-01"
     },
     {
       "id": "higgsfield-explainer",
@@ -154,7 +245,13 @@
       "bundled_version": "adapter:2.1.0/upstream:0.12.0",
       "license": "package-original; upstream MIT",
       "discovered_via": "SkillHub/skills.sh",
-      "upstream": {"kind": "github_path", "repo": "higgsfield-ai/skills", "path": "higgsfield-video-explainer/SKILL.md", "ref": "main", "pinned_commit": "d63d77e6997c64065b108fc507efa8bac42e5555"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "higgsfield-ai/skills",
+        "path": "higgsfield-video-explainer/SKILL.md",
+        "ref": "main",
+        "pinned_commit": "d63d77e6997c64065b108fc507efa8bac42e5555"
+      }
     },
     {
       "id": "remotion-production",
@@ -165,17 +262,30 @@
       "bundled_version": "adapter:2.1.0/upstream:4.0.520",
       "license": "package-original; upstream license unverified",
       "discovered_via": "SkillHub/skills.sh",
-      "upstream": {"kind": "github_path", "repo": "remotion-dev/skills", "path": "skills/remotion-best-practices/SKILL.md", "ref": "main", "pinned_commit": "54e9b19a612897171e0b3b242e01c2badba4a272"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "remotion-dev/skills",
+        "path": "skills/remotion-best-practices/SKILL.md",
+        "ref": "main",
+        "pinned_commit": "54e9b19a612897171e0b3b242e01c2badba4a272"
+      }
     },
     {
       "id": "storyboard-package",
       "role": "adapted_integration",
       "update_policy": "source_watch",
       "bundled_path": "references/integrations/storyboard-package.md",
-      "sha256": "3f197005084e6e1e88afde32202e4fe4e6131e6db3379b1a27dd86472e1f2c68",
-      "bundled_version": "git:fbf6496604ff393c8919911ef9596cc2bfaf59b1",
+      "sha256": "14bf46b4da0aaccc371eaf84354359ee217e3f4b86cb220b52dadc87f11e4ecd",
+      "bundled_version": "adapter:2.2.0",
       "license": "MIT",
-      "upstream": {"kind": "github_path", "repo": "agentara/skills", "path": "skills/aigc/video-storyboard/SKILL.md", "ref": "main", "pinned_commit": "fbf6496604ff393c8919911ef9596cc2bfaf59b1"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "agentara/skills",
+        "path": "skills/aigc/video-storyboard/SKILL.md",
+        "ref": "main",
+        "pinned_commit": "fbf6496604ff393c8919911ef9596cc2bfaf59b1"
+      },
+      "reviewed_at": "2026-10-01"
     },
     {
       "id": "jackyshen-gen-short-video-script",
@@ -185,7 +295,13 @@
       "sha256": "702d76ad892225576789409f64b78546e9a703c212fa5609cd172e4f85966ede",
       "bundled_version": "git:e4794d7ba683fb7ffcdae0c8e1657be47aa0f816",
       "license": "MIT",
-      "upstream": {"kind": "github_path", "repo": "mebusw/awesome-jackyshen-skills", "path": "skills/jackyshen-gen-short-video-script/SKILL.md", "ref": "main", "pinned_commit": "e4794d7ba683fb7ffcdae0c8e1657be47aa0f816"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "mebusw/awesome-jackyshen-skills",
+        "path": "skills/jackyshen-gen-short-video-script/SKILL.md",
+        "ref": "main",
+        "pinned_commit": "e4794d7ba683fb7ffcdae0c8e1657be47aa0f816"
+      }
     },
     {
       "id": "king-hu-perspective",
@@ -195,7 +311,9 @@
       "sha256": "da596209370d8d5943a1a2fb58bc55f59b8e302bfcfadb79d3230d4852a48f4e",
       "bundled_version": "local-unversioned",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "legacy-filmmaking-v1",
@@ -205,7 +323,9 @@
       "sha256": "59bf85084240677def77fc4f63e147ce7fd51ef76cba71aef766c446ba35e871",
       "bundled_version": "2.1.0",
       "license": "MIT; original compatibility layer",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "miyazaki-perspective",
@@ -215,7 +335,9 @@
       "sha256": "12f6d56c0032351378105b43359ec838cdefbc64507b86bc84b8f4a2bd940d3e",
       "bundled_version": "local-unversioned",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "minimax-h3-prompt-tool",
@@ -225,30 +347,78 @@
       "sha256": "0fc5184f990c0a4610e7367df9a37c3ffef37f79439ff58969f832146c78cc9e",
       "bundled_version": "git:35491cdba2adfe62a510f725e8619f8e58783ea2",
       "license": "package-original; upstream license unverified",
-      "upstream": {"kind": "github_path", "repo": "MiniMax-AI/MiniMax-H3", "path": "skills/h3-prompt-writing/references/base-en.txt", "ref": "main", "pinned_commit": "35491cdba2adfe62a510f725e8619f8e58783ea2"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "MiniMax-AI/MiniMax-H3",
+        "path": "skills/h3-prompt-writing/references/base-en.txt",
+        "ref": "main",
+        "pinned_commit": "35491cdba2adfe62a510f725e8619f8e58783ea2"
+      }
     },
     {
       "id": "model-prompt-router",
       "role": "adapted_integration",
       "update_policy": "source_watch",
       "bundled_path": "references/prompt-tools/model-router.md",
-      "sha256": "d7bbc59465fd04b9e130fcbb893053a1dc128f54afab0416745539549344c12e",
-      "bundled_version": "git:15e4b3cefa83a1e7e80d3447908e104a64461173",
+      "sha256": "c45a7260eb983da8cbf4ef4726aaa87525e86b114617c20f194c126987e40855",
+      "bundled_version": "adapter:2.2.0",
       "license": "Apache-2.0",
-      "upstream": {"kind": "github_path", "repo": "Square-Zero-Labs/video-prompting-skill", "path": "video-prompting/SKILL.md", "ref": "main", "pinned_commit": "15e4b3cefa83a1e7e80d3447908e104a64461173"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "Square-Zero-Labs/video-prompting-skill",
+        "path": "video-prompting/SKILL.md",
+        "ref": "main",
+        "pinned_commit": "15e4b3cefa83a1e7e80d3447908e104a64461173"
+      },
+      "reviewed_at": "2026-10-01"
     },
     {
       "id": "seedance-2.5-prompt-tool",
       "role": "original_adapter",
       "update_policy": "source_watch",
       "bundled_path": "references/prompt-tools/seedance-2.5.md",
-      "sha256": "4eab3a82a1c12a67abda7e593e7916524bdbfb36c9197e1054ea281fae126584",
-      "bundled_version": "2.1.0",
+      "sha256": "551756a74e254305eac26834b749a935f18a3d00fb36eba1d39086a79e4f64af",
+      "bundled_version": "adapter:2.2.0",
+      "reviewed_repository_commit": "28bff386ffe706a8f030ad39393759b11598fd7c",
       "license": "package-original; adapted sources Apache-2.0 and MIT",
-      "upstream": {"kind": "github_path", "repo": "Square-Zero-Labs/video-prompting-skill", "path": "video-prompting/references/models/seedance2-5/prompting.md", "ref": "main", "pinned_commit": "e596f57274c47540d0d215fea9afe361079f2354"},
+      "upstream": {
+        "kind": "github_path",
+        "repo": "Square-Zero-Labs/video-prompting-skill",
+        "path": "video-prompting/references/models/seedance2-5/prompting.md",
+        "ref": "main",
+        "pinned_commit": "e596f57274c47540d0d215fea9afe361079f2354"
+      },
       "additional_upstreams": [
-        {"kind": "github_path", "repo": "OSideMedia/higgsfield-ai-prompt-skill", "path": "skills/higgsfield-seedance-2-5/SKILL.md", "ref": "main", "pinned_commit": "201061da4e91600aa9bfb6d860b9fe469b369f4b"}
-      ]
+        {
+          "kind": "github_path",
+          "repo": "OSideMedia/higgsfield-ai-prompt-skill",
+          "path": "skills/higgsfield-seedance-2-5/SKILL.md",
+          "ref": "main",
+          "pinned_commit": "28bff386ffe706a8f030ad39393759b11598fd7c"
+        },
+        {
+          "kind": "github_path",
+          "repo": "OSideMedia/higgsfield-ai-prompt-skill",
+          "path": "specs/model-specs.json",
+          "ref": "main",
+          "pinned_commit": "789ac373f2127d5e19103086371a8d4422bb8ce4"
+        },
+        {
+          "kind": "github_path",
+          "repo": "OSideMedia/higgsfield-ai-prompt-skill",
+          "path": "skills/shared/provenance.md",
+          "ref": "main",
+          "pinned_commit": "54a18665a4c933050de231a3fc865edce0d75bb5"
+        },
+        {
+          "kind": "github_path",
+          "repo": "OSideMedia/higgsfield-ai-prompt-skill",
+          "path": "skills/higgsfield-seedance-2-5/MODE-PLAYBOOKS.md",
+          "ref": "main",
+          "pinned_commit": "54a18665a4c933050de231a3fc865edce0d75bb5"
+        }
+      ],
+      "reviewed_at": "2026-10-01"
     },
     {
       "id": "wan-3.0-prompt-tool",
@@ -258,7 +428,12 @@
       "sha256": "96eb2ca971d828df4f51ef9f0ab27a7cc3a5990a0e8061bff4687dc339d245ac",
       "bundled_version": "2.1.0",
       "license": "package-original",
-      "upstream": {"kind": "web_pattern", "url": "https://create.wan.video/explore", "pattern": "__front_end_version__\\s*=\\s*\"([^\"]+)\"", "pinned_value": "1.0.91"}
+      "upstream": {
+        "kind": "web_pattern",
+        "url": "https://create.wan.video/explore",
+        "pattern": "__front_end_version__\\s*=\\s*\"([^\"]+)\"",
+        "pinned_value": "1.0.91"
+      }
     },
     {
       "id": "rhythm-to-prompt",
@@ -268,7 +443,9 @@
       "sha256": "e30aa9855dad0c21d7692373bc78a059b34c96ba3fe9fc45a77e82b691388d2b",
       "bundled_version": "local-unversioned",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "screenwriter",
@@ -278,7 +455,13 @@
       "sha256": "4b7ecb8cfb17508dc0a32b3aa998cdb2023f183f2ffb31468a6aec4c51cab78f",
       "bundled_version": "2.1.0",
       "license": "package-original; upstream license unverified",
-      "upstream": {"kind": "github_path", "repo": "macrochen/seedance-screenwriter-skills", "path": ".claude/skills/screenwriter/SKILL.md", "ref": "main", "pinned_commit": "a9ab4db14be0c3ac7b84a55bac10c9df4aa504ef"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "macrochen/seedance-screenwriter-skills",
+        "path": ".claude/skills/screenwriter/SKILL.md",
+        "ref": "main",
+        "pinned_commit": "a9ab4db14be0c3ac7b84a55bac10c9df4aa504ef"
+      }
     },
     {
       "id": "seedance-perform-v5-single",
@@ -288,7 +471,9 @@
       "sha256": "9a84074ff6a87438e80c4875eef913e19505698f6eed2ef8975a8d18b5bc4467",
       "bundled_version": "2.1.0",
       "license": "MIT; original compatibility adapter",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "shanyin-screenwriting",
@@ -298,7 +483,9 @@
       "sha256": "996820498bdeadd0e252786c77209a0d35b376ff106216289cfed1498eb8c971",
       "bundled_version": "1.0.0",
       "license": "MIT; local attribution",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "short-drama-writer",
@@ -308,7 +495,10 @@
       "sha256": "33316e207ce21388f921628668a9e0aadb78d0004b7d0535d980a8d6a9ccade7",
       "bundled_version": "2.3.6",
       "license": "MIT-0",
-      "upstream": {"kind": "clawhub", "ref": "@ckchzh/short-drama-writer"}
+      "upstream": {
+        "kind": "clawhub",
+        "ref": "@ckchzh/short-drama-writer"
+      }
     },
     {
       "id": "short-video-hook-lab",
@@ -318,7 +508,11 @@
       "sha256": "b39e2ee19b51235e4edf82aafc7d23b1c58df4a9dab990f29d4b855676e4f53d",
       "bundled_version": "2.1.0",
       "license": "package-original; old snapshot excluded due license conflict",
-      "upstream": {"kind": "clawhub", "ref": "short-video-hook-lab", "pinned_version": "1.0.3"}
+      "upstream": {
+        "kind": "clawhub",
+        "ref": "short-video-hook-lab",
+        "pinned_version": "1.0.3"
+      }
     },
     {
       "id": "short-video-script",
@@ -328,7 +522,10 @@
       "sha256": "6cd21325f29bacc6c5fe0981b4c15ea447d955a645f72f0f7761809ce02be8cf",
       "bundled_version": "1.0.1",
       "license": "MIT-0",
-      "upstream": {"kind": "clawhub", "ref": "short-video-script"}
+      "upstream": {
+        "kind": "clawhub",
+        "ref": "short-video-script"
+      }
     },
     {
       "id": "sound-design-to-prompt",
@@ -338,7 +535,9 @@
       "sha256": "4fdc3c0bb43a9848d75dbc3a275c4c9f392ef9c29c987d760354389177bfbd64",
       "bundled_version": "1.0",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "creative-writing-cellcog",
@@ -348,7 +547,10 @@
       "sha256": "574e2c06e97a4f4b7f7153f6a5fdd86fc6197d63a47ed4ef4b26c4952f1777de",
       "bundled_version": "1.0.15",
       "license": "MIT-0",
-      "upstream": {"kind": "clawhub", "ref": "@cellcog/creative-writing-cellcog"}
+      "upstream": {
+        "kind": "clawhub",
+        "ref": "@cellcog/creative-writing-cellcog"
+      }
     },
     {
       "id": "story-master",
@@ -358,7 +560,11 @@
       "sha256": "4d358673a93617641ac41893ca7918143dc902e0ca43cd2f6cddd45f2c21f2fa",
       "bundled_version": "2.1.0",
       "license": "package-original; old snapshot excluded due missing license",
-      "upstream": {"kind": "clawhub", "ref": "story-master", "pinned_version": "1.0.1"}
+      "upstream": {
+        "kind": "clawhub",
+        "ref": "story-master",
+        "pinned_version": "1.0.1"
+      }
     },
     {
       "id": "style-fusion",
@@ -368,7 +574,9 @@
       "sha256": "9b7d0b4ca49bfa6bc2fcf6d99b0fb3611e62608516f8eb505545b82dbf3a16c9",
       "bundled_version": "1.0",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "stylized-color-grading",
@@ -378,7 +586,9 @@
       "sha256": "c67fe9bbcc0044bef0008f0bc6fd3b8d2918a33125b9db0100cdb60e4f8b07ea",
       "bundled_version": "1.0",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "takeshi-kitano-perspective",
@@ -388,7 +598,9 @@
       "sha256": "43dd711b3cf573fc9350a5433ef87c23f24e7efca0d7d13c6d67404eb0f09a3f",
       "bundled_version": "local-unversioned",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "tarkovsky-perspective",
@@ -398,7 +610,9 @@
       "sha256": "000ad9e8b75e5b936ae07d1d1c435a4363713cc7af56e52a77f30f221e642f40",
       "bundled_version": "local-unversioned",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "tint-to-prompt",
@@ -408,7 +622,9 @@
       "sha256": "2dc5cba492ffc8d1b289b5f25e25701aa2ad57c3130f8a6e35331533fa8769a4",
       "bundled_version": "1.0",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "video-analysis",
@@ -418,18 +634,27 @@
       "sha256": "9f4cda94beaa4a082ab56a1dd0313241b6b0caa2e40469c72ccc7401ed8f88cb",
       "bundled_version": "local-unversioned",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "video-editing",
       "role": "adapted_snapshot",
       "update_policy": "sync_after_review",
       "bundled_path": "references/video-editing.md",
-      "sha256": "3c779ec6f791915725e901c90714af63e38d052455cc8bb914e099fc97c743ae",
-      "bundled_version": "git:db7f2a6fd5b013d56ec0ba0cfc547ba77baddbce",
+      "sha256": "bfb2b71dc1c8eaebe8eeb97fd372ecc19074475a7be37a8bbcc82514de465d53",
+      "bundled_version": "git:928c1dea72f5c330442fc1f595563398b8f389f7",
       "license": "MIT",
       "discovered_via": "SkillHub",
-      "upstream": {"kind": "github_path", "repo": "affaan-m/ECC", "path": "skills/video-editing/SKILL.md", "ref": "main", "pinned_commit": "db7f2a6fd5b013d56ec0ba0cfc547ba77baddbce"}
+      "upstream": {
+        "kind": "github_path",
+        "repo": "affaan-m/ECC",
+        "path": "skills/video-editing/SKILL.md",
+        "ref": "main",
+        "pinned_commit": "928c1dea72f5c330442fc1f595563398b8f389f7"
+      },
+      "reviewed_at": "2026-10-01"
     },
     {
       "id": "video-generation-cellcog",
@@ -439,7 +664,10 @@
       "sha256": "64261fb04f0051794443fe7dd33dd45d3768e3c4578ecfcd545a40fa1d622f25",
       "bundled_version": "1.0.18",
       "license": "MIT-0",
-      "upstream": {"kind": "clawhub", "ref": "@cellcog/video-generation-cellcog"}
+      "upstream": {
+        "kind": "clawhub",
+        "ref": "@cellcog/video-generation-cellcog"
+      }
     },
     {
       "id": "video-prompt-writer",
@@ -449,7 +677,9 @@
       "sha256": "ce354011843eee022f35fa26fecac7c5ddc821f0a42ae459e426310624af5544",
       "bundled_version": "local-unversioned",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "video-reverse-engineer",
@@ -459,7 +689,9 @@
       "sha256": "dff5b449f92993c67f4f09961c00dae78d2a4ec07dfb9b0c9307171c3f371201",
       "bundled_version": "local-unversioned",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
     },
     {
       "id": "wong-kar-wai-perspective",
@@ -469,7 +701,133 @@
       "sha256": "e6225a03404f2d7cce9417187c752aff55d4637477052cec290e7fd6fd365e97",
       "bundled_version": "local-unversioned",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
-      "upstream": {"kind": "local_only"}
+      "upstream": {
+        "kind": "local_only"
+      }
+    },
+    {
+      "id": "product-promo-shotcraft",
+      "role": "adapted_integration",
+      "update_policy": "source_watch",
+      "bundled_path": "references/integrations/product-promo-shotcraft.md",
+      "sha256": "3a5f09cb2369a96a79a08d13394adb3c7e37f50bfb265bc30a97e55e2839b166",
+      "bundled_version": "adapter:2.2.0/10-shot-recipes",
+      "license": "Apache-2.0; adapted and attributed",
+      "reviewed_at": "2026-10-01",
+      "reviewed_repository_commit": "5ddbf521038b0a7accfb6dc1e0a9eb29c67277ab",
+      "upstream": {
+        "kind": "github_path",
+        "repo": "Vincentwei1021/video-shotcraft",
+        "path": "SKILL.md",
+        "ref": "main",
+        "pinned_commit": "5f047c7cfe10d6616fe59160a750fcfaea510b2e"
+      },
+      "additional_upstreams": [
+        {
+          "kind": "github_path",
+          "repo": "Vincentwei1021/video-shotcraft",
+          "path": "references/shots/opening/spotlight-hero-card.md",
+          "ref": "main",
+          "pinned_commit": "80b3f5d8fa4cc6b4933331ea2efa52c4d39ad028"
+        },
+        {
+          "kind": "github_path",
+          "repo": "Vincentwei1021/video-shotcraft",
+          "path": "references/shots/opening/crane-rise-reveal.md",
+          "ref": "main",
+          "pinned_commit": "5c2e5ba4f8f0b7709b091315e0d7a244ecee9d9f"
+        },
+        {
+          "kind": "github_path",
+          "repo": "Vincentwei1021/video-shotcraft",
+          "path": "references/shots/ui-entrance/product-card-progressive-assemble.md",
+          "ref": "main",
+          "pinned_commit": "c05d48492db915582144f60c5d0d12f3cdb9094d"
+        },
+        {
+          "kind": "github_path",
+          "repo": "Vincentwei1021/video-shotcraft",
+          "path": "references/shots/ui-entrance/page-waterfall-wall.md",
+          "ref": "main",
+          "pinned_commit": "54ec8c39967deabca25d38ca928d89f286d12e99"
+        },
+        {
+          "kind": "github_path",
+          "repo": "Vincentwei1021/video-shotcraft",
+          "path": "references/shots/ui-entrance/integration-hub-map.md",
+          "ref": "main",
+          "pinned_commit": "5c2e5ba4f8f0b7709b091315e0d7a244ecee9d9f"
+        },
+        {
+          "kind": "github_path",
+          "repo": "Vincentwei1021/video-shotcraft",
+          "path": "references/shots/interaction/type-and-filter.md",
+          "ref": "main",
+          "pinned_commit": "80b3f5d8fa4cc6b4933331ea2efa52c4d39ad028"
+        },
+        {
+          "kind": "github_path",
+          "repo": "Vincentwei1021/video-shotcraft",
+          "path": "references/shots/interaction/ai-stream-response.md",
+          "ref": "main",
+          "pinned_commit": "54ec8c39967deabca25d38ca928d89f286d12e99"
+        },
+        {
+          "kind": "github_path",
+          "repo": "Vincentwei1021/video-shotcraft",
+          "path": "references/shots/data/before-after-slider-scrub.md",
+          "ref": "main",
+          "pinned_commit": "5c2e5ba4f8f0b7709b091315e0d7a244ecee9d9f"
+        },
+        {
+          "kind": "github_path",
+          "repo": "Vincentwei1021/video-shotcraft",
+          "path": "references/shots/transition/shot-transitions.md",
+          "ref": "main",
+          "pinned_commit": "8b560059fbbcfcf19a9a965cd7ac49a8b38fd069"
+        },
+        {
+          "kind": "github_path",
+          "repo": "Vincentwei1021/video-shotcraft",
+          "path": "references/shots/outro/ui-strip-away-outro.md",
+          "ref": "main",
+          "pinned_commit": "54ec8c39967deabca25d38ca928d89f286d12e99"
+        }
+      ]
+    },
+    {
+      "id": "storyboard-quality-gates",
+      "role": "original_quality_gate_with_attributed_concepts",
+      "update_policy": "source_watch",
+      "bundled_path": "references/integrations/storyboard-quality-gates.md",
+      "sha256": "c7634f7aad873362b19c2a3f261264d7d5102b1b896b7495aafb50508ce80de9",
+      "bundled_version": "adapter:2.2.0/contract:1",
+      "license": "package-original; upstream concepts Apache-2.0",
+      "reviewed_at": "2026-10-01",
+      "reviewed_repository_commit": "ef4ac0c313c7eeb1f918db5f0f0eb319745900bc",
+      "upstream": {
+        "kind": "github_path",
+        "repo": "eternityspring/shuohao-skills",
+        "path": "skills/novel-storyboard/SKILL.md",
+        "ref": "main",
+        "pinned_commit": "06f25952fe8d359065245194427bd1fc5f7b34d8"
+      },
+      "additional_upstreams": [
+        {
+          "kind": "github_path",
+          "repo": "eternityspring/shuohao-skills",
+          "path": "skills/novel-storyboard/references/schema.md",
+          "ref": "main",
+          "pinned_commit": "e268731afeae204f87d6101a74bebddbd2bbe493"
+        },
+        {
+          "kind": "github_path",
+          "repo": "eternityspring/shuohao-skills",
+          "path": "skills/novel-storyboard/scripts/novel-storyboard.mjs",
+          "ref": "main",
+          "pinned_commit": "e268731afeae204f87d6101a74bebddbd2bbe493"
+        }
+      ]
     }
   ]
 }

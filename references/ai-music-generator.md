@@ -2,7 +2,7 @@
 name: ai-music-generator
 description: 为影视、广告和短视频设计配乐需求、提示词、段落结构、混音交接与验收标准；平台生成和素材上传必须另行授权。
 metadata:
-  adapter_version: "2.1.0"
+  adapter_version: "2.2.0"
   upstream: bitwize-music-studio/claude-ai-music-skills
 ---
 
@@ -10,7 +10,7 @@ metadata:
 
 本模块只负责把导演意图变成可生成、可剪辑、可验收的音乐任务。默认交付提示词、结构表和混音要求；没有用户明确授权时，不登录平台、不上传素材、不调用付费生成。
 
-当前适配依据为 `bitwize-music-studio/claude-ai-music-skills` 的 Suno V5/V5.5 提示词、分轨与母带思路。上游已从旧版单文件扩展为完整音乐制作插件，本包只吸收与视频配乐直接相关的部分，不复制其工程、代理或全部曲风资料。
+当前适配依据为 Suno 官方 v6 文档与 `bitwize-music-studio/claude-ai-music-skills` 的提示词、分轨与母带实践。2026-10-01 已复核：旧模型已退役，新迭代使用 v6 族；本包只吸收与视频配乐直接相关的部分，不复制上游工程、代理或全部曲风资料。
 
 ## 先建立画面音乐点位
 
@@ -34,7 +34,27 @@ metadata:
 - 精确卡点：先生成略长版本，再在后期按点位裁切；不要承诺生成模型精确命中每个剪辑帧。
 - 循环音乐：同时定义可循环的节奏纹理与允许人工修剪的循环点。
 
-## Suno V5/V5.5 提示词结构
+## Suno v6 模型与设置
+
+以下型号、Variety 与 Max Mode 行为来自 [Suno v6 FAQ](https://help.suno.com/en/articles/13924481) 和 [官方型号说明](https://help.suno.com/en/articles/13924737)，复核日期 2026-10-01：
+
+| 项目 | 选择依据 |
+| --- | --- |
+| v6 | 已明确方向的正式配乐；Pro/Premier 可用 |
+| v6-wild | 探索尚未确定的声音方向，输出更不可预测；Pro/Premier 可用 |
+| v6-mini | 全计划可用，适合快速草图；商业交付另核对账户与下载权利，不从型号推断授权 |
+| Variety | 精确复用已设计的风格词、配乐系列或 A/B 对比时设为 0/Off；提高它会调整风格提示词，须记录实际设置 |
+| Max Mode | 官方建议用于超过两分钟、忠实 Cover、风格迁移或全曲人声/风格一致性；会增加额度，短配乐草图通常可用标准模式。不能未经预算授权自动开启 |
+
+模型名、Variety、Max Mode、Duration、Instrumental、排除项分别写在“平台设置”中，不塞进风格正文。额度、下载和套餐限制以执行当日页面为准；旧 V5/V5.5 提示词可作创作起点，不能直接声称适用于当前模型。
+
+**上游实践，尚未在本包生成验证：**优先用 Advanced Mode 分别交付风格框和歌词/结构框；若用户选择 Simple Mode 的多模态配乐或局部重写，单独描述材料职责和编辑范围，不承诺它逐字采用输入歌词。Duration 控件与结构标签共同管理长度，实际成片仍需裁切；上游记录 Custom 时长可能直接截断，因此有歌词时先检查文字容量，不能把终止标签当成精确结束保证。
+
+**Voices / Custom Models：**[官方 Voices 流程](https://help.suno.com/en/articles/11362369)需要录音或上传及本人验证，地区/资格和模型兼容性在使用前检查。提示词任务不进入录音、上传或训练。已授权并选定 Voice 时，上游建议减少与该声音冲突的性别/音域描述；Custom Model 已带制作审美时减少泛化制作词。这些是实践建议，不是强制语法；不照搬上游固定 Audio Influence 数值，也不保证跨曲声纹一致。
+
+## Suno 风格与结构提示词
+
+以下三段式与标签是本 Skill 的制作模板，吸收上游实践，不是官方要求的唯一格式。
 
 风格框使用三段式：
 
@@ -49,8 +69,8 @@ metadata:
 - 有人声时把人声描述放在最前；纯器乐省略人声段。
 - 每个描述词承担不同信息，删除同义词堆叠。
 - 不写真实艺人或乐队名字，改写成可听见的音色、演唱、编配和制作特征。
-- 需要排除时只列 2–4 项，例如 `no choir`、`no electric guitar`；排除项只改变概率，不是绝对保证。
-- 不把时长当成精确参数。主要通过段落数量、段落长度、`[Outro]` 与 `[End]` 控制，再由后期对齐成片。
+- 有专用 Exclude Styles 字段时只列 2–4 个元素，例如 `choir`、`electric guitar`，不再加 `no`；没有该字段时说明无法保证排除，并通过稀疏编制减少暗示。排除项只改变概率。
+- 时长控件与正文分开；段落数量、段落长度、`[Outro]` 与 `[End]` 辅助安排，再由后期对齐成片。
 
 歌词框只能放真正要唱出的歌词和合法段落标签，不能放括号里的舞台说明。纯器乐可使用：
 
@@ -96,6 +116,7 @@ metadata:
 风格框：
 结构标签：
 排除项：
+平台设置：服务商 / 入口 / 模型 / Instrumental / Variety / Max Mode / Duration
 剪辑与混音交接：
 需要人工复核的假设：
 ```
@@ -126,5 +147,7 @@ metadata:
 ## 来源
 
 - 上游：<https://github.com/bitwize-music-studio/claude-ai-music-skills>
-- 重点参考：`skills/suno-engineer/SKILL.md`、`skills/mastering-engineer/SKILL.md`、`reference/suno/v5-best-practices.md`
+- 本次审阅入口：[`skills/suno-engineer/SKILL.md`](https://github.com/bitwize-music-studio/claude-ai-music-skills/blob/3b292b08776796f593d7abf816c19a9ff652733d/skills/suno-engineer/SKILL.md)，最新 path commit `3b292b08776796f593d7abf816c19a9ff652733d`。
+- 本次内容依赖：该固定快照的 `reference/suno/best-practices.md`（原 `v5-best-practices.md` 已改名）、`models.md`、`creative-sliders.md`、`structure-tags.md`。保留旧版混音原则，不把上游亲测或社区报告写成本包测试。
+- 官方补充：[v6 新功能](https://help.suno.com/en/articles/13924801)、[模型兼容性](https://help.suno.com/en/articles/13924993)。资料与账户界面冲突时核对当前入口，不推荐已退役型号。
 - 上游许可证：CC0-1.0

@@ -4,7 +4,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Codex-Skill-111111?style=for-the-badge" alt="Codex Skill" />
-  <img src="https://img.shields.io/badge/Version-2.1.0-4A7A5B?style=for-the-badge" alt="Version 2.1.0" />
+  <img src="https://img.shields.io/badge/Version-2.2.0-4A7A5B?style=for-the-badge" alt="Version 2.2.0" />
   <img src="https://img.shields.io/badge/License-MIT-3D6B8E?style=for-the-badge" alt="MIT License" />
   <img src="https://img.shields.io/badge/Language-中文-D74A3A?style=for-the-badge" alt="中文" />
   <img src="https://img.shields.io/badge/Workflow-Film%20Production-30363D?style=for-the-badge" alt="Film Production" />
@@ -74,7 +74,15 @@
 
 旧版曾把 `references/` 下的 36 份顶层能力快照简称为“36 个 Skill”。准确口径是：其中 34 份对应当时的本机 Skill，另有 2 份是内部汇总模块；并非 36 份都有公开版本号或可查询上游。v2.1 已建立逐项账本，不再把“模块数”和“可自动更新依赖数”混算。
 
-## v2.1 新增
+## v2.2 升级
+
+v2.2.0 通过固定 GitHub Tag/Release 发行；v2.1.0 保留为历史版本。
+
+v2.2 更新中文成稿润色与实拍剪辑规则，审阅并升级 Seedance 2.5 和 Suno v6 配乐适配器；新增 10 条产品/软件宣传片镜头词典、平台无关的分镜 JSON 门禁。顶层能力模块由 45 项变为 47 项。分镜脚本能检查时间、节拍、引用与状态声明，实际画面和音画仍须看验。
+
+更新检查直接使用公开 HTTP 接口，不再临时下载 ClawHub CLI；清单还会追踪模型规则和镜头配方的内容依赖。具体来源、取舍与验收见 [v2.2 升级记录](audits/upgrade-review-v2.2.md)。
+
+### v2.1 历史升级
 
 - Seedance 2.5、Wan 3.0、MiniMax H3 三个独立提示词工具；
 - 按“制作阶段 → 主模块 → 平台适配器 → 专项增强”重写调用路径；
@@ -88,7 +96,7 @@
 
 ## 安装与发布
 
-v2.1.0 的固定发行源是 GitHub `v2.1.0` Release/Tag 与 SkillHub 2.1.0。不要把持续变化的 GitHub `main` 当作固定版本。仓库原创部分采用 MIT；第三方快照和改编内容继续遵守各自许可证与来源说明。
+v2.2.0 的固定发行源是 [GitHub Release](https://github.com/jlam00-dev/hardcore-director/releases/tag/v2.2.0) 与 `v2.2.0` Tag。Codex 完整包与 SkillHub 兼容包均可从 Release 下载；提供兼容包不等于已发布到 SkillHub 平台。本次发行范围为 GitHub。不要把持续变化的 `main` 当作固定版本。仓库原创部分采用 MIT；第三方快照和改编内容继续遵守各自许可证与来源说明。
 
 安装后可直接点名调用：
 
@@ -133,7 +141,7 @@ v2.1.0 的固定发行源是 GitHub `v2.1.0` Release/Tag 与 SkillHub 2.1.0。�
 
 ## 模型提示词路由
 
-| 模型 | v2.1 处理重点 |
+| 模型 | 处理重点 |
 | --- | --- |
 | Seedance 2.5 / 即梦 2.5 | 30 秒内叙事、多素材职责、长镜头、编辑、延长和终止状态 |
 | Wan 3.0 | Omni 多模态参考、首尾帧路径、参考生视频、编辑与音画联合结构 |
@@ -153,7 +161,7 @@ CellCog 长视频生产和 Higgsfield 解释视频只在用户明确接受对应
 hardcore-director/
 ├── README.md
 ├── SKILL.md                  # 主入口、任务路由与质量门禁
-├── VERSION                   # 2.1.0
+├── VERSION                   # 2.2.0
 ├── agents/
 │   └── openai.yaml           # Skill 展示信息
 ├── assets/
@@ -177,11 +185,16 @@ hardcore-director/
 ```bash
 python3 scripts/validate_package.py
 python3 -m unittest discover -s tests -v
+python3 scripts/validate_storyboard.py references/support/storyboard-example.json --json
 python3 scripts/check_updates.py --offline
 python3 scripts/check_updates.py
 ```
 
-`check_updates.py` 对所有顶层能力模块做哈希检查，并对存在公开上游的项目查询版本或提交；本机原创/内部模块明确标为不可自动升级，而不是从统计中消失。脚本不会自动下载、覆盖或发布任何 Skill。返回码：`0` 当前无异常，`1` 有本地漂移或发现更新，`2` 上游检查失败。
+`check_updates.py` 对所有顶层能力模块做哈希检查，并对存在公开上游的项目查询版本或提交；本机原创/内部模块明确标为不可自动升级，而不是从统计中消失。查询 GitHub、ClawHub 与平台页面时只读取公开信息，不安装 CLI。返回码：`0` 当前无异常，`1` 有本地漂移或发现更新，`2` 上游检查失败。某个次来源失败时仍保留已查到的主来源变化证据。
+
+本地未提交的候选版可运行 `python3 scripts/build_skillhub_package.py --draft --output <新文件.zip>` 生成审阅包；默认正式包装仍要求工作树干净。包内版本从 `VERSION` 读取，并排除 SkillHub 已拒绝的 `.gitignore`、`LICENSE`、`VERSION` 无扩展名文件。许可证正文保存在 `.md` 文件中。
+
+加 `--format codex` 生成完整 Codex 包，保留图片与标准许可证文件；两种包都有 `hardcore-director/` 根目录。构建已有同名文件时停止，不覆盖原包。
 
 旧版 36 项的去向见 [`component-ledger-v1-to-v2.1.md`](./audits/component-ledger-v1-to-v2.1.md)，来源与许可证边界见 [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md)，发布门槛关闭记录见 [`publication-gate-v2.1.md`](./audits/publication-gate-v2.1.md)。
 

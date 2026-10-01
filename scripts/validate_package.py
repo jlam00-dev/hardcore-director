@@ -12,6 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ALLOWED_FRONTMATTER = {"name", "description", "license", "compatibility", "metadata", "allowed-tools"}
+SKILLHUB_FRONTMATTER = {"slug", "version", "displayName", "summary", "tags"}
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 REQUIRED_COMPONENT_FIELDS = {
     "id",
@@ -47,7 +48,10 @@ def validate_frontmatter(path: Path) -> list[str]:
     for required in ("name", "description"):
         if required not in keys:
             errors.append(f"frontmatter missing {required}")
-    unknown = sorted(set(keys) - ALLOWED_FRONTMATTER)
+    allowed = ALLOWED_FRONTMATTER
+    if "slug: hardcore-director" in lines[1:end]:
+        allowed = allowed | SKILLHUB_FRONTMATTER
+    unknown = sorted(set(keys) - allowed)
     if unknown:
         errors.append(f"frontmatter has unsupported top-level keys: {', '.join(unknown)}")
     if "name: hardcore-director" not in "\n".join(lines[1:end]):
@@ -83,7 +87,18 @@ def validate_manifest() -> list[str]:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     except Exception as exc:
         return [f"cannot parse dependency manifest: {exc}"]
-    version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    version_path = ROOT / "VERSION"
+    skill_text = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+    header = skill_text.split("---", 2)[1] if skill_text.startswith("---") else ""
+    declared_versions = re.findall(r'^(?:  )?version:\s*["\']?([^"\'\r\n]+)', header, re.MULTILINE)
+    if version_path.is_file():
+        version = version_path.read_text(encoding="utf-8").strip()
+    elif re.search(r"^slug:\s*hardcore-director\s*$", header, re.MULTILINE) and declared_versions:
+        version = declared_versions[0].strip()
+    else:
+        return ["VERSION missing outside a SkillHub package"]
+    if any(item.strip() != version for item in declared_versions):
+        errors.append("SKILL.md version and package version differ")
     if manifest.get("schema_version") != 2:
         errors.append("dependency manifest schema_version must be 2")
     if manifest.get("package", {}).get("version") != version:
@@ -134,15 +149,18 @@ def validate_manifest() -> list[str]:
         errors.append(f"manifest component is not a top-level module: {path}")
 
     summary = manifest.get("inventory_summary", {})
-    declared_total = summary.get("v2_1_top_level_modules")
+    declared_total = summary.get("top_level_modules", summary.get("v2_1_top_level_modules"))
     if declared_total != len(discovered_paths):
         errors.append(
-            "inventory_summary.v2_1_top_level_modules does not match discovered top-level modules"
+            "inventory_summary top_level_modules does not match discovered top-level modules"
         )
     if len(components) != len(discovered_paths):
         errors.append("manifest component count does not match discovered top-level modules")
-    if summary.get("v1_top_level_modules", 0) + summary.get("v2_1_new_top_level_modules", 0) != declared_total:
+    v2_1_total = summary.get("v2_1_top_level_modules")
+    if summary.get("v1_top_level_modules", 0) + summary.get("v2_1_new_top_level_modules", 0) != v2_1_total:
         errors.append("inventory summary does not reconcile v1 modules plus v2.1 additions")
+    if v2_1_total + summary.get("new_modules_since_v2_1", 0) != declared_total:
+        errors.append("inventory summary does not reconcile v2.1 modules plus later additions")
     if summary.get("v1_public_source_trackable", 0) + summary.get("v1_local_or_internal", 0) != summary.get("v1_top_level_modules"):
         errors.append("inventory summary does not reconcile the v1 source categories")
     return errors
@@ -177,7 +195,8 @@ def main() -> int:
             print(f"ERROR: {error}")
         print(f"validation failed: {len(errors)} issue(s)")
         return 1
-    print("validation passed: frontmatter, links, 45-module ledger, manifest hashes, and portability")
+    manifest = json.loads((ROOT / "manifests" / "dependencies.json").read_text(encoding="utf-8"))
+    print(f"validation passed: frontmatter, links, {len(manifest['components'])}-module ledger, manifest hashes, and portability")
     return 0
 
 
