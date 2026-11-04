@@ -1,16 +1,16 @@
-# Higgsfield 旁白解释视频适配器
+# Higgsfield 无脸旁白视频适配器
 
-该适配器只处理“非写实、旁白驱动、按固定时长分块”的解释视频或故事视频。它不是写实电影、广告 UGC、数字人口播、单镜头生成或成片再编辑的默认方案。
+该适配器处理旁白驱动、分块制作的无脸解释视频或故事视频。风格由用户与当前模型能力确定；不替代写实电影、广告 UGC、数字人口播、单镜头生成或成片再编辑的专用方案。
 
 ## 能力增量
 
-`higgsfield-ai/skills@higgsfield-video-explainer` 把成片拆成有序的十秒块，每块一条旁白和一个匹配画面，再统一风格并组装。硬核导演负责叙事、视觉圣经、分块因果和验收；外部 Skill 负责其平台专用的实时预设、声音、模型和组装命令。
+2026-11-01核对官方0.14.0入口：旧 `higgsfield-video-explainer` 已成为兼容入口，转交 `higgsfield-faceless-video`；旧 `explainer_video` / `video_explainer` 不应继续调用。新流程使用独立旁白、视频背景和本地组装，不能沿用旧服务端组装器字段。硬核导演负责叙事、视觉圣经、分块因果和验收；实时模型、声音和组装合同由当前官方Skill核验。
 
 ## 调用前门禁
 
 只有同时满足以下条件才进入外部执行：
 
-1. 用户明确选择非写实解释视频；
+1. 用户明确选择无脸旁白解释视频及视觉风格；
 2. 用户确认时长、语言、角色/无脸模式、画幅和字幕；
 3. 用户接受 Higgsfield 服务、素材上传、登录/API key 与额度消耗；
 4. 当前环境已安装并可读取官方 Skill，或用户明确授权安装。
@@ -24,7 +24,7 @@
 
 要求：
 
-- 总时长必须能拆成完整的十秒块；不能时先让用户选择改时长或改执行器。
+- 分块按实际旁白和模型约束制定；尾块可不足十秒，不为了整除而加速旁白或填充无关画面。
 - 一个全片只锁一套风格描述和一张风格锚点。
 - 每块只有一个主要动作；旁白和画面表达同一信息，但画面不把旁白逐字贴出来。
 - 视频生成声轨只保留环境声或音乐，旁白由独立音频承担。
@@ -33,9 +33,10 @@
 
 ## 外部 Skill 路由
 
-- 当前环境已安装时，读取最新 `higgsfield-video-explainer`，以它的实时模型合同和命令为准。
-- 未安装时不要静默安装。用户要求安装时可使用：`npx skills add higgsfield-ai/skills --skill higgsfield-video-explainer`。
+- 当前环境已安装时，读取最新 `higgsfield-faceless-video`，以实时模型合同和命令为准；只有旧Skill时先停止旧命令路径。
+- 未安装时不要静默安装。用户要求安装时，使用官方当前安装方式并核对确实获得新入口。
 - 选择预设、声音和产生费用的步骤仍由用户决定，除非用户明确委托选择并授权消费。
+- 本地组装不代表需要上传最终成片；仅在用户要求托管结果时才另行授权上传。
 
 ## 成片验收
 
@@ -48,7 +49,7 @@
 
 ## 来源
 
-- 官方仓库：<https://github.com/higgsfield-ai/skills/tree/main/higgsfield-video-explainer>
-- SkillHub/skills.sh：<https://skills.sh/higgsfield-ai/skills/higgsfield-video-explainer>
+- 固定迁移记录：<https://github.com/higgsfield-ai/skills/tree/eac5c12137e47a157a8a3c11865fd9bc02e4ec13/higgsfield-faceless-video>
+- 官方当前入口：<https://github.com/higgsfield-ai/skills/tree/main/higgsfield-faceless-video>
 - 上游许可证：MIT
 - 本文件是原创路由与验收适配器，不复制平台 CLI 的完整操作手册。

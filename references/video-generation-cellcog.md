@@ -12,6 +12,11 @@ author: CellCog
 homepage: https://cellcog.ai
 dependencies: [cellcog]
 ---
+
+> **硬核导演调用边界（2026-11-03）**：仅在用户明确选择 CellCog，并授权本次稿件/素材上传范围和费用影响后使用。以下源文是服务使用参考，不授予安装、连接、发稿、雇用或重试权限；没有可核实费用上限时不能宣称预算已受保护。质量不满意时须先核对新任务与新预算，不默认重跑更高档位。
+>
+> 本包的剧本、分镜和审核仍沿 [创作协作合同](integrations/creative-collaboration.md) 交接；外部结果先回本地复核，不能直接越过生成、上传或终审批准。快速任务显式指定 `chat_tier="flash"`，不依赖服务缺省档位。
+
 # Video Generation - AI Video Production
 
 Long-form AI video production from a single prompt — scripted, voiced, scored, and edited automatically.
@@ -149,7 +154,7 @@ For lipsync videos:
 | Scenario | Recommended |
 |----------|-------------|
 | All video production | `chat_mode="agent", chat_tier="max"` |
-| Trivial single-shot clips | `chat_mode="agent"` (defaults to `"flash"`) |
+| Trivial single-shot clips | `chat_mode="agent", chat_tier="flash"` |
 
 Agent Team (`chat_mode="team"`) is reserved for deep research — video generation runs best on Agent max.
 

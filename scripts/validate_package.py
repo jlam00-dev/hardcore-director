@@ -134,6 +134,18 @@ def validate_manifest() -> list[str]:
         actual = sha256_file(local_path)
         if actual != item.get("sha256"):
             errors.append(f"manifest hash mismatch for {component_id}")
+        integrity_files = item.get("integrity_files", {})
+        if not isinstance(integrity_files, dict):
+            errors.append(f"invalid runtime integrity map for {component_id}")
+            continue
+        for relative, expected_hash in integrity_files.items():
+            executable = (ROOT / relative).resolve()
+            if Path(relative).is_absolute() or not executable.is_relative_to(ROOT.resolve()):
+                errors.append(f"runtime integrity path escapes package for {component_id}")
+            elif not executable.is_file():
+                errors.append(f"runtime integrity file missing: {relative}")
+            elif sha256_file(executable) != expected_hash:
+                errors.append(f"runtime integrity hash mismatch: {relative}")
 
     discovered_paths = {
         str(path.relative_to(ROOT))

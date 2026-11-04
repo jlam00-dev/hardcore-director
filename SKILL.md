@@ -1,14 +1,24 @@
 ---
 name: hardcore-director
-description: 硬核导演，影视与视频创作总控技能。用于故事开发、电影/短片/剧集/竖屏短剧编剧、角色与场景、导演判断、分镜、Seedance 2.5、Wan 3.0、MiniMax H3 等 AI 视频提示词、表演与运镜、色彩、节奏、声音、拉片、实拍剪辑和短视频发布。用户要求从创意到可拍摄/可生成/可交付的视频方案，或点名硬核导演、剧本、分镜、AI 视频提示词、Seedance、Wan、MiniMax、即梦、可灵、海螺时使用；不要用于只需执行单一确定性媒体命令且已有专用工具的任务。
+description: 硬核导演，影视与视频创作总控技能。用于故事开发、电影/短片/剧集/竖屏短剧编剧、角色与场景、导演判断、分镜、AI视频提示词、视听设计、拉片、实拍剪辑与微信/飞书审核制作工作流。用户要求从创意到可制作的视频方案，或点名硬核导演、剧本、分镜、Seedance、Wan、MiniMax、即梦、可灵、海螺及手机审核时使用；不要用于只需执行单一确定性媒体命令且已有专用工具的任务。
 license: MIT
 metadata:
-  version: "2.2.0"
+  version: "3.0.0"
 ---
 
 # 硬核导演
 
 把本技能当作影视创作的总导演与制片中枢。先锁定当前交付阶段，再选一个主模块、一个平台适配器和最多两个专项增强。不要把所有模块机械堆进一次回答。
+
+3.0保留按需创作，加入“电脑开着，你去忙；关键结果发到微信／飞书，确认后继续”的自动工作流。微信和飞书是同一制作流程的审核通道；电脑须联网、保持唤醒，登录、桥接及调度进程须实际可用。
+
+## 第一次使用与账号接入
+
+新用户询问安装、怎么用、第一次出片时，先读 [新用户使用手册](references/support/user-guide.md)，按用户选择进入纯创作或真实制作；先核对实际加载的版本与目录。需要接通即梦CLI、飞书或微信时，再读 [账号接入与运行指南](references/support/remote-setup-guide.md)，由Agent核对本机依赖和当前官方合同，用户自行登录、输入密钥及完成本人绑定。不要让普通用户先填写内部JSON才能表达创作需求，也不要把扫码成功当成已具备审批或付费生成权限。
+
+真实制作的连接为：本机Agent与工作流状态机 → 官方即梦画布CLI；本机审核桥接器 → 飞书官方SDK长连接或微信官方机器人接口。分镜及成片按授权发给本人的审核会话，用户明确批准后状态机继续。首次配置仍需用户参与；当前微信收件人/审批人映射需Agent辅助，MiniMax自动付费路径仍关闭。
+
+3.0的飞书与微信审核支持直接回复“同意”或“拒绝”。只有本人当前会话中已成功送达的有效请求可使用；多项待审、内容变更或上一项已处理时，先按提示选择编号，再核对该项内容与费用。旧消息不自动获得新回复方式；接收回执只代表已入队，仍须工作流核验，不代表生成或扣费已经开始。
 
 ## 执行原则
 
@@ -33,6 +43,8 @@ metadata:
 
 ### 第二步：选择主模块
 
+- 需要跨阶段创作、把多个模块串起来或修改剧本后同步分镜：先读 [创作协作链](references/integrations/creative-collaboration.md)。各阶段共享同一项目、节拍、镜号、状态和声音cue；只加载当前阶段的方法，完成交接检查后再进入下一阶段。
+- 需要“手机审分镜、电脑继续生视频”：读取 [人工审核远程制作](references/integrations/remote-production-workflow.md)，由持久任务状态机控制各阶段；不把聊天里的普通“OK”直接当作生成或扣费授权。
 - 需要“写什么”：编剧/短剧模块；
 - 需要“怎么拍”：角色、场景、构图或分镜模块；
 - 需要“怎么喂给模型”：先读取 [模型提示词路由器](references/prompt-tools/model-router.md)，再只读取一个模型工具；
@@ -52,8 +64,13 @@ metadata:
 
 ## 路由
 
+### 硬核导演品牌视觉
+
+制作硬核导演本身的封面、卖点海报、图标、说明与手册图片时，先读[品牌视觉指南](references/support/brand-visual-guide.md)。统一使用硬仔IP、黑底正黄与漫画3D，默认角色空手，道具按需求选择；需要Icon时再读取打板喊Action参考。沿用已批准的IP身份与资产，不回退到旧黑红视觉。此规则用于本品牌物料，不强加到用户自己的影片画面。
+
 ### 故事、编剧与短剧
 
+- 已有故事需要定位动机、因果、场景或对白问题：读取 [剧本诊断与最小修订](references/integrations/screenplay-diagnosis.md)，输出对应场景/节拍的证据与改单，再交给编剧修订；不在下游提示词中偷偷改剧情。
 - 电影、短片、剧集、完整剧本：读取 [shanyin-screenwriting.md](references/shanyin-screenwriting.md)。
 - 从点子生成 Storyboard 或多镜头叙事：读取 [screenwriter.md](references/screenwriter.md)。
 - 多集连续生产、人物/场景/钩子图谱：读取 [story-master.md](references/story-master.md)。该快照含远程图谱接口说明，默认只使用其方法，不调用接口。
@@ -62,6 +79,7 @@ metadata:
 
 ### 角色、场景与视觉叙事
 
+- 已锁剧本需要转成可执行的站位、行动、表演和镜头覆盖：读取 [导演调度与镜头覆盖](references/integrations/director-blocking-coverage.md)，沿用角色DNA与对白，交付给分镜；表演只补可观察行为，不改人物身份或已确认台词。
 - 角色 DNA、群像、姿态、Blocking、一致性：读取 [character-design.md](references/character-design.md)。
 - 场景、世界观、建筑空间、光影、场景板：读取 [ai-scene-design.md](references/ai-scene-design.md)。该文件较长，先按用户需求搜索对应标题再读取相关段落。
 - 构图与空间关系：读取 [composition-to-prompt.md](references/composition-to-prompt.md)。
@@ -95,6 +113,7 @@ metadata:
 
 ### 摄影、色彩、节奏与声音
 
+- 需要让分镜、模型提示词与后期共用声音设计：读取 [声音cue交接](references/integrations/audio-cue-handoff.md)，先声明cue的节拍、时间窗、前景关系和生成/后期用途，再选下面的声音或音乐工具；没有实际录音时保持待测状态。
 - 剪辑节奏、情绪曲线、长镜头与平台化节奏提示词：[rhythm-to-prompt.md](references/rhythm-to-prompt.md)
 - 经典调色风格与导演融合：[stylized-color-grading.md](references/stylized-color-grading.md)
 - 情绪色调、色值和平台化颜色参数：[tint-to-prompt.md](references/tint-to-prompt.md)
@@ -103,6 +122,7 @@ metadata:
 
 ### 拉片、反推与剪辑
 
+- 从剧本/分镜或已选素材进入剪辑：读取 [叙事剪辑交接](references/integrations/narrative-edit-handoff.md)。将每个剪辑决定关联节拍、获选素材窗口、终止状态与声音cue；没有实测素材时交付计划，不冒充可直接渲染的EDL。
 - 对作品做结构化拉片并提取创作参数：[video-analysis.md](references/video-analysis.md)
 - 对广告/竞品反推镜头、色彩、节奏和音频策略：[video-reverse-engineer.md](references/video-reverse-engineer.md)
 - 编辑已有实拍素材、FFmpeg、配音、增强和常规成片流程：[video-editing.md](references/video-editing.md)
@@ -113,7 +133,7 @@ metadata:
 
 用户明确要求由外部服务自动完成长视频生产，并接受素材上传、API key 和额度消耗时，可在完成导演母版后读取 [video-generation-cellcog.md](references/video-generation-cellcog.md) 与 [cellcog.md](references/cellcog.md)。它是可选执行器，不是默认路由；不得因为“能一键生成”跳过脚本、镜头和验收门禁。
 
-用户需要非写实、旁白驱动的解释视频，并明确接受 Higgsfield 服务与额度时，读取 [higgsfield-explainer.md](references/integrations/higgsfield-explainer.md)。它只负责十秒分块式解释视频，不替代电影、广告、UGC 或数字人口播路径。
+用户需要无脸、旁白驱动的解释视频，并明确接受 Higgsfield 服务与额度时，读取 [higgsfield-explainer.md](references/integrations/higgsfield-explainer.md)。它按实际旁白分块制作，尾块可更短，不替代电影、广告、UGC 或数字人口播路径；旧解释视频命令已迁移，不能照旧调用。
 
 ### 短视频与发布
 
@@ -125,6 +145,22 @@ metadata:
 - 中文成稿去 AI 味：[humanizer-zh.md](references/humanizer-zh.md)
 
 ## 标准工作流
+
+### 跨模块创作协作
+
+按 [创作协作链](references/integrations/creative-collaboration.md) 依次完成：编剧/剧本诊断 → 导演调度 → 分镜连续性 → 声音cue → 一个目标平台的提示词 → 剪辑交接。每阶段读取上一步产物，沿用稳定ID、锁定内容和单一画幅/时间线，不另起一套事实。
+
+剧本动机或因果问题退回编剧；站位与动作不成立退回导演；状态、时间或素材引用错误退回分镜；声音边界错误退回cue；模型语法错误只改平台表达。上游改变后，先更新受影响交接，不能只给旧提示词换一个新版本号。
+
+需要机器交接时，用 [creative_handoff.py](scripts/creative_handoff.py) 检查阶段依赖、ID、状态、cue和引用，再导出既有工作流格式的零预算草稿。检查和编译均不授予内容、账号、上传或生成许可。简单单镜、单次改稿只走所需阶段，不强制填写完整项目包。
+
+### 需要实际生成并远程审核时
+
+3.0的远程制作工作流沿用同一份剧本、分镜、执行脚本与提示词。通过用户自行登录的即梦画布生图，再由本人在飞书／微信逐镜审分镜，另批预算后逐镜生视频。全部视频就绪后检查规格，按镜号顺序合成并回传成片终审。拒绝一镜时仅更新受影响镜头，保留已接受素材，新增生成另核对预算。飞书设置从 `scripts/feishu_setup.py --doctor` 开始，凭据由用户在本机终端输入并完成单人私聊配对。默认合成保留原时序。可选统一规格须另获逐项目的新批准。每阶段核对内容、素材上传与预算批准。[远程制作工作流](references/integrations/remote-production-workflow.md)
+
+真实范围：即梦＋微信单镜闭环、飞书现有媒体审核及两端两字审核已有实测；多镜真实付费、飞书审核后重新生成的完整Engine流程、新合成阶段的两端真人审核仍未证实。MiniMax Design仅开放能力检查与受限准备，自动付费继续关闭。按[历史验收记录](audits/workflow-v3.0.md)和[两字审核记录](audits/short-reply-v3.0-rc.9.md)陈述实际证据，不用正式版本号扩大验证范围；顺序合成不等于自动剪辑或发布。
+
+### 只需创作方案时
 
 根据任务裁剪，不强制每次走完整链路：
 
@@ -166,7 +202,7 @@ metadata:
 
 ## 维护与来源
 
-本目录保存了整合前的完整来源，便于追溯而不污染主流程：[legacy-filmmaking-v1.md](references/legacy-filmmaking-v1.md)。这些参考是方法库，不代表每次都必须同时使用。
+旧版入口的兼容关系见[legacy-filmmaking-v1.md](references/legacy-filmmaking-v1.md)，原组件去向与来源另见下方账本。这些参考按需读取，不代表每次都必须同时使用。
 
 - 运行 `python3 scripts/validate_package.py` 检查 frontmatter、链接、清单哈希和路径可移植性。
 - 运行 `python3 scripts/validate_storyboard.py references/support/storyboard-example.json --json` 检查分镜合同示例；实际任务换成项目台账。

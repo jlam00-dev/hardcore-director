@@ -5,9 +5,11 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import re
 import subprocess
 import zipfile
 from pathlib import Path
+from urllib.parse import urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -61,7 +63,24 @@ def skillhub_skill_md(path: Path, version: str) -> bytes:
 def skillhub_readme(path: Path, version: str) -> bytes:
     text = path.read_text(encoding="utf-8")
     asset_base = f"{GITHUB_ASSET_REPOSITORY}v{version}/assets/"
-    return text.replace('src="./assets/', f'src="{asset_base}').encode("utf-8")
+    return re.sub(
+        r"(\b(?:src|href)\s*=\s*['\"]|\]\(\s*<?)(?:\./)?assets/",
+        lambda match: match[1] + asset_base,
+        text,
+    ).encode("utf-8")
+
+
+def skillhub_agent_yaml(path: Path) -> bytes:
+    lines = []
+    for line in path.read_text(encoding="utf-8").splitlines(keepends=True):
+        key, _, value = line.partition(":")
+        if key.strip() in {"icon_small", "icon_large"}:
+            location = value.split(" #", 1)[0].strip().strip("'\"")
+            reference = urlsplit(location)
+            if not reference.scheme and not reference.netloc and Path(reference.path).suffix.lower() in EXCLUDED_SUFFIXES:
+                continue
+        lines.append(line)
+    return "".join(lines).encode("utf-8")
 
 
 def build(root: Path, output: Path, *, draft: bool = False, package_format: str = "skillhub") -> str:
@@ -85,6 +104,8 @@ def build(root: Path, output: Path, *, draft: bool = False, package_format: str 
                 data = skillhub_skill_md(path, version)
             elif package_format == "skillhub" and relative.as_posix() == "README.md":
                 data = skillhub_readme(path, version)
+            elif package_format == "skillhub" and relative.as_posix() == "agents/openai.yaml":
+                data = skillhub_agent_yaml(path)
             else:
                 data = path.read_bytes()
             info = zipfile.ZipInfo(f"hardcore-director/{relative.as_posix()}")

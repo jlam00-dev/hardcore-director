@@ -1,8 +1,10 @@
 # 分镜机器门禁
 
-对多镜头分镜和批量提示词使用；简单单镜头无需先写 JSON。吸收 [novel-storyboard 2.0.0](https://github.com/eternityspring/shuohao-skills/tree/ef4ac0c313c7eeb1f918db5f0f0eb319745900bc/skills/novel-storyboard) 的节拍归属、对白容量和引用检查思想；本地脚本与 JSON 合同为独立实现，不兼容上游 board JSON，也不复制其模型方言或固定 15 秒预算。
+对多镜头分镜和批量提示词使用；简单单镜头无需先写 JSON。吸收 [novel-storyboard 2.0.0](https://github.com/eternityspring/shuohao-skills/tree/1084e66bc6063e472bde2567425a99dc6d6ebcff/skills/novel-storyboard) 的节拍归属、对白容量和引用检查思想；本地脚本与 JSON 合同为独立实现，不兼容上游 board JSON，也不复制其模型方言或固定 15 秒预算。
 
-固定仓库快照 `ef4ac0c313c7eeb1f918db5f0f0eb319745900bc`，2026-10-01 审阅。Apache-2.0，Copyright 2026 烁皓；[完整许可](../support/licenses/shuohao-Apache-2.0.md)与 [NOTICE](../support/licenses/shuohao-NOTICE.md)。真实上游结构见 [schema.md](https://github.com/eternityspring/shuohao-skills/blob/ef4ac0c313c7eeb1f918db5f0f0eb319745900bc/skills/novel-storyboard/references/schema.md)。
+2026-11-03审阅固定快照 `1084e66bc6063e472bde2567425a99dc6d6ebcff`，吸收画幅贯通的实质变化。Apache-2.0，Copyright 2026 烁皓；[完整许可](../support/licenses/shuohao-Apache-2.0.md)与 [NOTICE](../support/licenses/shuohao-NOTICE.md)。真实上游结构见 [schema.md](https://github.com/eternityspring/shuohao-skills/blob/1084e66bc6063e472bde2567425a99dc6d6ebcff/skills/novel-storyboard/references/schema.md)。
+
+同时参考 [drama-skills分镜方法](https://github.com/zenstory-ai/drama-skills/tree/d8a9a9b5f5fa0e46dc2644d55879d1c984ff70e6/skills/short-drama-storyboard) 的来源覆盖、世界空间锚点、关键帧边界和修订身份；MIT，Copyright (c) 2026 drama-skills contributors，[完整许可](../support/licenses/drama-skills-MIT.md)。仅将方法整理为下述人工检查，不复制其生产适配器、EP目录格式、模型方言或可执行代码，也不声称现有脚本已自动检查这些新增语义。
 
 ## 什么时候运行
 
@@ -15,6 +17,18 @@ python3 scripts/validate_storyboard.py path/to/storyboard.json --json
 脚本只读输入，使用 Python 标准库；不下载依赖、不上传素材、不调用生成服务。错误返回 1，通过返回 0。`--strict` 把对白时长估算警告也视为失败；正式对白已有录音时优先填写实测帧数。
 
 用户已定画幅/时长时，同时传入 `--expected-aspect-ratio 16:9 --expected-total-frames 600`（例：20秒、30fps），防止 JSON 自己写错规格却内部自洽。`--strict` 下 JSON 的 `valid` 与退出码一致；`structurally_valid` 单列声明结构是否过关。
+
+## 剧本、导演与模型之间的交接
+
+沿 [创作协作合同](creative-collaboration.md) 使用同一份已确认剧本、视觉事实和分镜台账：
+
+- **来源覆盖**：`scene_id` 与节拍必须来自当前获准剧本，不能从写好的镜头反造来源。有意不拍的场次说明理由；修改、拆并镜保留未受影响的镜号，并点名需要刷新的提示词、参考图和批准。
+- **同一画幅**：以项目确定的 `aspect_ratio` 为单一来源，分镜、关键帧构图、图像参数、视频参数和报告继承同值。上游新增 `aspectRatio` 的两种枚举是其自身约定；本包仍保留JSON v1已有合法画幅，不扩出第二个同义字段。
+- **状态与揭示**：每镜交代起点、主要动作链和终点。把“后半段首次出现”等要求换成整片时间边界，再核对首次可见/可听时刻；首帧只呈现起点，不能提前出现终点道具、文字或关系。
+- **空间和持续关系**：先定场景锚点、人物关系与轴线，再写具体机位下的画面左右。镜内持续的手、物件、距离和接触关系在两端保留；改变时要有可见过程，不能靠镜外瞬移补齐。
+- **同一可见主体清单**：从关键帧实际内容反查人物、地点和道具，再核对视觉依据、图片提示词职责及真实参考图。提示词条目和挂图计划不等于文件；缺图可继续文字分镜，但不能宣称已满足投产素材条件或自动扩大素材上传范围。
+
+导演确有多种会改变观众知情时机、立场或空间压力的方案时，才比较场次覆盖；普通镜头直接设计。选定结果写回同一台账，不强迫每场增加固定方案数或另交一套覆盖表。以上语义仍由导演与创作者审阅；下文脚本的检查能力保持独立、明确。
 
 ## 本包 JSON 合同 v1
 

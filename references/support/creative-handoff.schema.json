@@ -1,0 +1,947 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Hardcore Director creative handoff packet v1",
+  "description": "Planning-only handoffs. Content digests are not approval. No media or network is read. Semantic constraints are checked by scripts/creative_handoff.py.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project",
+    "script",
+    "direction",
+    "storyboard",
+    "audio",
+    "prompts",
+    "editorial"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "brief",
+        "aspect_ratio",
+        "fps",
+        "total_frames",
+        "locked_state",
+        "sound_policy"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "brief": {
+          "$ref": "#/$defs/text"
+        },
+        "aspect_ratio": {
+          "type": "string",
+          "pattern": "[1-9][0-9]{0,3}:[1-9][0-9]{0,3}"
+        },
+        "fps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 120
+        },
+        "total_frames": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 432000
+        },
+        "locked_state": {
+          "$ref": "#/$defs/state"
+        },
+        "sound_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "music",
+            "dialogue"
+          ],
+          "properties": {
+            "music": {
+              "type": "string",
+              "enum": [
+                "forbidden",
+                "allowed"
+              ]
+            },
+            "dialogue": {
+              "type": "string",
+              "const": "script_only"
+            }
+          }
+        }
+      }
+    },
+    "script": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "screenplay",
+        "shooting_script",
+        "beats"
+      ],
+      "properties": {
+        "screenplay": {
+          "$ref": "#/$defs/text"
+        },
+        "shooting_script": {
+          "$ref": "#/$defs/text"
+        },
+        "beats": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/beat"
+          },
+          "minItems": 1,
+          "maxItems": 96
+        }
+      }
+    },
+    "direction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_hash",
+        "shots"
+      ],
+      "properties": {
+        "source_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "shots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/directionShot"
+          },
+          "minItems": 1,
+          "maxItems": 48
+        }
+      }
+    },
+    "storyboard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_hash",
+        "board"
+      ],
+      "properties": {
+        "source_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "board": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version",
+            "aspect_ratio",
+            "fps",
+            "total_frames",
+            "beats",
+            "assets",
+            "shots"
+          ],
+          "properties": {
+            "schema_version": {
+              "type": "integer",
+              "const": 1
+            },
+            "aspect_ratio": {
+              "type": "string",
+              "pattern": "[1-9][0-9]{0,3}:[1-9][0-9]{0,3}"
+            },
+            "fps": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 120
+            },
+            "total_frames": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 432000
+            },
+            "limits": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "max_shot_frames": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 14400
+                },
+                "speech_units_per_second": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 50
+                }
+              }
+            },
+            "beats": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "$ref": "#/$defs/id"
+                  }
+                }
+              },
+              "minItems": 1,
+              "maxItems": 96
+            },
+            "assets": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/asset"
+              },
+              "minItems": 0,
+              "maxItems": 96
+            },
+            "shots": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/boardShot"
+              },
+              "minItems": 1,
+              "maxItems": 48
+            }
+          }
+        }
+      }
+    },
+    "audio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_hash",
+        "cues"
+      ],
+      "properties": {
+        "source_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "cues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/cue"
+          },
+          "minItems": 0,
+          "maxItems": 192
+        }
+      }
+    },
+    "prompts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_hash",
+        "platform",
+        "shots"
+      ],
+      "properties": {
+        "source_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "platform": {
+          "type": "string",
+          "enum": [
+            "seedance-2.5",
+            "wan-3.0",
+            "minimax-h3",
+            "generic"
+          ]
+        },
+        "shots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/prompt"
+          },
+          "minItems": 1,
+          "maxItems": 48
+        }
+      }
+    },
+    "editorial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_hash",
+        "status",
+        "events"
+      ],
+      "properties": {
+        "source_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "reported_windows"
+          ]
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/event"
+          },
+          "minItems": 1,
+          "maxItems": 48
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "[A-Za-z0-9][A-Za-z0-9_-]{0,63}"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 30000
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "[a-f0-9]{64}"
+    },
+    "frame": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 432000
+    },
+    "state": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": [
+          "string",
+          "number",
+          "boolean",
+          "null"
+        ]
+      }
+    },
+    "line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "speaker",
+        "text"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "speaker": {
+          "$ref": "#/$defs/text"
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "beat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "scene_id",
+        "action",
+        "cause",
+        "effect",
+        "dialogue"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "scene_id": {
+          "$ref": "#/$defs/id"
+        },
+        "action": {
+          "$ref": "#/$defs/text"
+        },
+        "cause": {
+          "$ref": "#/$defs/text"
+        },
+        "effect": {
+          "$ref": "#/$defs/text"
+        },
+        "dialogue": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/line"
+          },
+          "minItems": 0,
+          "maxItems": 20
+        }
+      }
+    },
+    "directionShot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shot_id",
+        "scene_id",
+        "beat_ids",
+        "blocking",
+        "camera_intent",
+        "performance",
+        "coverage",
+        "start_state",
+        "end_state"
+      ],
+      "properties": {
+        "shot_id": {
+          "$ref": "#/$defs/id"
+        },
+        "scene_id": {
+          "$ref": "#/$defs/id"
+        },
+        "beat_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true,
+          "maxItems": 192,
+          "minItems": 1
+        },
+        "blocking": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "start",
+            "action",
+            "end",
+            "eyelines",
+            "prop_changes",
+            "holds"
+          ],
+          "properties": {
+            "start": {
+              "$ref": "#/$defs/text"
+            },
+            "action": {
+              "$ref": "#/$defs/text"
+            },
+            "end": {
+              "$ref": "#/$defs/text"
+            },
+            "eyelines": {
+              "$ref": "#/$defs/text"
+            },
+            "prop_changes": {
+              "$ref": "#/$defs/text"
+            },
+            "holds": {
+              "$ref": "#/$defs/text"
+            }
+          }
+        },
+        "camera_intent": {
+          "$ref": "#/$defs/text"
+        },
+        "performance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "before",
+            "during",
+            "after"
+          ],
+          "properties": {
+            "before": {
+              "$ref": "#/$defs/text"
+            },
+            "during": {
+              "$ref": "#/$defs/text"
+            },
+            "after": {
+              "$ref": "#/$defs/text"
+            }
+          }
+        },
+        "coverage": {
+          "$ref": "#/$defs/text"
+        },
+        "start_state": {
+          "$ref": "#/$defs/state"
+        },
+        "end_state": {
+          "$ref": "#/$defs/state"
+        }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "status",
+        "path",
+        "role",
+        "sha256"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "status": {
+          "enum": [
+            "planned",
+            "provided"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "identity",
+            "product",
+            "space",
+            "start_frame",
+            "end_frame",
+            "motion",
+            "camera",
+            "style",
+            "voice",
+            "music"
+          ]
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "[a-f0-9]{64}"
+        }
+      }
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_id",
+        "role",
+        "exclude"
+      ],
+      "properties": {
+        "asset_id": {
+          "$ref": "#/$defs/id"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "identity",
+            "product",
+            "space",
+            "start_frame",
+            "end_frame",
+            "motion",
+            "camera",
+            "style",
+            "voice",
+            "music"
+          ]
+        },
+        "exclude": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "boardLine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "line_id",
+        "speaker",
+        "text",
+        "start_frame",
+        "end_frame"
+      ],
+      "properties": {
+        "line_id": {
+          "$ref": "#/$defs/id"
+        },
+        "speaker": {
+          "$ref": "#/$defs/text"
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "start_frame": {
+          "$ref": "#/$defs/frame"
+        },
+        "end_frame": {
+          "$ref": "#/$defs/frame"
+        }
+      }
+    },
+    "boardShot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "scene_id",
+        "purpose",
+        "start_frame",
+        "end_frame",
+        "beat_ids",
+        "references",
+        "start_state",
+        "end_state",
+        "dialogue"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "scene_id": {
+          "$ref": "#/$defs/id"
+        },
+        "purpose": {
+          "$ref": "#/$defs/text"
+        },
+        "start_frame": {
+          "$ref": "#/$defs/frame"
+        },
+        "end_frame": {
+          "$ref": "#/$defs/frame"
+        },
+        "beat_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true,
+          "maxItems": 192,
+          "minItems": 1
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reference"
+          },
+          "minItems": 0,
+          "maxItems": 96
+        },
+        "start_state": {
+          "$ref": "#/$defs/state"
+        },
+        "end_state": {
+          "$ref": "#/$defs/state"
+        },
+        "transition": {
+          "type": "string",
+          "enum": [
+            "continuous",
+            "time_jump",
+            "scene_change"
+          ]
+        },
+        "transition_reason": {
+          "$ref": "#/$defs/text"
+        },
+        "dialogue": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/boardLine"
+          },
+          "minItems": 0,
+          "maxItems": 20
+        }
+      }
+    },
+    "cue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "shot_ids",
+        "beat_ids",
+        "kind",
+        "placement",
+        "start_frame",
+        "end_frame",
+        "bridge",
+        "intent",
+        "dialogue_id",
+        "source_asset_id",
+        "source_kind",
+        "evidence_status",
+        "rights_note"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "shot_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true,
+          "maxItems": 48,
+          "minItems": 1
+        },
+        "beat_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true,
+          "maxItems": 96,
+          "minItems": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "dialogue",
+            "foley",
+            "ambience",
+            "music",
+            "silence"
+          ]
+        },
+        "placement": {
+          "type": "string",
+          "enum": [
+            "generation",
+            "post"
+          ]
+        },
+        "start_frame": {
+          "$ref": "#/$defs/frame"
+        },
+        "end_frame": {
+          "$ref": "#/$defs/frame"
+        },
+        "bridge": {
+          "type": "boolean"
+        },
+        "intent": {
+          "$ref": "#/$defs/text"
+        },
+        "dialogue_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "[A-Za-z0-9][A-Za-z0-9_-]{0,63}"
+        },
+        "source_asset_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "[A-Za-z0-9][A-Za-z0-9_-]{0,63}"
+        },
+        "source_kind": {
+          "type": "string",
+          "enum": [
+            "native",
+            "user_asset",
+            "library",
+            "generated",
+            "none"
+          ]
+        },
+        "evidence_status": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "reported"
+          ]
+        },
+        "rights_note": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "prompt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shot_id",
+        "image_prompt",
+        "video_prompt",
+        "dialogue_ids",
+        "cue_ids",
+        "cue_bindings",
+        "reference_asset_ids"
+      ],
+      "properties": {
+        "shot_id": {
+          "$ref": "#/$defs/id"
+        },
+        "image_prompt": {
+          "$ref": "#/$defs/text"
+        },
+        "video_prompt": {
+          "$ref": "#/$defs/text"
+        },
+        "dialogue_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true,
+          "maxItems": 192
+        },
+        "cue_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true,
+          "maxItems": 192
+        },
+        "cue_bindings": {
+          "type": "array",
+          "maxItems": 192,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["cue_id", "text"],
+            "properties": {
+              "cue_id": {"$ref": "#/$defs/id"},
+              "text": {"$ref": "#/$defs/text"}
+            }
+          }
+        },
+        "reference_asset_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true,
+          "maxItems": 192
+        }
+      }
+    },
+    "take": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_id",
+        "in_frame",
+        "out_frame",
+        "fps"
+      ],
+      "properties": {
+        "asset_id": {
+          "$ref": "#/$defs/id"
+        },
+        "in_frame": {
+          "$ref": "#/$defs/frame"
+        },
+        "out_frame": {
+          "$ref": "#/$defs/frame"
+        },
+        "fps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 120
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shot_id",
+        "beat_ids",
+        "start_frame",
+        "end_frame",
+        "take",
+        "cue_ids",
+        "notes"
+      ],
+      "properties": {
+        "shot_id": {
+          "$ref": "#/$defs/id"
+        },
+        "beat_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true,
+          "maxItems": 192,
+          "minItems": 1
+        },
+        "start_frame": {
+          "$ref": "#/$defs/frame"
+        },
+        "end_frame": {
+          "$ref": "#/$defs/frame"
+        },
+        "take": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "asset_id",
+            "in_frame",
+            "out_frame",
+            "fps"
+          ],
+          "properties": {
+            "asset_id": {
+              "$ref": "#/$defs/id"
+            },
+            "in_frame": {
+              "$ref": "#/$defs/frame"
+            },
+            "out_frame": {
+              "$ref": "#/$defs/frame"
+            },
+            "fps": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 120
+            }
+          }
+        },
+        "cue_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true,
+          "maxItems": 192
+        },
+        "notes": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    }
+  }
+}

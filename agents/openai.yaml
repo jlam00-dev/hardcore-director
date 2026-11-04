@@ -1,4 +1,7 @@
 interface:
   display_name: "硬核导演"
-  short_description: "影视总控与 SD2.5、Wan 3.0、MiniMax H3 提示词"
+  short_description: "影视创作总控，串联剧本、分镜、生成提示词与手机审核制作"
+  icon_small: "./assets/hardzai-icon.png"
+  icon_large: "./assets/hardzai-icon.png"
+  brand_color: "#FFD600"
   default_prompt: "使用 $hardcore-director，先判断我处于哪个制作阶段，再把想法变成可拍摄、可生成、可验收的视频方案。"

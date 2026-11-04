@@ -1,213 +1,126 @@
-<p align="center">
-  <img src="./assets/hardcore-director-hero-v2.png" alt="硬核导演 — 影视与 AI 视频创作总控 Skill" width="100%" />
-</p>
+<p align="center"><img src="./assets/hardzai-icon.png" alt="硬仔 — 硬核导演Icon" width="112" /></p>
+
+<h1 align="center">硬核导演 3.0 · Hardcore Director</h1>
+
+<p align="center"><strong>电脑开着，你去忙。关键结果发到微信、飞书，确认后再继续。</strong></p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Codex-Skill-111111?style=for-the-badge" alt="Codex Skill" />
-  <img src="https://img.shields.io/badge/Version-2.2.0-4A7A5B?style=for-the-badge" alt="Version 2.2.0" />
-  <img src="https://img.shields.io/badge/License-MIT-3D6B8E?style=for-the-badge" alt="MIT License" />
-  <img src="https://img.shields.io/badge/Language-中文-D74A3A?style=for-the-badge" alt="中文" />
-  <img src="https://img.shields.io/badge/Workflow-Film%20Production-30363D?style=for-the-badge" alt="Film Production" />
+  <img src="https://img.shields.io/badge/Version-3.0.0-FFD600?style=for-the-badge&labelColor=111111" alt="Version 3.0.0" />
+  <img src="https://img.shields.io/badge/Codex-Skill-FFD600?style=for-the-badge&labelColor=111111" alt="Codex Skill" />
+  <img src="https://img.shields.io/badge/License-MIT-FFD600?style=for-the-badge&labelColor=111111" alt="MIT License" />
 </p>
 
-<h1 align="center">硬核导演 · Hardcore Director</h1>
+<p align="center"><img src="./assets/hardzai-default.png" alt="硬核导演品牌IP硬仔，默认空手形象" width="320" /></p>
 
-<p align="center">
-  面向 Codex / Agent 工作流的影视与 AI 视频创作总控 Skill。<br />
-  从故事、人物与分镜，到生成提示词、声音、剪辑与发布，统一成一条可执行的制作链路。
-</p>
+面向Codex等可运行本机命令的Agent，硬核导演把剧本、导演、分镜、平台提示词与实际制作接成同一条流程。2.x的按需创作继续保留；3.0加入持久任务记录、即梦画布执行、微信／飞书审核与合成，让电脑推进已获批准的任务，用户在手机处理关键决定。
 
----
+## 3.0：一个自动工作流，电脑制作、手机把关
 
-<p align="center">
-  <img src="./assets/detail-story-to-delivery.png" alt="从故事到交付 — 完整影视制作链路" width="100%" />
-</p>
+<p align="center"><img src="./assets/poster-workflow.png" alt="硬核导演3.0自动工作流：电脑开着你去忙，微信飞书审核后继续" width="720" /></p>
 
-## 它不是“提示词大全”
+`需求 → 剧本/导演/分镜/提示词 → 确认方案与生图预算 → 微信或飞书逐镜审图 → 另批视频预算 → 逐镜生视频 → 规格检查与顺序合成 → 成片终审`
 
-`hardcore-director` 先判断你正处于哪个制作阶段，再读取当前真正需要的方法模块。
+微信和飞书是这条工作流的审核通道。分镜图、成片和当前费用范围送到自己的机器人私聊。核对请求后回复“同意／拒绝”，有多项待审时先按提示选编号。工作流会等待当前阶段所需的内容、上传或费用批准。
 
-它解决的不是“再写一段更华丽的描述”，而是三个更具体的问题：
+电脑需要保持联网、唤醒，即梦登录与本机桥接、调度进程保持可用。首次接入由用户登录自己的账号、配置自己的机器人并完成本人绑定；接通后再用最小项目验证。它提供自动推进和人工审核，不承诺无需配置、无人参与或每秒推送进度。
 
-- **故事能不能成立**：人物有欲望，场景有阻力，转折由行动产生。
-- **画面能不能执行**：主体、站位、动作方向、机位、光线、声音都能落到镜头。
-- **成片能不能交付**：时长、连续性、平台格式、字幕、响度与发布表达都有复核门禁。
+## 创作模块也一起升级
 
-> 先解决叙事与可执行性，再叠加风格。
+<p align="center"><img src="./assets/poster-creative.png" alt="硬核导演3.0创作升级：剧本诊断、导演调度、声音及剪辑交接" width="720" /></p>
 
-<p align="center">
-  <img src="./assets/detail-command-center.png" alt="八大能力，一个中枢" width="100%" />
-</p>
+- **剧本诊断**：定位具体场景、人物动机和因果问题，给出有依据的最小改单，交回编剧修订。
+- **导演调度与表演**：把情绪落成站位、视线、动作、表演节拍与镜头覆盖，交给分镜执行。
+- **分镜与产品镜头**：统一画幅、真实参考职责及首尾状态，补强“预备—动作—可读结果”的镜头表达。
+- **声音与剪辑交接**：对白、环境声和音效沿用同一镜号、时间窗，传到视频提示词及后期计划。
+- **改稿影响可追踪**：各阶段共享项目、角色、道具、对白和镜号；上游变化会使受影响交接过期，复核后再继续。
 
-## 能力版图
+例如把“放下杯子”改为“递给对方”，导演动作、分镜道具归属、交接声与提示词都需要同步检查。创作模块产物成为下一阶段的依据，不各写一套故事。[创作协作链](references/integrations/creative-collaboration.md)与本地检查器负责核对来源、ID、时序、锁定状态、对白和声音引用；机器通过不代替故事、画面和听感验收。
 
-| 制作阶段 | 可以交付什么 |
+本版保留原组件，并新增四个创作方法适配和一个原创协作层，连同远程制作能力共53项顶层模块。模块数不等于独立上游Skill数，也不代表每项都有公开新版。实际变化、保留原因与来源见[创作组件账本](audits/creative-components-v3.0-rc.7.md)。
+
+## 从1.0到3.0
+
+<p align="center"><img src="./assets/poster-versions.png" alt="硬核导演1.0、2.1、2.2到3.0版本迭代记录" width="720" /></p>
+
+| 版本 | 主要进步 |
 | --- | --- |
-| 故事开发 | 高概念、梗概、人物弧光、世界观、长短片与多集结构 |
-| 编剧与短剧 | 完整剧本、竖屏短剧、冲突升级、钩子、反转与爽点 |
-| 角色与场景 | 角色 DNA、造型锚点、场景板、Blocking、空间与连续性 |
-| 导演与分镜 | 景别、机位、构图、运镜、表演、微表情、镜头时长与声音 |
-| AI 视频 | Seedance / 即梦 / Vidu / 可灵 / 海螺等平台的可执行提示词 |
-| 视听风格 | 导演美学、色彩、调色、节奏、环境音、Foley 与 AI 配乐 |
-| 分析与后期 | 拉片、竞品反推、实拍素材剪辑、字幕、混音与导出规格 |
-| 内容发布 | 短视频脚本、黄金三秒、标题、封面建议与平台友好改写 |
+| 1.0 | 汇集36份顶层能力模块，覆盖编剧、导演、分镜、视听风格与提示词等方法。 |
+| 2.1 | 重写按阶段调用路径，加入Seedance 2.5、Wan 3.0、MiniMax H3提示词工具及新制作路径，建立来源与维护检查，形成45项能力。 |
+| 2.2 | 升级中文润色、实拍剪辑、Seedance与配乐，加入产品镜头词典和分镜机器门禁，形成47项能力。 |
+| 3.0 | 加入可恢复的自动制作工作流和微信／飞书审核，补强创作交接，让电脑推进、手机把关，形成53项能力。 |
 
-## 工作方式
+历史依据：[1.0→2.1组件对账](audits/component-ledger-v1-to-v2.1.md)、[2.2升级记录](audits/upgrade-review-v2.2.md)。未给没有明确记录的版本补造迭代内容。
 
-```text
-你的想法 / 素材 / 剧本
-        ↓
-识别制作阶段与硬约束
-        ↓
-按需路由 2–5 个方法模块
-        ↓
-故事与视觉可执行性判断
-        ↓
-分镜 / 提示词 / 剪辑任务单
-        ↓
-连续性、时长、声音与平台复核
-        ↓
-可直接进入制作的交付物
-```
+## 安装与第一次使用
 
-它不会在一次回答里机械加载全部参考，而是按任务裁剪：一个主模块、一个平台适配器、最多两个专项增强。编剧先处理戏剧动作，分镜再处理空间与连续性，平台生成最后转换成对应语法。
+使用固定[GitHub Release v3.0.0](https://github.com/jlam00-dev/hardcore-director/releases/tag/v3.0.0)或同名`v3.0.0` Tag，避免把持续变化的`main`当作固定版本。两个包服务不同安装格式：
 
-旧版曾把 `references/` 下的 36 份顶层能力快照简称为“36 个 Skill”。准确口径是：其中 34 份对应当时的本机 Skill，另有 2 份是内部汇总模块；并非 36 份都有公开版本号或可查询上游。v2.1 已建立逐项账本，不再把“模块数”和“可自动更新依赖数”混算。
+- **Codex完整包**：保留品牌图片、海报、方法、脚本与使用手册。解压后安装完整`hardcore-director`文件夹。
+- **SkillHub兼容包**：保留运行所需文本、脚本、合同和许可证说明，按平台要求排除图片及不接受的文件类型；视觉资产可在本仓库或GitHub完整包查看。SkillHub原条目的版本状态以平台页面为准。
 
-## v2.2 升级
+Codex个人安装目录为`~/.agents/skills/hardcore-director`，应能找到其中的`SKILL.md`。装过2.x时先让Agent检查旧入口并保留可恢复备份，再安装3.0；拿到新ZIP不会自动切换旧入口。不要只复制一个`SKILL.md`。[官方Skills说明](https://learn.chatgpt.com/docs/build-skills)
 
-v2.2.0 通过固定 GitHub Tag/Release 发行；v2.1.0 保留为历史版本。
-
-v2.2 更新中文成稿润色与实拍剪辑规则，审阅并升级 Seedance 2.5 和 Suno v6 配乐适配器；新增 10 条产品/软件宣传片镜头词典、平台无关的分镜 JSON 门禁。顶层能力模块由 45 项变为 47 项。分镜脚本能检查时间、节拍、引用与状态声明，实际画面和音画仍须看验。
-
-更新检查直接使用公开 HTTP 接口，不再临时下载 ClawHub CLI；清单还会追踪模型规则和镜头配方的内容依赖。具体来源、取舍与验收见 [v2.2 升级记录](audits/upgrade-review-v2.2.md)。
-
-### v2.1 历史升级
-
-- Seedance 2.5、Wan 3.0、MiniMax H3 三个独立提示词工具；
-- 按“制作阶段 → 主模块 → 平台适配器 → 专项增强”重写调用路径；
-- MiniMax H3 官方 T2VA / I2VA / FL2VA / L2VA / Ref2VA 固定 Schema；
-- 独立分镜帧优先的交付包与连续性台账，多宫格改为按需选项；
-- 更新 `short-drama-writer`、`creative-writing-cellcog`、传递依赖 `cellcog`，并按最新上游重构影视配乐适配器；
-- 接入 SkillHub 高评分的 `video-generation-cellcog` 作为明确授权后的可选外部执行器；
-- 接入高热度的官方 Remotion Skill 路由，补齐可编程视频、字幕、批量版本与确定性渲染；
-- 接入 Higgsfield 非写实旁白解释视频路径，保留登录、上传和额度授权门禁；
-- 为旧版 36 项建立全量状态账本；依赖清单、只读更新检查、包体校验、候选审计和第三方来源说明不再只覆盖 11 项。
-
-## 安装与发布
-
-v2.2.0 的固定发行源是 [GitHub Release](https://github.com/jlam00-dev/hardcore-director/releases/tag/v2.2.0) 与 `v2.2.0` Tag。Codex 完整包与 SkillHub 兼容包均可从 Release 下载；提供兼容包不等于已发布到 SkillHub 平台。本次发行范围为 GitHub。不要把持续变化的 `main` 当作固定版本。仓库原创部分采用 MIT；第三方快照和改编内容继续遵守各自许可证与来源说明。
-
-安装后可直接点名调用：
+先读[新用户使用手册](references/support/user-guide.md)，也可下载[纯文字手册](references/support/user-manual.txt)。安装后新开会话，复制这一段开始：
 
 ```text
-使用 $hardcore-director，把这个故事改成 90 秒竖屏短剧。
+使用 $hardcore-director，带我完成第一次使用。
+先确认实际加载的是3.0.0，检查包完整性与制作环境。
+我先做一镜测试，使用自己的即梦画布账号，飞书或微信本人审核。
+先给我方案和实时报价，内容、上传、生图和视频预算逐阶段确认后再继续。
 ```
+
+只需创作时仍可按需调用：
 
 ```text
-使用 $hardcore-director，把这份剧本拆成可拍摄的分镜表。
+使用 $hardcore-director，把这个故事改成32秒短片。
+先出剧本、导演处理、分镜和即梦提示词，暂不生成媒体。
+沿用同一份人物、道具、对白和镜号，改稿时检查受影响环节。
 ```
 
-```text
-使用 $hardcore-director，把这组参考图变成角色稳定、动作连续的 AI 视频提示词。
-```
+也可单独写长短片剧本、做角色与场景、拆分镜、写指定平台提示词、拉片或做剪辑交接。默认按当前任务选择一个主模块、一个平台适配器与必要增强，不机械加载全部方法。
 
-```text
-使用 $hardcore-director，拉片分析这个广告，并给出可复用的镜头、色彩和声音策略。
-```
+## 账号、费用和运行条件
 
-## 标准制作链路
+详细步骤见[即梦、飞书与微信接入指南](references/support/remote-setup-guide.md)。
 
-1. **定义目标** — 观众、载体、时长、画幅和期望情绪。
-2. **建立故事** — 人物欲望、阻力、转折、结局或 CTA。
-3. **建立视觉圣经** — 角色、场景、色彩、材质、光线与一致性锚点。
-4. **设计镜头** — 景别、机位、站位、动作方向、运镜、时长与声音。
-5. **平台落地** — 转成生成提示词、拍摄单或剪辑任务单。
-6. **质量复核** — 连续性、总时长、状态变化、声音同步与平台格式。
-7. **交付成品** — 只输出当前阶段真正需要使用的版本。
-
-<p align="center">
-  <img src="./assets/detail-quality-gate.png" alt="先过门禁，再交付" width="100%" />
-</p>
-
-## 质量门禁
-
-- 每场戏必须有目标、阻力和变化；对白不能替代戏剧动作。
-- 抽象情绪必须转成眼神、呼吸、肌肉张力与身体动作。
-- 多人物镜头必须写清站位、朝向、距离、受力与落点。
-- 服装、妆发、伤痕、道具与光线方向必须保持前后连续。
-- 镜头时长之和必须等于总时长，平台字段与画幅必须正确。
-- 分析结论必须有时间码或镜头编号支撑，并区分观察与推断。
-
-## 模型提示词路由
-
-| 模型 | 处理重点 |
+| 部分 | 需要准备 |
 | --- | --- |
-| Seedance 2.5 / 即梦 2.5 | 30 秒内叙事、多素材职责、长镜头、编辑、延长和终止状态 |
-| Wan 3.0 | Omni 多模态参考、首尾帧路径、参考生视频、编辑与音画联合结构 |
-| MiniMax H3 | 官方固定字段、关键帧对齐、全参考保留分析、严格音画时间线 |
+| 本机 | 可读取本地文件并运行命令的Agent、Python≥3.10；真实媒体检查与合成需ffmpeg/ffprobe。当前以macOS／支持POSIX权限和锁的环境为前提，原生Windows未验证。 |
+| 即梦 | 官方`dreamina-canvas`、自己的profile与账号、明确的空间及专用画布、现场可用模型和资格。`dreamina`或浏览器登录不能代替画布CLI授权。 |
+| 飞书 | 自己的企业自建机器人、三项最小权限、lark-oapi SDK与本人私聊配对。App ID/Secret由用户在本机终端输入。 |
+| 微信 | 官方机器人二维码、自己的账号资格、核实后的本人稳定ID与审核白名单；媒体另需cryptography。不要求安装OpenClaw。 |
 
-三者先共用一份“导演母版”，再只加载一个目标模型的适配器。需要即梦界面最新专用语法时，可进一步调用 [`hc-sd2-5-prompt-writer`](https://github.com/jlam00-dev/hc-sd2-5-prompt-writer)。
+Skill、凭据与作品分别保存。用户的密钥、登录缓存、数据库与私人媒体不随包分发。首次设置完成后先做0费用收发和审核，再跑一镜真实生成。方案同意、素材上传、生图预算、视频预算与可选重编码分别核对；实际价格以官方当前节点报价为准，预算使用对应供应商的真实单位。
 
-Wan 3.0 的公开官方页面尚未给出一套固定字段规范，因此 v2.1 明确把它标成“本 Skill 制作模板”，不会把自定义标题冒充官方语法。
+原操作ID和任务记录用于中断恢复。响应未知时先查询原任务，不盲目重新生成；更换账号、素材、修订、范围或预算后重新核验。回执“已记录”表示决定已入队，实际继续情况以本地工作流核验为准。
 
-## 外部执行器边界
+## 已验证范围与当前限制
 
-CellCog 长视频生产和 Higgsfield 解释视频只在用户明确接受对应服务商、素材上传、API key/登录和额度消耗后使用。Remotion 只在需要可编程、确定性视频时进入执行路径。默认只完成本地的创作、分镜、提示词与验收设计，不自动安装外部 Skill、不自动上传素材、不自动消费额度、不自动发布。
+| 能力 | 目前证据与边界 |
+| --- | --- |
+| 即梦＋微信 | 真实单镜的分镜审核、视频生成、回传和用户播放确认已有闭环；联调中有人工维护，不代表无需配置与维护。 |
+| 飞书 | 既有真实图片／视频的收发、独立审核与用户播放确认已有实测；飞书审核后重新生成视频的完整Engine流程尚未证实。 |
+| 两字审核 | 飞书“同意”、微信“拒绝”的0费用本人测试已入队并取得回执API确认；不据此宣称新媒体生成已执行。 |
+| 多镜制作 | 驳回、恢复、预算及合成机制有离线／本地模拟验证；多镜真实付费闭环与《雨沿未拆》32秒完整成片仍未完成。 |
+| 合成 | 逐镜生成视频后按已批准镜号顺序检查并拼接，再发成片终审。规格不兼容时暂停。可选统一规格须新批准并保留原片，新合成阶段的两端真人审核尚未实测。 |
+| MiniMax Design | 支持能力检查、受限请求准备及另行授权的纯文字写入；缺少可靠账号核验、硬费用上限与媒体提交幂等保障，自动付费生成保持关闭。 |
+| 自动剪辑与发布 | 顺序合成不等于自动选片、精细剪辑、混音或平台发布；这些需要独立工具、方案与授权。 |
 
-## 目录结构
+证据按实际版本保留：[制作联调记录](audits/workflow-v3.0.md)、[两字审核记录](audits/short-reply-v3.0-rc.9.md)。正式版本标识不扩张既有验证范围，也不代表未测路径已通过。
 
-```text
-hardcore-director/
-├── README.md
-├── SKILL.md                  # 主入口、任务路由与质量门禁
-├── VERSION                   # 2.2.0
-├── agents/
-│   └── openai.yaml           # Skill 展示信息
-├── assets/
-│   ├── hardcore-director-hero-v2.png
-│   ├── detail-story-to-delivery.png
-│   ├── detail-command-center.png
-│   └── detail-quality-gate.png
-├── audits/                   # GitHub / SkillHub 候选审计
-├── manifests/                # 依赖版本、哈希与上游追踪
-├── scripts/                  # 包体验证与只读更新检查
-├── tests/                    # 更新检查脚本测试
-└── references/
-    ├── prompt-tools/         # SD2.5 / Wan 3.0 / MiniMax H3
-    ├── integrations/         # 分镜交付等新集成
-    ├── support/              # 原先缺失的嵌套参考
-    └── *.md                  # 编剧、导演、视听、后期与发布方法库
-```
+## 硬仔IP与视觉
 
-## 维护检查
+本版使用硬仔IP、黑底正黄及漫画3D视觉，默认角色空手，拍板等道具按场景选择。制作本品牌封面、海报、图标与手册图片时，先读[品牌视觉指南](references/support/brand-visual-guide.md)，使用随包资产，不回退到旧黑红视觉。Icon采用按需读取的打板喊Action形象；品牌素材不强加到用户自己的影片画面里。
+
+## 维护与来源
 
 ```bash
 python3 scripts/validate_package.py
-python3 -m unittest discover -s tests -v
 python3 scripts/validate_storyboard.py references/support/storyboard-example.json --json
 python3 scripts/check_updates.py --offline
 python3 scripts/check_updates.py
 ```
 
-`check_updates.py` 对所有顶层能力模块做哈希检查，并对存在公开上游的项目查询版本或提交；本机原创/内部模块明确标为不可自动升级，而不是从统计中消失。查询 GitHub、ClawHub 与平台页面时只读取公开信息，不安装 CLI。返回码：`0` 当前无异常，`1` 有本地漂移或发现更新，`2` 上游检查失败。某个次来源失败时仍保留已查到的主来源变化证据。
+离线检查包内哈希与引用，在线命令只读查询清单中配置的公开来源。没有独立公开版本的本机或原创模块做完整性与兼容检查，不虚构“全网最新”。维护报告区分可同步更新、上游待审阅、本地问题与来源失败；不会自动安装、覆盖、付费或发布。
 
-本地未提交的候选版可运行 `python3 scripts/build_skillhub_package.py --draft --output <新文件.zip>` 生成审阅包；默认正式包装仍要求工作树干净。包内版本从 `VERSION` 读取，并排除 SkillHub 已拒绝的 `.gitignore`、`LICENSE`、`VERSION` 无扩展名文件。许可证正文保存在 `.md` 文件中。
-
-加 `--format codex` 生成完整 Codex 包，保留图片与标准许可证文件；两种包都有 `hardcore-director/` 根目录。构建已有同名文件时停止，不覆盖原包。
-
-旧版 36 项的去向见 [`component-ledger-v1-to-v2.1.md`](./audits/component-ledger-v1-to-v2.1.md)，来源与许可证边界见 [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md)，发布门槛关闭记录见 [`publication-gate-v2.1.md`](./audits/publication-gate-v2.1.md)。
-
-## 设计原则
-
-- 叙事先于风格，行动先于解释。
-- 平台规则优先于通用模板。
-- 生成内容与后期操作分开描述。
-- 风格、色彩、节奏与声音必须服务内容。
-- 不把内部草稿当成交付物。
-
----
-
-<p align="center">
-  <strong>从一个想法，到一条能拍、能生成、能交付的片子。</strong>
-</p>
+模块与固定来源见[依赖清单](manifests/dependencies.json)，第三方条款见[来源与许可证说明](THIRD_PARTY_NOTICES.md)。原创部分采用MIT，第三方材料继续按各自许可使用；平台会员、软件许可和生成额度不包含在Skill内。

@@ -96,6 +96,10 @@ def inspect_clawhub(skill_ref: str) -> str:
     owner, _, slug = normalized.rpartition("/")
     slug = slug or normalized
     url = "https://clawhub.ai/api/v1/skills/" + urllib.parse.quote(slug, safe="")
+    if owner:
+        # Slugs are not globally unique. Keep the declared publisher in the
+        # request; checking the response owner alone cannot resolve HTTP 409.
+        url += "?" + urllib.parse.urlencode({"owner": owner})
     payload = json.loads(http_text(url))
     if owner and payload.get("owner", {}).get("handle", "").lower() != owner.lower():
         raise RuntimeError(f"ClawHub owner mismatch for {skill_ref}")
@@ -161,6 +165,28 @@ def check_component(
         if actual_hash != component["sha256"]:
             result["local"] = "drift"
             result["details"].append("local SHA-256 differs from manifest")
+
+    # A runtime module is more than its routing Markdown. Check its declared
+    # executable/schema files too, without reading outside the installed root.
+    integrity_files = component.get("integrity_files", {})
+    if not isinstance(integrity_files, dict):
+        result["local"] = "drift"
+        result["details"].append("invalid runtime integrity file map")
+        integrity_files = {}
+    for relative, expected_hash in integrity_files.items():
+        path = (root / relative).resolve()
+        if not path.is_relative_to(root.resolve()) or Path(relative).is_absolute():
+            result["local"] = "drift"
+            result["details"].append("runtime integrity path escapes package")
+        elif not path.is_file():
+            result["local"] = "missing"
+            result["details"].append(f"missing runtime file {relative}")
+        elif sha256_file(path) != expected_hash:
+            if result["local"] == "ok":
+                result["local"] = "drift"
+            result["details"].append(f"runtime SHA-256 differs: {relative}")
+    if integrity_files:
+        result["runtime_files_checked"] = len(integrity_files)
 
     if offline:
         return result

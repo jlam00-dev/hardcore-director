@@ -47,6 +47,26 @@ class UpdateCheckerTests(unittest.TestCase):
         result = MODULE.check_component(component, root=root, offline=True)
         self.assertEqual(result["local"], "drift")
 
+    def test_declared_runtime_code_is_checked_too(self):
+        temporary, root, component = self.make_fixture()
+        self.addCleanup(temporary.cleanup)
+        script = root / "runtime.py"
+        script.write_text("print(1)\n")
+        component["integrity_files"] = {"runtime.py": MODULE.sha256_file(script)}
+        self.assertEqual(MODULE.check_component(component, root=root, offline=True)["local"], "ok")
+        script.write_text("print(2)\n")
+        changed = MODULE.check_component(component, root=root, offline=True)
+        self.assertEqual(changed["local"], "drift")
+        self.assertEqual(changed["runtime_files_checked"], 1)
+
+    def test_runtime_manifest_cannot_read_outside_package(self):
+        temporary, root, component = self.make_fixture()
+        self.addCleanup(temporary.cleanup)
+        component["integrity_files"] = {"../outside-secret": "0" * 64}
+        result = MODULE.check_component(component, root=root, offline=True)
+        self.assertEqual(result["local"], "drift")
+        self.assertIn("runtime integrity path escapes package", result["details"])
+
     @mock.patch.object(MODULE, "inspect_clawhub", return_value="1.0.1")
     def test_online_update_detected(self, _inspect):
         temporary, root, component = self.make_fixture()
@@ -123,9 +143,39 @@ class UpdateCheckerTests(unittest.TestCase):
     def test_clawhub_uses_read_only_http_and_checks_owner(self, http):
         http.return_value = json.dumps({"owner": {"handle": "cellcog"}, "latestVersion": {"version": "2.0.21"}})
         self.assertEqual(MODULE.inspect_clawhub("@cellcog/cellcog"), "2.0.21")
-        self.assertEqual(http.call_args.args[0], "https://clawhub.ai/api/v1/skills/cellcog")
+        self.assertEqual(http.call_args.args[0], "https://clawhub.ai/api/v1/skills/cellcog?owner=cellcog")
         with self.assertRaisesRegex(RuntimeError, "owner mismatch"):
             MODULE.inspect_clawhub("@other/cellcog")
+
+    @mock.patch.object(MODULE, "http_text")
+    def test_clawhub_owner_qualified_reference_resolves_colliding_slug(self, http):
+        def registry(url):
+            parsed = MODULE.urllib.parse.urlparse(url)
+            owner = MODULE.urllib.parse.parse_qs(parsed.query).get("owner")
+            if owner != ["rascal6666"]:
+                raise MODULE.urllib.error.HTTPError(url, 409, "AMBIGUOUS_SKILL_SLUG", {}, None)
+            return json.dumps({"owner": {"handle": "rascal6666"}, "latestVersion": {"version": "1.0.1"}})
+        http.side_effect = registry
+        self.assertEqual(MODULE.inspect_clawhub("@rascal6666/short-video-script"), "1.0.1")
+        self.assertEqual(http.call_count, 1)
+
+    @mock.patch.object(MODULE, "http_text")
+    def test_clawhub_bare_ambiguous_slug_is_not_assigned_to_an_owner(self, http):
+        url = "https://clawhub.ai/api/v1/skills/short-video-script"
+        error = MODULE.urllib.error.HTTPError(url, 409, "AMBIGUOUS_SKILL_SLUG", {}, None)
+        http.side_effect = error
+        try:
+            with self.assertRaises(MODULE.urllib.error.HTTPError):
+                MODULE.inspect_clawhub("short-video-script")
+        finally:
+            error.close()
+        http.assert_called_once_with(url)
+
+    @mock.patch.object(MODULE, "http_text")
+    def test_clawhub_unqualified_unique_slug_keeps_existing_lookup(self, http):
+        http.return_value = json.dumps({"owner": {"handle": "demo"}, "latestVersion": {"version": "1.2.0"}})
+        self.assertEqual(MODULE.inspect_clawhub("unique-sample"), "1.2.0")
+        http.assert_called_once_with("https://clawhub.ai/api/v1/skills/unique-sample")
 
     @mock.patch.object(MODULE, "latest_github_path_commit", side_effect=["new-commit", RuntimeError("not found")])
     def test_secondary_failure_retains_primary_update_evidence(self, _inspect):

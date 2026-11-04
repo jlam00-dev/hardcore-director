@@ -36,14 +36,20 @@
 
 所有秒数都要通过 FPS 转换成帧；总场景帧数必须等于合成总帧数。
 
+承接 [创作协作合同](creative-collaboration.md) 中已接受的场次/镜头身份、节拍归属和起止状态；声音从 [声音交接单](audio-cue-handoff.md) 取得实际 cue 与文件状态。上述制作规格是同一台账的视图，不另建一份互相漂移的分镜格式。返工只更新受影响镜头，已确认的文字、素材职责和时序不能由渲染层擅自改写。
+
 ## 执行路径
 
 1. 新项目或新合成：加载官方 `remotion-create` 规则。
 2. 画面、动画、媒体、字体与场景结构：加载 `remotion-markup`。
 3. 字幕：加载 `remotion-captions`，同时遵守本项目字幕安全区与文字门禁。
 4. 裁切、探测或浏览器媒体处理：加载 `remotion-multimedia`。
-5. 输出：加载 `remotion-render`；不凭空猜测版本相关 API。
-6. 预览通过后再正式渲染；渲染完成后抽取关键帧和首尾帧验收。
+5. 默认先打开Studio交互预览，不因为计划中提到视频就自动开始耗时渲染。用户明确要求导出、MP4或正式渲染时再加载 `remotion-render`；不凭空猜测版本相关 API。
+6. 预览通过且导出范围明确后再正式渲染；渲染完成后抽取关键帧和首尾帧验收。
+
+## 软件许可路由
+
+2026-11-03核对官方路由4.0.540：本次上游差异增加 `remotion-license` 参考入口，没有新增镜头创作方法。涉及软件许可、适用条件或购买问题时读取官方 [License](https://www.remotion.dev/docs/license.md)、[FAQ](https://www.remotion.dev/docs/license/faq.md) 与 [Terms](https://www.remotion.dev/docs/terms.md)，按实际使用主体核对；本包不把“可本地渲染”写成所有用途均免费，也不代用户购买许可。
 
 ## 质量门禁
 
@@ -59,4 +65,5 @@
 - 外部 Skill：<https://github.com/remotion-dev/skills/tree/main/skills/remotion-best-practices>
 - SkillHub/skills.sh：<https://skills.sh/remotion-dev/skills/remotion-best-practices>
 - 本文件是硬核导演的原创路由适配器，没有复制上游 137 份规则文件。
+- 2026-11-03核对路由4.0.540，固定路径提交 `c7cb2fdcacd134fb2ccb9b7a44f9ffa44e467271`；只吸收预览/渲染决策和许可文档导航，不据此扩大上游原文或代码再分发权。
 - 上游仓库未声明标准根许可证；若需再分发上游原文，必须先单独确认许可。Remotion 软件本身还可能受其商业许可证条件约束。

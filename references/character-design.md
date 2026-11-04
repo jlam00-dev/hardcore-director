@@ -11,7 +11,7 @@ author: 白梦客
 license: MIT
 tags: [角色设计, AI视频, 即梦, 可灵, 海螺, 动画, prompt, 角色一致性, Blocking, 迪士尼12原则, 物理喜剧]
 triggers: [角色设计, 设计角色, AI角色, 角色DNA, Blocking, 多角色, 角色一致性]
-watermark: true
+watermark: false
 # watermark: false  # 本地使用时改为 false，关闭水印输出
 category: creative
 ---
@@ -22,6 +22,10 @@ category: creative
 ---
 
 # Character-Design：AI时代角色设计技能
+
+> **本包rc.7兼容边界：**采用原模块已提供的 `watermark: false` 开关，不把作者水印声明写入图像/视频提示词；原作者署名、版权说明与分发归属仍保留在本文件及第三方说明中，不移除既有媒体水印。下文“三视图/完整主体库”门禁用于相应角色资产交付，不阻断只有文字的剧本/导演方案；未制作的图片须明确标为PLAN/待制作，不能伪造路径或当作已可上传的真实参考。
+
+完整项目将角色身份、外观和服装等不变量交给[共享项目](integrations/creative-collaboration.md)；把剧情会变化的道具归属、手势、视线和站位交给[导演调度](integrations/director-blocking-coverage.md)的逐镜状态。表演可以补可观察信号，不改锁定对白、既有身份或用户未要求的外观。
 
 > 从"讨人喜欢"到"令人难忘"的范式转移。专注于写实风格的AI视频角色设计完整手册。
 

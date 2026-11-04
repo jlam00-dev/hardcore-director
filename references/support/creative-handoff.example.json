@@ -1,0 +1,608 @@
+{
+  "schema_version": 1,
+  "project": {
+    "id": "LAST_LETTER",
+    "name": "末班信",
+    "brief": "40秒单场景短片：林泽与周宁坐在候车室桌子两侧，以一封没有收件人姓名的信呈现一次交付。两人固定空间关系，信封只由右手持有，不加背景音乐，不新增人物、字幕或道具。",
+    "aspect_ratio": "16:9",
+    "fps": 24,
+    "total_frames": 960,
+    "locked_state": {
+      "room.door_screen": "left",
+      "lin.screen_side": "left",
+      "zhou.screen_side": "right",
+      "envelope.hand": "right"
+    },
+    "sound_policy": {
+      "music": "forbidden",
+      "dialogue": "script_only"
+    }
+  },
+  "script": {
+    "screenplay": "候车室，夜。门在画左。林泽坐画左，周宁坐画右。\n林泽右手握着没有姓名的信封：还寄吗？\n周宁看空白封面，伸手又停住。\n周宁：不写名字？\n林泽：你会认得。\n他把信推过桌面。周宁用右手接住，两人仍坐原位。",
+    "shooting_script": "40秒，16:9、24fps。四镜各10秒；按B01到B04完成问、看、追问、交付。固定门与人物空间轴，信封全程右手持有。台词按逐句原文，不加旁白、字幕、背景音乐。站内底声跨镜与纸面摩擦声仅作后期cue计划，尚无真实素材，不授权生成或自动混音。",
+    "beats": [
+      {
+        "id": "B01",
+        "scene_id": "SC01",
+        "action": "林泽把无姓名的信封握在右手，问是否还寄。",
+        "cause": "列车广播已经停下，两人必须决定。",
+        "effect": "周宁注意到信封没有姓名。",
+        "dialogue": [
+          {
+            "id": "L01",
+            "speaker": "林泽",
+            "text": "还寄吗？"
+          }
+        ]
+      },
+      {
+        "id": "B02",
+        "scene_id": "SC01",
+        "action": "周宁先看空白信封，再抬眼看林泽。",
+        "cause": "林泽的问题使她看向信封。",
+        "effect": "她发现没有写姓名，停住伸向信封的手。",
+        "dialogue": []
+      },
+      {
+        "id": "B03",
+        "scene_id": "SC01",
+        "action": "周宁没有接信，问出姓名缺失。",
+        "cause": "信封空白让交付变得不确定。",
+        "effect": "林泽决定把问题交还给她。",
+        "dialogue": [
+          {
+            "id": "L02",
+            "speaker": "周宁",
+            "text": "不写名字？"
+          }
+        ]
+      },
+      {
+        "id": "B04",
+        "scene_id": "SC01",
+        "action": "林泽回答后把信封推过桌面，周宁以右手接住。",
+        "cause": "周宁等待明确答复。",
+        "effect": "信封由林泽交到周宁，交付完成。",
+        "dialogue": [
+          {
+            "id": "L03",
+            "speaker": "林泽",
+            "text": "你会认得。"
+          }
+        ]
+      }
+    ]
+  },
+  "direction": {
+    "source_hash": "2b7dffb8ee10ab9ef00f852179d8e368c5c6d5b57fa0302104446c5833235b7a",
+    "shots": [
+      {
+        "shot_id": "S01",
+        "scene_id": "SC01",
+        "beat_ids": [
+          "B01"
+        ],
+        "blocking": {
+          "start": "林泽画左、周宁画右；信封在林泽右手。",
+          "action": "林泽把无姓名的信封握在右手，问是否还寄。",
+          "end": "人物座位与门位置不变；信封仍在林泽右手。",
+          "eyelines": "人物视线对向对方或信封，不无故看镜头。",
+          "prop_changes": "信封不换手、不新增物件。",
+          "holds": "台词完整落下后再接下一动作，不额外添加台词。"
+        },
+        "camera_intent": "全景交代门与两人、信封的位置。",
+        "performance": {
+          "before": "先接收上一镜信息，保持已锁座位和道具状态。",
+          "during": "表演依托原句“还寄吗？”，不改词。",
+          "after": "情绪变化停留在视线与手部，不新增动作结果。"
+        },
+        "coverage": "建立两人空间与交付问题",
+        "start_state": {
+          "room.door_screen": "left",
+          "lin.screen_side": "left",
+          "zhou.screen_side": "right",
+          "envelope.hand": "right",
+          "envelope.owner": "LIN"
+        },
+        "end_state": {
+          "room.door_screen": "left",
+          "lin.screen_side": "left",
+          "zhou.screen_side": "right",
+          "envelope.hand": "right",
+          "envelope.owner": "LIN"
+        }
+      },
+      {
+        "shot_id": "S02",
+        "scene_id": "SC01",
+        "beat_ids": [
+          "B02"
+        ],
+        "blocking": {
+          "start": "林泽画左、周宁画右；信封在林泽右手。",
+          "action": "周宁先看空白信封，再抬眼看林泽。",
+          "end": "人物座位与门位置不变；信封仍在林泽右手。",
+          "eyelines": "周宁先看空白封面，再看向画左的林泽。",
+          "prop_changes": "信封不换手、不新增物件。",
+          "holds": "周宁伸手后停一拍，信息先于反应。"
+        },
+        "camera_intent": "中近景让观众读到封面空白和伸手停顿。",
+        "performance": {
+          "before": "先接收上一镜信息，保持已锁座位和道具状态。",
+          "during": "周宁的动作从伸手转为停手，不说话。",
+          "after": "情绪变化停留在视线与手部，不新增动作结果。"
+        },
+        "coverage": "让空白封面产生悬念",
+        "start_state": {
+          "room.door_screen": "left",
+          "lin.screen_side": "left",
+          "zhou.screen_side": "right",
+          "envelope.hand": "right",
+          "envelope.owner": "LIN"
+        },
+        "end_state": {
+          "room.door_screen": "left",
+          "lin.screen_side": "left",
+          "zhou.screen_side": "right",
+          "envelope.hand": "right",
+          "envelope.owner": "LIN"
+        }
+      },
+      {
+        "shot_id": "S03",
+        "scene_id": "SC01",
+        "beat_ids": [
+          "B03"
+        ],
+        "blocking": {
+          "start": "林泽画左、周宁画右；信封在林泽右手。",
+          "action": "周宁没有接信，问出姓名缺失。",
+          "end": "人物座位与门位置不变；信封仍在林泽右手。",
+          "eyelines": "人物视线对向对方或信封，不无故看镜头。",
+          "prop_changes": "信封不换手、不新增物件。",
+          "holds": "台词完整落下后再接下一动作，不额外添加台词。"
+        },
+        "camera_intent": "周宁中近景保留朝向林泽的视线，承载追问。",
+        "performance": {
+          "before": "先接收上一镜信息，保持已锁座位和道具状态。",
+          "during": "表演依托原句“不写名字？”，不改词。",
+          "after": "情绪变化停留在视线与手部，不新增动作结果。"
+        },
+        "coverage": "以追问加大交付阻力",
+        "start_state": {
+          "room.door_screen": "left",
+          "lin.screen_side": "left",
+          "zhou.screen_side": "right",
+          "envelope.hand": "right",
+          "envelope.owner": "LIN"
+        },
+        "end_state": {
+          "room.door_screen": "left",
+          "lin.screen_side": "left",
+          "zhou.screen_side": "right",
+          "envelope.hand": "right",
+          "envelope.owner": "LIN"
+        }
+      },
+      {
+        "shot_id": "S04",
+        "scene_id": "SC01",
+        "beat_ids": [
+          "B04"
+        ],
+        "blocking": {
+          "start": "林泽右手在桌左端持信，周宁右手停在桌右端。",
+          "action": "林泽回答后把信封推过桌面，周宁以右手接住。",
+          "end": "周宁右手接稳信封，两人的座位不变。",
+          "eyelines": "人物视线对向对方或信封，不无故看镜头。",
+          "prop_changes": "envelope.owner从LIN变为ZHOU，envelope.hand保持right。",
+          "holds": "台词完整落下后再接下一动作，不额外添加台词。"
+        },
+        "camera_intent": "中景连续看清桌面推信与右手接信，结尾停在接稳。",
+        "performance": {
+          "before": "先接收上一镜信息，保持已锁座位和道具状态。",
+          "during": "表演依托原句“你会认得。”，不改词。",
+          "after": "周宁接稳信封后不再反向推回。"
+        },
+        "coverage": "完成右手到右手的交付",
+        "start_state": {
+          "room.door_screen": "left",
+          "lin.screen_side": "left",
+          "zhou.screen_side": "right",
+          "envelope.hand": "right",
+          "envelope.owner": "LIN"
+        },
+        "end_state": {
+          "room.door_screen": "left",
+          "lin.screen_side": "left",
+          "zhou.screen_side": "right",
+          "envelope.hand": "right",
+          "envelope.owner": "ZHOU"
+        }
+      }
+    ]
+  },
+  "storyboard": {
+    "source_hash": "1d3aeade5254aebda144897c74208d1b4fecac02cabe771bc486dbbb3db63b3e",
+    "board": {
+      "schema_version": 1,
+      "aspect_ratio": "16:9",
+      "fps": 24,
+      "total_frames": 960,
+      "limits": {
+        "max_shot_frames": 240,
+        "speech_units_per_second": 4.5
+      },
+      "beats": [
+        {
+          "id": "B01"
+        },
+        {
+          "id": "B02"
+        },
+        {
+          "id": "B03"
+        },
+        {
+          "id": "B04"
+        }
+      ],
+      "assets": [],
+      "shots": [
+        {
+          "id": "S01",
+          "scene_id": "SC01",
+          "purpose": "建立两人空间与交付问题",
+          "start_frame": 0,
+          "end_frame": 240,
+          "beat_ids": [
+            "B01"
+          ],
+          "references": [],
+          "start_state": {
+            "room.door_screen": "left",
+            "lin.screen_side": "left",
+            "zhou.screen_side": "right",
+            "envelope.hand": "right",
+            "envelope.owner": "LIN"
+          },
+          "end_state": {
+            "room.door_screen": "left",
+            "lin.screen_side": "left",
+            "zhou.screen_side": "right",
+            "envelope.hand": "right",
+            "envelope.owner": "LIN"
+          },
+          "dialogue": [
+            {
+              "line_id": "L01",
+              "speaker": "林泽",
+              "text": "还寄吗？",
+              "start_frame": 48,
+              "end_frame": 144
+            }
+          ]
+        },
+        {
+          "id": "S02",
+          "scene_id": "SC01",
+          "purpose": "让空白封面产生悬念",
+          "start_frame": 240,
+          "end_frame": 480,
+          "beat_ids": [
+            "B02"
+          ],
+          "references": [],
+          "start_state": {
+            "room.door_screen": "left",
+            "lin.screen_side": "left",
+            "zhou.screen_side": "right",
+            "envelope.hand": "right",
+            "envelope.owner": "LIN"
+          },
+          "end_state": {
+            "room.door_screen": "left",
+            "lin.screen_side": "left",
+            "zhou.screen_side": "right",
+            "envelope.hand": "right",
+            "envelope.owner": "LIN"
+          },
+          "dialogue": []
+        },
+        {
+          "id": "S03",
+          "scene_id": "SC01",
+          "purpose": "以追问加大交付阻力",
+          "start_frame": 480,
+          "end_frame": 720,
+          "beat_ids": [
+            "B03"
+          ],
+          "references": [],
+          "start_state": {
+            "room.door_screen": "left",
+            "lin.screen_side": "left",
+            "zhou.screen_side": "right",
+            "envelope.hand": "right",
+            "envelope.owner": "LIN"
+          },
+          "end_state": {
+            "room.door_screen": "left",
+            "lin.screen_side": "left",
+            "zhou.screen_side": "right",
+            "envelope.hand": "right",
+            "envelope.owner": "LIN"
+          },
+          "dialogue": [
+            {
+              "line_id": "L02",
+              "speaker": "周宁",
+              "text": "不写名字？",
+              "start_frame": 528,
+              "end_frame": 624
+            }
+          ]
+        },
+        {
+          "id": "S04",
+          "scene_id": "SC01",
+          "purpose": "完成右手到右手的交付",
+          "start_frame": 720,
+          "end_frame": 960,
+          "beat_ids": [
+            "B04"
+          ],
+          "references": [],
+          "start_state": {
+            "room.door_screen": "left",
+            "lin.screen_side": "left",
+            "zhou.screen_side": "right",
+            "envelope.hand": "right",
+            "envelope.owner": "LIN"
+          },
+          "end_state": {
+            "room.door_screen": "left",
+            "lin.screen_side": "left",
+            "zhou.screen_side": "right",
+            "envelope.hand": "right",
+            "envelope.owner": "ZHOU"
+          },
+          "dialogue": [
+            {
+              "line_id": "L03",
+              "speaker": "林泽",
+              "text": "你会认得。",
+              "start_frame": 768,
+              "end_frame": 864
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "audio": {
+    "source_hash": "320753b04fe418f5f984a8c04a95ab06ae00970067f0fc3a0b415f279c978b37",
+    "cues": [
+      {
+        "id": "C_L01",
+        "shot_ids": [
+          "S01"
+        ],
+        "beat_ids": [
+          "B01"
+        ],
+        "kind": "dialogue",
+        "placement": "generation",
+        "start_frame": 48,
+        "end_frame": 144,
+        "bridge": false,
+        "intent": "林泽逐字说“还寄吗？”；不加其他声音角色。",
+        "dialogue_id": "L01",
+        "source_asset_id": null,
+        "source_kind": "generated",
+        "evidence_status": "planned",
+        "rights_note": "原创虚构人物及台词；未指定真人音色，不授权克隆或生成。"
+      },
+      {
+        "id": "C_L02",
+        "shot_ids": [
+          "S03"
+        ],
+        "beat_ids": [
+          "B03"
+        ],
+        "kind": "dialogue",
+        "placement": "generation",
+        "start_frame": 528,
+        "end_frame": 624,
+        "bridge": false,
+        "intent": "周宁逐字说“不写名字？”；不加其他声音角色。",
+        "dialogue_id": "L02",
+        "source_asset_id": null,
+        "source_kind": "generated",
+        "evidence_status": "planned",
+        "rights_note": "原创虚构人物及台词；未指定真人音色，不授权克隆或生成。"
+      },
+      {
+        "id": "C_L03",
+        "shot_ids": [
+          "S04"
+        ],
+        "beat_ids": [
+          "B04"
+        ],
+        "kind": "dialogue",
+        "placement": "generation",
+        "start_frame": 768,
+        "end_frame": 864,
+        "bridge": false,
+        "intent": "林泽逐字说“你会认得。”；不加其他声音角色。",
+        "dialogue_id": "L03",
+        "source_asset_id": null,
+        "source_kind": "generated",
+        "evidence_status": "planned",
+        "rights_note": "原创虚构人物及台词；未指定真人音色，不授权克隆或生成。"
+      },
+      {
+        "id": "C_ROOM",
+        "shot_ids": [
+          "S01",
+          "S02",
+          "S03",
+          "S04"
+        ],
+        "beat_ids": [
+          "B01",
+          "B02",
+          "B03",
+          "B04"
+        ],
+        "kind": "ambience",
+        "placement": "post",
+        "start_frame": 0,
+        "end_frame": 960,
+        "bridge": true,
+        "intent": "低而连续的站内环境底声跨四镜，给台词留前景；不是背景音乐。",
+        "dialogue_id": null,
+        "source_asset_id": null,
+        "source_kind": "library",
+        "evidence_status": "planned",
+        "rights_note": "尚未选定音频；须选择自有或许可明确素材，当前不读取、不下载、不上传。"
+      },
+      {
+        "id": "C_PAPER",
+        "shot_ids": [
+          "S04"
+        ],
+        "beat_ids": [
+          "B04"
+        ],
+        "kind": "foley",
+        "placement": "post",
+        "start_frame": 864,
+        "end_frame": 936,
+        "bridge": false,
+        "intent": "信封推过桌面并接稳的轻纸面摩擦；按实际画面同步点再测。",
+        "dialogue_id": null,
+        "source_asset_id": null,
+        "source_kind": "user_asset",
+        "evidence_status": "planned",
+        "rights_note": "尚无实录素材，录制或选材及混音另行确认。"
+      }
+    ]
+  },
+  "prompts": {
+    "source_hash": "39fc865edcbb766be9a0a86882be0384d75cece3369aa57ab9dad5f9b22f1b18",
+    "platform": "seedance-2.5",
+    "shots": [
+      {
+        "shot_id": "S01",
+        "image_prompt": "候车室夜景，16:9。建立两人空间与交付问题门在画左，林泽在画左、周宁在画右；无姓名的信封由林泽右手持有。画面仅两人、桌和既有场景，不加字幕。",
+        "video_prompt": "单镜10秒，16:9，沿用已锁候车室空间。林泽把无姓名的信封握在右手，问是否还寄。仅林泽说：“还寄吗？”全景交代门与两人、信封的位置。 起始信封在林泽右手，终止仍在林泽右手；人物座位和门位置不变。不添加人物、道具或字幕，不添加背景音乐。后期环境底声与纸面音不作为本次模型生成任务。",
+        "dialogue_ids": [
+          "L01"
+        ],
+        "cue_ids": [
+          "C_L01"
+        ],
+        "cue_bindings": [{"cue_id": "C_L01", "text": "还寄吗？"}],
+        "reference_asset_ids": []
+      },
+      {
+        "shot_id": "S02",
+        "image_prompt": "候车室夜景，16:9。让空白封面产生悬念门在画左，林泽在画左、周宁在画右；无姓名的信封由林泽右手持有。画面仅两人、桌和既有场景，不加字幕。",
+        "video_prompt": "单镜10秒，16:9，沿用已锁候车室空间。周宁先看空白信封，再抬眼看林泽。没有对白。中近景让观众读到封面空白和伸手停顿。 起始信封在林泽右手，终止仍在林泽右手；人物座位和门位置不变。不添加人物、道具或字幕，不添加背景音乐。后期环境底声与纸面音不作为本次模型生成任务。",
+        "dialogue_ids": [],
+        "cue_ids": [],
+        "cue_bindings": [],
+        "reference_asset_ids": []
+      },
+      {
+        "shot_id": "S03",
+        "image_prompt": "候车室夜景，16:9。以追问加大交付阻力门在画左，林泽在画左、周宁在画右；无姓名的信封由林泽右手持有。画面仅两人、桌和既有场景，不加字幕。",
+        "video_prompt": "单镜10秒，16:9，沿用已锁候车室空间。周宁没有接信，问出姓名缺失。仅周宁说：“不写名字？”周宁中近景保留朝向林泽的视线，承载追问。 起始信封在林泽右手，终止仍在林泽右手；人物座位和门位置不变。不添加人物、道具或字幕，不添加背景音乐。后期环境底声与纸面音不作为本次模型生成任务。",
+        "dialogue_ids": [
+          "L02"
+        ],
+        "cue_ids": [
+          "C_L02"
+        ],
+        "cue_bindings": [{"cue_id": "C_L02", "text": "不写名字？"}],
+        "reference_asset_ids": []
+      },
+      {
+        "shot_id": "S04",
+        "image_prompt": "候车室夜景，16:9。完成右手到右手的交付门在画左，林泽在画左、周宁在画右；无姓名的信封由林泽右手持有。画面仅两人、桌和既有场景，不加字幕。",
+        "video_prompt": "单镜10秒，16:9，沿用已锁候车室空间。林泽回答后把信封推过桌面，周宁以右手接住。仅林泽说：“你会认得。”中景连续看清桌面推信与右手接信，结尾停在接稳。 起始信封在林泽右手，终止在周宁右手接稳；人物座位和门位置不变。不添加人物、道具或字幕，不添加背景音乐。后期环境底声与纸面音不作为本次模型生成任务。",
+        "dialogue_ids": [
+          "L03"
+        ],
+        "cue_ids": [
+          "C_L03"
+        ],
+        "cue_bindings": [{"cue_id": "C_L03", "text": "你会认得。"}],
+        "reference_asset_ids": []
+      }
+    ]
+  },
+  "editorial": {
+    "source_hash": "26c25beb9d4d6090b931767dcd1833a8cf5545365fa14e35ea29479a6b43f70d",
+    "status": "planned",
+    "events": [
+      {
+        "shot_id": "S01",
+        "beat_ids": [
+          "B01"
+        ],
+        "start_frame": 0,
+        "end_frame": 240,
+        "take": null,
+        "cue_ids": [
+          "C_ROOM"
+        ],
+        "notes": "仅按锁定镜序交接计划；真实take的文件hash、入出点及声音同步尚待测量，不授权剪辑或渲染。"
+      },
+      {
+        "shot_id": "S02",
+        "beat_ids": [
+          "B02"
+        ],
+        "start_frame": 240,
+        "end_frame": 480,
+        "take": null,
+        "cue_ids": [
+          "C_ROOM"
+        ],
+        "notes": "仅按锁定镜序交接计划；真实take的文件hash、入出点及声音同步尚待测量，不授权剪辑或渲染。"
+      },
+      {
+        "shot_id": "S03",
+        "beat_ids": [
+          "B03"
+        ],
+        "start_frame": 480,
+        "end_frame": 720,
+        "take": null,
+        "cue_ids": [
+          "C_ROOM"
+        ],
+        "notes": "仅按锁定镜序交接计划；真实take的文件hash、入出点及声音同步尚待测量，不授权剪辑或渲染。"
+      },
+      {
+        "shot_id": "S04",
+        "beat_ids": [
+          "B04"
+        ],
+        "start_frame": 720,
+        "end_frame": 960,
+        "take": null,
+        "cue_ids": [
+          "C_ROOM",
+          "C_PAPER"
+        ],
+        "notes": "仅按锁定镜序交接计划；真实take的文件hash、入出点及声音同步尚待测量，不授权剪辑或渲染。"
+      }
+    ]
+  }
+}

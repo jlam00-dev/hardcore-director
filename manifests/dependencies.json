@@ -2,11 +2,11 @@
   "schema_version": 2,
   "package": {
     "name": "hardcore-director",
-    "version": "2.2.0",
+    "version": "3.0.0",
     "baseline_repository": "jlam00-dev/hardcore-director",
     "baseline_commit": "52687dbaed4249886fd870d943481175f2809c08",
-    "assembled_at": "2026-10-01",
-    "upgrade_base_commit": "b450d8367aeb46db135c0134636fadcfb617b96c",
+    "assembled_at": "2026-11-04",
+    "upgrade_base_commit": "ef213d6e90f2f27269fb722753d1dd2caf77e86d",
     "release_status": "release"
   },
   "inventory_summary": {
@@ -15,8 +15,12 @@
     "v1_local_or_internal": 21,
     "v2_1_new_top_level_modules": 9,
     "v2_1_top_level_modules": 45,
-    "top_level_modules": 47,
-    "new_modules_since_v2_1": 2
+    "top_level_modules": 53,
+    "new_modules_since_v2_1": 8,
+    "v2_2_top_level_modules": 47,
+    "new_modules_since_v2_2": 6,
+    "v3_0_new_creative_methods_this_iteration": 4,
+    "v3_0_new_creative_collaboration_layers_this_iteration": 1
   },
   "components": [
     {
@@ -92,28 +96,35 @@
     },
     {
       "id": "cellcog",
-      "role": "optional_external_dependency",
-      "update_policy": "sync_after_review",
+      "role": "original_service_boundary_adapter",
+      "update_policy": "source_watch",
       "bundled_path": "references/cellcog.md",
-      "sha256": "37440c17bb82c8c9f8a075183311cf37ad4ac4cc367f94ec6eaf0dfe7348ed8c",
-      "bundled_version": "2.0.21",
-      "license": "MIT-0",
+      "sha256": "433f83a7a398a3dcc77bbfbdb18ebc1bcdac06ee1b0e0a5de37a6ff828d17645",
+      "bundled_version": "adapter:3.0.0-rc.7/upstream:2.0.26",
+      "license": "package-original; source documentation MIT-0",
       "upstream": {
         "kind": "clawhub",
-        "ref": "@cellcog/cellcog"
-      }
+        "ref": "@cellcog/cellcog",
+        "pinned_version": "2.0.26"
+      },
+      "additional_upstreams": [],
+      "historical_sources": [],
+      "reviewed_at": "2026-11-03"
     },
     {
       "id": "character-design",
-      "role": "local_snapshot",
+      "role": "reviewed_local_method_with_compatibility_boundary",
       "update_policy": "local_integrity_only",
       "bundled_path": "references/character-design.md",
-      "sha256": "64e7b1ed4214465f67416981d689f7fcad2d76136e1bae0a1cd7321b6143b6dd",
-      "bundled_version": "5.0",
+      "sha256": "d16ea3e3ec71fff5eae89c927c25bc34b94868e12fa511a7fcf8141c7f41290d",
+      "bundled_version": "adapter:3.0.0-rc.7/source:5.0",
       "license": "MIT; local attribution",
       "upstream": {
         "kind": "local_only"
-      }
+      },
+      "source_bundled_version": "5.0",
+      "reviewed_at": "2026-11-03",
+      "review_outcome": "narrow_compatibility_update_after_independent_creative_forward_review"
     },
     {
       "id": "composition-to-prompt",
@@ -176,48 +187,51 @@
       "role": "adapted_snapshot",
       "update_policy": "sync_after_review",
       "bundled_path": "references/drama-creator.md",
-      "sha256": "34e978702a4c0935d0ff667e3361fcbb9ce81f131130bf0cf891ae44df4bf963",
-      "bundled_version": "git:5e1b25476b1d989710cad1f7a623d17c28e0e140",
+      "sha256": "7c4ece0bae2e8d7f76aa2d4c1fb246825855a1ecaefc49ffd4b3cc3b8a19cbee",
+      "bundled_version": "git:d53e7c305643bbc6f9c23e1e0f0b647d66ba3594",
       "license": "MIT",
       "upstream": {
         "kind": "github_path",
-        "repo": "GongLingRui/screen-creative-skills",
+        "repo": "VanGong1999/screen-creative-skills",
         "path": "category/creation/drama-creator/SKILL.md",
         "ref": "master",
-        "pinned_commit": "5e1b25476b1d989710cad1f7a623d17c28e0e140"
-      }
+        "pinned_commit": "d53e7c305643bbc6f9c23e1e0f0b647d66ba3594"
+      },
+      "reviewed_at": "2026-11-01"
     },
     {
       "id": "drama-evaluator",
       "role": "adapted_snapshot",
       "update_policy": "sync_after_review",
       "bundled_path": "references/drama-evaluator.md",
-      "sha256": "630ebba4f1167fcf230979e0fcf4c05fbc0f9c19c71f5dc384aca2bbaaddff0c",
-      "bundled_version": "git:5e1b25476b1d989710cad1f7a623d17c28e0e140",
+      "sha256": "47a5168440cf581b53fcd2ad19ed125d955243b21831143ca068ddc488f7c63d",
+      "bundled_version": "git:d53e7c305643bbc6f9c23e1e0f0b647d66ba3594",
       "license": "MIT",
       "upstream": {
         "kind": "github_path",
-        "repo": "GongLingRui/screen-creative-skills",
+        "repo": "VanGong1999/screen-creative-skills",
         "path": "category/evaluation/drama-evaluator/SKILL.md",
         "ref": "master",
-        "pinned_commit": "5e1b25476b1d989710cad1f7a623d17c28e0e140"
-      }
+        "pinned_commit": "d53e7c305643bbc6f9c23e1e0f0b647d66ba3594"
+      },
+      "reviewed_at": "2026-11-01"
     },
     {
       "id": "drama-planner",
       "role": "adapted_snapshot",
       "update_policy": "sync_after_review",
       "bundled_path": "references/drama-planner.md",
-      "sha256": "47117f727a7814697f52a25fa6ccf7d31b2f7c3d55ee85411563416db57fdd92",
-      "bundled_version": "git:5e1b25476b1d989710cad1f7a623d17c28e0e140",
+      "sha256": "f4263f5dbd32d59e1537c970e2108623539e3208fa540dd3d3ca9b393d745766",
+      "bundled_version": "git:d53e7c305643bbc6f9c23e1e0f0b647d66ba3594",
       "license": "MIT",
       "upstream": {
         "kind": "github_path",
-        "repo": "GongLingRui/screen-creative-skills",
+        "repo": "VanGong1999/screen-creative-skills",
         "path": "category/creation/drama-planner/SKILL.md",
         "ref": "master",
-        "pinned_commit": "5e1b25476b1d989710cad1f7a623d17c28e0e140"
-      }
+        "pinned_commit": "d53e7c305643bbc6f9c23e1e0f0b647d66ba3594"
+      },
+      "reviewed_at": "2026-11-01"
     },
     {
       "id": "humanizer-zh",
@@ -241,8 +255,8 @@
       "role": "optional_external_executor_adapter",
       "update_policy": "source_watch",
       "bundled_path": "references/integrations/higgsfield-explainer.md",
-      "sha256": "d6a00a80a59d84f13de8f71d621b95dc9c44f0e85353fd42ba198bb3acd84dc4",
-      "bundled_version": "adapter:2.1.0/upstream:0.12.0",
+      "sha256": "0f2cc47256d54d747e7e024efdcb4e1e9b7152823d55f89d3b85b7bb87ae9daf",
+      "bundled_version": "adapter:3.0.0-rc.1/upstream:0.14.0",
       "license": "package-original; upstream MIT",
       "discovered_via": "SkillHub/skills.sh",
       "upstream": {
@@ -250,16 +264,17 @@
         "repo": "higgsfield-ai/skills",
         "path": "higgsfield-video-explainer/SKILL.md",
         "ref": "main",
-        "pinned_commit": "d63d77e6997c64065b108fc507efa8bac42e5555"
-      }
+        "pinned_commit": "eac5c12137e47a157a8a3c11865fd9bc02e4ec13"
+      },
+      "reviewed_at": "2026-11-01"
     },
     {
       "id": "remotion-production",
       "role": "optional_external_executor_adapter",
       "update_policy": "source_watch",
       "bundled_path": "references/integrations/remotion-production.md",
-      "sha256": "aa895eba547be8402b1e8b8eff3075940c288b19eddda4f054045604799837e8",
-      "bundled_version": "adapter:2.1.0/upstream:4.0.520",
+      "sha256": "f0d9eba3551e9a68cc20850a27c87807f728ce12381f39c632d46b09d3b6a46a",
+      "bundled_version": "adapter:3.0.0-rc.7/upstream:4.0.540",
       "license": "package-original; upstream license unverified",
       "discovered_via": "SkillHub/skills.sh",
       "upstream": {
@@ -267,17 +282,29 @@
         "repo": "remotion-dev/skills",
         "path": "skills/remotion-best-practices/SKILL.md",
         "ref": "main",
-        "pinned_commit": "54e9b19a612897171e0b3b242e01c2badba4a272"
-      }
+        "pinned_commit": "c7cb2fdcacd134fb2ccb9b7a44f9ffa44e467271"
+      },
+      "reviewed_at": "2026-11-03",
+      "additional_upstreams": [
+        {
+          "kind": "github_path",
+          "repo": "remotion-dev/skills",
+          "path": "skills/remotion-best-practices/remotion-license/REFERENCE.md",
+          "ref": "main",
+          "pinned_commit": "c7cb2fdcacd134fb2ccb9b7a44f9ffa44e467271"
+        }
+      ],
+      "historical_sources": [],
+      "reviewed_repository_commit": "c7cb2fdcacd134fb2ccb9b7a44f9ffa44e467271"
     },
     {
       "id": "storyboard-package",
       "role": "adapted_integration",
       "update_policy": "source_watch",
       "bundled_path": "references/integrations/storyboard-package.md",
-      "sha256": "14bf46b4da0aaccc371eaf84354359ee217e3f4b86cb220b52dadc87f11e4ecd",
-      "bundled_version": "adapter:2.2.0",
-      "license": "MIT",
+      "sha256": "72205e2044e775030f1a837e4716b7611e7f5dbf0c0ae0eb9d86b8ea0dfc9032",
+      "bundled_version": "adapter:3.0.0-rc.7",
+      "license": "package-original adaptation; attributed sources MIT",
       "upstream": {
         "kind": "github_path",
         "repo": "agentara/skills",
@@ -285,7 +312,65 @@
         "ref": "main",
         "pinned_commit": "fbf6496604ff393c8919911ef9596cc2bfaf59b1"
       },
-      "reviewed_at": "2026-10-01"
+      "reviewed_at": "2026-11-03",
+      "additional_upstreams": [
+        {
+          "kind": "github_path",
+          "repo": "zenstory-ai/drama-skills",
+          "path": "skills/short-drama-storyboard/SKILL.md",
+          "ref": "main",
+          "pinned_commit": "17dbb47865fcca836913e23d47a66cf298a0a2a2"
+        },
+        {
+          "kind": "github_path",
+          "repo": "zenstory-ai/drama-skills",
+          "path": "skills/short-drama-storyboard/references/scene-visual-plan.md",
+          "ref": "main",
+          "pinned_commit": "c9f46c6aef614dfb3a4d5aaeae809f06c1dc070f"
+        },
+        {
+          "kind": "github_path",
+          "repo": "zenstory-ai/drama-skills",
+          "path": "skills/short-drama-storyboard/references/coverage-audition.md",
+          "ref": "main",
+          "pinned_commit": "c9f46c6aef614dfb3a4d5aaeae809f06c1dc070f"
+        },
+        {
+          "kind": "github_path",
+          "repo": "zenstory-ai/drama-skills",
+          "path": "skills/short-drama-assets/SKILL.md",
+          "ref": "main",
+          "pinned_commit": "261a6823ff41a6f86a2ff917e593167b11f86323"
+        },
+        {
+          "kind": "github_path",
+          "repo": "zenstory-ai/drama-skills",
+          "path": "skills/short-drama-review/SKILL.md",
+          "ref": "main",
+          "pinned_commit": "dcf262760836e0848441e47c84381768aa974d07"
+        },
+        {
+          "kind": "github_path",
+          "repo": "zenstory-ai/drama-skills",
+          "path": "LICENSE",
+          "ref": "main",
+          "pinned_commit": "27f4319f4e256db2692992750260433efa0be00b"
+        },
+        {
+          "kind": "github_path",
+          "repo": "konradre/video-production-skills",
+          "path": "skills/video-take-review/SKILL.md",
+          "ref": "main",
+          "pinned_commit": "7bc909478fad9cf88e921e51060b7bc7c93376a7"
+        },
+        {
+          "kind": "github_path",
+          "repo": "konradre/video-production-skills",
+          "path": "skills/video-take-review/references/ACCEPTANCE-MATRIX.md",
+          "ref": "main",
+          "pinned_commit": "d505dc657c2c8c1be161752547790e29da2c0fd8"
+        }
+      ]
     },
     {
       "id": "jackyshen-gen-short-video-script",
@@ -360,8 +445,8 @@
       "role": "adapted_integration",
       "update_policy": "source_watch",
       "bundled_path": "references/prompt-tools/model-router.md",
-      "sha256": "c45a7260eb983da8cbf4ef4726aaa87525e86b114617c20f194c126987e40855",
-      "bundled_version": "adapter:2.2.0",
+      "sha256": "831d148056cd6d5362dc1c252209dc92675e81dba06e3c6f9369512c67d341e5",
+      "bundled_version": "3.0.0-rc.7",
       "license": "Apache-2.0",
       "upstream": {
         "kind": "github_path",
@@ -370,7 +455,7 @@
         "ref": "main",
         "pinned_commit": "15e4b3cefa83a1e7e80d3447908e104a64461173"
       },
-      "reviewed_at": "2026-10-01"
+      "reviewed_at": "2026-11-03"
     },
     {
       "id": "seedance-2.5-prompt-tool",
@@ -415,10 +500,11 @@
           "repo": "OSideMedia/higgsfield-ai-prompt-skill",
           "path": "skills/higgsfield-seedance-2-5/MODE-PLAYBOOKS.md",
           "ref": "main",
-          "pinned_commit": "54a18665a4c933050de231a3fc865edce0d75bb5"
+          "pinned_commit": "e5db5d970fa6c626b9be8ee365d03057b59dc960"
         }
       ],
-      "reviewed_at": "2026-10-01"
+      "reviewed_at": "2026-11-03",
+      "review_outcome": "directory_only_no_prompt_semantic_change"
     },
     {
       "id": "wan-3.0-prompt-tool",
@@ -432,8 +518,10 @@
         "kind": "web_pattern",
         "url": "https://create.wan.video/explore",
         "pattern": "__front_end_version__\\s*=\\s*\"([^\"]+)\"",
-        "pinned_value": "1.0.91"
-      }
+        "pinned_value": "1.0.95"
+      },
+      "reviewed_at": "2026-11-03",
+      "review_outcome": "frontend_build_only_not_a_model_capability_release"
     },
     {
       "id": "rhythm-to-prompt",
@@ -524,33 +612,43 @@
       "license": "MIT-0",
       "upstream": {
         "kind": "clawhub",
-        "ref": "short-video-script"
-      }
+        "ref": "@rascal6666/short-video-script",
+        "pinned_version": "1.0.1"
+      },
+      "reviewed_at": "2026-11-03",
+      "review_outcome": "publisher_disambiguated_body_unchanged"
     },
     {
       "id": "sound-design-to-prompt",
-      "role": "local_snapshot",
+      "role": "reviewed_local_method_with_compatibility_boundary",
       "update_policy": "local_integrity_only",
       "bundled_path": "references/sound-design-to-prompt.md",
-      "sha256": "4fdc3c0bb43a9848d75dbc3a275c4c9f392ef9c29c987d760354389177bfbd64",
-      "bundled_version": "1.0",
+      "sha256": "0db18c75fc56f03d1d58d6ab245d364bcc88eeb2dca48e2f76a150d69f4baf6d",
+      "bundled_version": "adapter:3.0.0-rc.7/source:1.0",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {
         "kind": "local_only"
-      }
+      },
+      "source_bundled_version": "1.0",
+      "reviewed_at": "2026-11-03",
+      "review_outcome": "narrow_compatibility_update_after_independent_creative_forward_review"
     },
     {
       "id": "creative-writing-cellcog",
-      "role": "bundled_snapshot",
+      "role": "adapted_snapshot",
       "update_policy": "sync_after_review",
       "bundled_path": "references/story-cog.md",
-      "sha256": "574e2c06e97a4f4b7f7153f6a5fdd86fc6197d63a47ed4ef4b26c4952f1777de",
-      "bundled_version": "1.0.15",
-      "license": "MIT-0",
+      "sha256": "1d08eeb5e7deb613f88576c2d2f13512c1a3bed0157f4b11b9b3850ed32bd739",
+      "bundled_version": "1.0.17",
+      "license": "MIT-0 source with package-original invocation boundary",
       "upstream": {
         "kind": "clawhub",
-        "ref": "@cellcog/creative-writing-cellcog"
-      }
+        "ref": "@cellcog/creative-writing-cellcog",
+        "pinned_version": "1.0.17"
+      },
+      "additional_upstreams": [],
+      "historical_sources": [],
+      "reviewed_at": "2026-11-03"
     },
     {
       "id": "story-master",
@@ -658,28 +756,35 @@
     },
     {
       "id": "video-generation-cellcog",
-      "role": "optional_external_executor",
+      "role": "adapted_snapshot",
       "update_policy": "sync_after_review",
       "bundled_path": "references/video-generation-cellcog.md",
-      "sha256": "64261fb04f0051794443fe7dd33dd45d3768e3c4578ecfcd545a40fa1d622f25",
-      "bundled_version": "1.0.18",
-      "license": "MIT-0",
+      "sha256": "3b85e9638d0b992a6c6057d429df79a92ddc9322b9b730a86ed03c15dc43d862",
+      "bundled_version": "1.0.19",
+      "license": "MIT-0 source with package-original invocation boundary",
       "upstream": {
         "kind": "clawhub",
-        "ref": "@cellcog/video-generation-cellcog"
-      }
+        "ref": "@cellcog/video-generation-cellcog",
+        "pinned_version": "1.0.19"
+      },
+      "additional_upstreams": [],
+      "historical_sources": [],
+      "reviewed_at": "2026-11-03"
     },
     {
       "id": "video-prompt-writer",
-      "role": "local_adapted_snapshot",
+      "role": "reviewed_local_method_with_compatibility_boundary",
       "update_policy": "local_integrity_only",
       "bundled_path": "references/video-prompt-writer.md",
-      "sha256": "ce354011843eee022f35fa26fecac7c5ddc821f0a42ae459e426310624af5544",
-      "bundled_version": "local-unversioned",
+      "sha256": "21deb2ecfed2133a66d1f64dd935a11c4f321a43aa2bd440d2ac1f01faf411e8",
+      "bundled_version": "adapter:3.0.0-rc.7/source:local-unversioned",
       "license": "MIT; publisher-confirmed authorship 2026-09-05",
       "upstream": {
         "kind": "local_only"
-      }
+      },
+      "source_bundled_version": "local-unversioned",
+      "reviewed_at": "2026-11-03",
+      "review_outcome": "narrow_compatibility_update_after_independent_creative_forward_review"
     },
     {
       "id": "video-reverse-engineer",
@@ -710,17 +815,17 @@
       "role": "adapted_integration",
       "update_policy": "source_watch",
       "bundled_path": "references/integrations/product-promo-shotcraft.md",
-      "sha256": "3a5f09cb2369a96a79a08d13394adb3c7e37f50bfb265bc30a97e55e2839b166",
-      "bundled_version": "adapter:2.2.0/10-shot-recipes",
+      "sha256": "5aa983bdcbc310861dcc37af90b0b2257128f1e8a8a2a09a5a3ecd34cdd1ae44",
+      "bundled_version": "adapter:3.0.0-rc.7/9-current-1-legacy-shot-recipes",
       "license": "Apache-2.0; adapted and attributed",
-      "reviewed_at": "2026-10-01",
-      "reviewed_repository_commit": "5ddbf521038b0a7accfb6dc1e0a9eb29c67277ab",
+      "reviewed_at": "2026-11-03",
+      "reviewed_repository_commit": "1266a3ec4831289c4d893d42dd5102723658039a",
       "upstream": {
         "kind": "github_path",
         "repo": "Vincentwei1021/video-shotcraft",
         "path": "SKILL.md",
         "ref": "main",
-        "pinned_commit": "5f047c7cfe10d6616fe59160a750fcfaea510b2e"
+        "pinned_commit": "1266a3ec4831289c4d893d42dd5102723658039a"
       },
       "additional_upstreams": [
         {
@@ -728,28 +833,28 @@
           "repo": "Vincentwei1021/video-shotcraft",
           "path": "references/shots/opening/spotlight-hero-card.md",
           "ref": "main",
-          "pinned_commit": "80b3f5d8fa4cc6b4933331ea2efa52c4d39ad028"
+          "pinned_commit": "e1d15d91374490c59bbbc1a05c2da7efde429828"
         },
         {
           "kind": "github_path",
           "repo": "Vincentwei1021/video-shotcraft",
           "path": "references/shots/opening/crane-rise-reveal.md",
           "ref": "main",
-          "pinned_commit": "5c2e5ba4f8f0b7709b091315e0d7a244ecee9d9f"
+          "pinned_commit": "e1d15d91374490c59bbbc1a05c2da7efde429828"
         },
         {
           "kind": "github_path",
           "repo": "Vincentwei1021/video-shotcraft",
           "path": "references/shots/ui-entrance/product-card-progressive-assemble.md",
           "ref": "main",
-          "pinned_commit": "c05d48492db915582144f60c5d0d12f3cdb9094d"
+          "pinned_commit": "e1d15d91374490c59bbbc1a05c2da7efde429828"
         },
         {
           "kind": "github_path",
           "repo": "Vincentwei1021/video-shotcraft",
           "path": "references/shots/ui-entrance/page-waterfall-wall.md",
           "ref": "main",
-          "pinned_commit": "54ec8c39967deabca25d38ca928d89f286d12e99"
+          "pinned_commit": "e1d15d91374490c59bbbc1a05c2da7efde429828"
         },
         {
           "kind": "github_path",
@@ -763,35 +868,53 @@
           "repo": "Vincentwei1021/video-shotcraft",
           "path": "references/shots/interaction/type-and-filter.md",
           "ref": "main",
-          "pinned_commit": "80b3f5d8fa4cc6b4933331ea2efa52c4d39ad028"
-        },
-        {
-          "kind": "github_path",
-          "repo": "Vincentwei1021/video-shotcraft",
-          "path": "references/shots/interaction/ai-stream-response.md",
-          "ref": "main",
-          "pinned_commit": "54ec8c39967deabca25d38ca928d89f286d12e99"
+          "pinned_commit": "e1d15d91374490c59bbbc1a05c2da7efde429828"
         },
         {
           "kind": "github_path",
           "repo": "Vincentwei1021/video-shotcraft",
           "path": "references/shots/data/before-after-slider-scrub.md",
           "ref": "main",
-          "pinned_commit": "5c2e5ba4f8f0b7709b091315e0d7a244ecee9d9f"
+          "pinned_commit": "e1d15d91374490c59bbbc1a05c2da7efde429828"
         },
         {
           "kind": "github_path",
           "repo": "Vincentwei1021/video-shotcraft",
           "path": "references/shots/transition/shot-transitions.md",
           "ref": "main",
-          "pinned_commit": "8b560059fbbcfcf19a9a965cd7ac49a8b38fd069"
+          "pinned_commit": "e1d15d91374490c59bbbc1a05c2da7efde429828"
         },
         {
           "kind": "github_path",
           "repo": "Vincentwei1021/video-shotcraft",
           "path": "references/shots/outro/ui-strip-away-outro.md",
           "ref": "main",
-          "pinned_commit": "54ec8c39967deabca25d38ca928d89f286d12e99"
+          "pinned_commit": "e1d15d91374490c59bbbc1a05c2da7efde429828"
+        },
+        {
+          "kind": "github_path",
+          "repo": "Vincentwei1021/video-shotcraft",
+          "path": "references/sound-design.md",
+          "ref": "main",
+          "pinned_commit": "1266a3ec4831289c4d893d42dd5102723658039a"
+        },
+        {
+          "kind": "github_path",
+          "repo": "Vincentwei1021/video-shotcraft",
+          "path": "references/sfx-sourcing.md",
+          "ref": "main",
+          "pinned_commit": "1266a3ec4831289c4d893d42dd5102723658039a"
+        }
+      ],
+      "historical_sources": [
+        {
+          "kind": "github_path",
+          "repo": "Vincentwei1021/video-shotcraft",
+          "path": "references/shots/interaction/ai-stream-response.md",
+          "ref": "main",
+          "pinned_commit": "54ec8c39967deabca25d38ca928d89f286d12e99",
+          "reason": "Upstream card retired; retained local legacy method only, not an active watched dependency.",
+          "observed_removed_commit": "e1d15d91374490c59bbbc1a05c2da7efde429828"
         }
       ]
     },
@@ -800,17 +923,17 @@
       "role": "original_quality_gate_with_attributed_concepts",
       "update_policy": "source_watch",
       "bundled_path": "references/integrations/storyboard-quality-gates.md",
-      "sha256": "c7634f7aad873362b19c2a3f261264d7d5102b1b896b7495aafb50508ce80de9",
-      "bundled_version": "adapter:2.2.0/contract:1",
-      "license": "package-original; upstream concepts Apache-2.0",
-      "reviewed_at": "2026-10-01",
-      "reviewed_repository_commit": "ef4ac0c313c7eeb1f918db5f0f0eb319745900bc",
+      "sha256": "10726bd247e0f63a57b35d95880b106e50300b3608a067face089b903d873ce1",
+      "bundled_version": "adapter:3.0.0-rc.7/contract:1",
+      "license": "package-original; adapted concepts Apache-2.0 and MIT",
+      "reviewed_at": "2026-11-03",
+      "reviewed_repository_commit": "1084e66bc6063e472bde2567425a99dc6d6ebcff",
       "upstream": {
         "kind": "github_path",
         "repo": "eternityspring/shuohao-skills",
         "path": "skills/novel-storyboard/SKILL.md",
         "ref": "main",
-        "pinned_commit": "06f25952fe8d359065245194427bd1fc5f7b34d8"
+        "pinned_commit": "1084e66bc6063e472bde2567425a99dc6d6ebcff"
       },
       "additional_upstreams": [
         {
@@ -818,16 +941,296 @@
           "repo": "eternityspring/shuohao-skills",
           "path": "skills/novel-storyboard/references/schema.md",
           "ref": "main",
-          "pinned_commit": "e268731afeae204f87d6101a74bebddbd2bbe493"
+          "pinned_commit": "1084e66bc6063e472bde2567425a99dc6d6ebcff"
         },
         {
           "kind": "github_path",
           "repo": "eternityspring/shuohao-skills",
           "path": "skills/novel-storyboard/scripts/novel-storyboard.mjs",
           "ref": "main",
-          "pinned_commit": "e268731afeae204f87d6101a74bebddbd2bbe493"
+          "pinned_commit": "1084e66bc6063e472bde2567425a99dc6d6ebcff"
+        },
+        {
+          "kind": "github_path",
+          "repo": "zenstory-ai/drama-skills",
+          "path": "skills/short-drama-storyboard/SKILL.md",
+          "ref": "main",
+          "pinned_commit": "17dbb47865fcca836913e23d47a66cf298a0a2a2"
+        },
+        {
+          "kind": "github_path",
+          "repo": "zenstory-ai/drama-skills",
+          "path": "skills/short-drama-storyboard/references/scene-visual-plan.md",
+          "ref": "main",
+          "pinned_commit": "c9f46c6aef614dfb3a4d5aaeae809f06c1dc070f"
+        },
+        {
+          "kind": "github_path",
+          "repo": "zenstory-ai/drama-skills",
+          "path": "skills/short-drama-storyboard/references/coverage-audition.md",
+          "ref": "main",
+          "pinned_commit": "c9f46c6aef614dfb3a4d5aaeae809f06c1dc070f"
         }
-      ]
+      ],
+      "historical_sources": [],
+      "integrity_files": {
+        "scripts/validate_storyboard.py": "4c65f760ed634386b719d73fe9df1504466b23f169a567d3eb435897c460d88a"
+      }
+    },
+    {
+      "id": "remote-production-workflow",
+      "role": "original_runtime_adapter",
+      "update_policy": "source_watch",
+      "bundled_path": "references/integrations/remote-production-workflow.md",
+      "sha256": "3bffa8c25d196016ecf246e50bd90c43242ca7fe172a4fb6cc0beecf5aeeda2e",
+      "bundled_version": "3.0.0",
+      "license": "MIT original implementation; optional official SDKs and service terms remain separate",
+      "upstream": {
+        "kind": "github_path",
+        "repo": "Tencent/openclaw-weixin",
+        "path": "docs/protocol_zh_CN.md",
+        "ref": "main",
+        "pinned_commit": "b1779c43ec19e02cd770d927c4caad7ea3e13611"
+      },
+      "additional_upstreams": [
+        {
+          "kind": "github_path",
+          "repo": "larksuite/oapi-sdk-python",
+          "path": "lark_oapi/ws/client.py",
+          "ref": "v2_main",
+          "pinned_commit": "cf4595da1873bdef8559b701d77db5179793ad8e"
+        },
+        {
+          "kind": "github_path",
+          "repo": "Tencent/openclaw-weixin",
+          "path": "src/api/types.ts",
+          "ref": "main",
+          "pinned_commit": "69765a2b2bf240dd12de3350b9cb1f139b7ab097"
+        }
+      ],
+      "reviewed_at": "2026-11-03",
+      "reviewed_source_snapshots": {
+        "wechat": "874637a0dbc24050f72d1385add4fc6170a2d726",
+        "feishu": "0d9749a4728446a0ffa2e8374b37b5e1ce1cfd9c",
+        "dreamina_canvas_cli": "1.1.1",
+        "minimax_design_mcp": "1.0.0",
+        "wechat_reference_types": "69765a2b2bf240dd12de3350b9cb1f139b7ab097"
+      },
+      "integrity_files": {
+        "scripts/hc_workflow/__init__.py": "d02aaf2c7536f521a3fc87214949daf80c5dddccc24ea470edbf51960228bb33",
+        "scripts/hc_workflow/channels.py": "b872e36c36427628f8dbd5c5766d8f762beec41f3a993a8faf3dfbba9733706d",
+        "scripts/hc_workflow/compositor.py": "000ab2f3f53f4293920d0091506354f63e0b878ff119b5d65c983d9e6f4b6e74",
+        "scripts/hc_workflow/normalizer.py": "148d90104431457e2e2c1f18f2a2ee6c0748858bfe24999e1ba0c015bf63feff",
+        "scripts/hc_workflow/engine.py": "fd39e1c3c2f21d08f9abf557e780bb8bdab5cfeb63e52063d7a81de846d0b0de",
+        "scripts/hc_workflow/planner.py": "3465ba39feca9deb61a43928851fcb4f22e45cecb2afc3ef0a128339976cafaa",
+        "scripts/hc_workflow/providers.py": "485fd5d9f9af44406e4783b8f84314e4fb51ed63d72655f78b41a96a230bdd12",
+        "scripts/director_workflow.py": "c8e97c94fcb5642c6135eb382d0362112ee5cf7f1fb4934dd4d4e374e5ccd857",
+        "scripts/workflow_bridge.py": "bf84c4548ff01d7030cef7e517139419c4116d89f4974d122dec617bea46c656",
+        "scripts/workflow_login.py": "a94a71c45c758a10fe9f4067daff2c4197ec25fcbfa1b332370ec2930f0608a9",
+        "scripts/feishu_setup.py": "f41f98772bffd4dcc6c7399900992e5de6457bff10c4817787e386bb366aabc9",
+        "references/support/workflow-plan.schema.json": "e9b6a603439d7b7068898c9039beb539e06b9ca52cff9ff3e667c44a4d5b2c7e",
+        "references/support/workflow-plan.example.json": "f4a0c3b169f7945b9d8a1da9ff54f5c4c4c3f14de47cd246212759995b74996d",
+        "scripts/check_updates.py": "aa89f2a1897a9e05ddf8bbdd14efc6720ade54037ec81d2993ddbfbb809ee205",
+        "scripts/validate_package.py": "306d3ff5aa2cf72e185c231e5b4ded14a64bcb0bb218e8353fab5908c7fb427b",
+        "references/support/user-guide.md": "9da9551f15e49c049bf50d87687966e24305cca0f92aefac540cbc3a2e0e1d5b",
+        "references/support/remote-setup-guide.md": "7cbb1b949b6a8731d88812c363c75d4f0db236b03a83d06e5c9f2324a2375a10"
+      }
+    },
+    {
+      "id": "screenplay-diagnosis",
+      "role": "original_method_adapter",
+      "update_policy": "source_watch",
+      "bundled_path": "references/integrations/screenplay-diagnosis.md",
+      "bundled_version": "adapter:3.0.0-rc.7",
+      "license": "package-original adaptation; attributed source MIT with preserved rights notices",
+      "upstream": {
+        "kind": "github_path",
+        "repo": "jtydhr88/screenwriting-skills",
+        "path": "plugins/screenwriting/skills/sw-scene-craft/SKILL.md",
+        "ref": "main",
+        "pinned_commit": "ffb70c3cd154a599d5e020351debb5d8a7636118"
+      },
+      "additional_upstreams": [
+        {
+          "kind": "github_path",
+          "repo": "jtydhr88/screenwriting-skills",
+          "path": "LICENSE",
+          "ref": "main",
+          "pinned_commit": "50825325b3940a17f032129851f5c83382863000"
+        },
+        {
+          "kind": "github_path",
+          "repo": "jtydhr88/screenwriting-skills",
+          "path": "NOTICE",
+          "ref": "main",
+          "pinned_commit": "50825325b3940a17f032129851f5c83382863000"
+        }
+      ],
+      "reviewed_at": "2026-11-03",
+      "external_execution": "none; creative method only",
+      "sha256": "5ac33ac05fd878ceac15ccadbf2b5ed0136cc7962e8b836176e50cdca331c462"
+    },
+    {
+      "id": "director-blocking-coverage",
+      "role": "original_method_adapter",
+      "update_policy": "source_watch",
+      "bundled_path": "references/integrations/director-blocking-coverage.md",
+      "bundled_version": "adapter:3.0.0-rc.7",
+      "license": "package-original adaptation; attributed source MIT with preserved rights notices",
+      "upstream": {
+        "kind": "github_path",
+        "repo": "wuwangzhang1216/DirectorSKILL",
+        "path": "SKILL.md",
+        "ref": "main",
+        "pinned_commit": "c65ae0d14457053efb1e354c7e7f7e120d97fad1"
+      },
+      "additional_upstreams": [
+        {
+          "kind": "github_path",
+          "repo": "wuwangzhang1216/DirectorSKILL",
+          "path": "references/blocking-and-staging.md",
+          "ref": "main",
+          "pinned_commit": "c19a587c7574c3140c14c44a6c31d0568b6ddebe"
+        },
+        {
+          "kind": "github_path",
+          "repo": "wuwangzhang1216/DirectorSKILL",
+          "path": "references/continuity-bible.md",
+          "ref": "main",
+          "pinned_commit": "c19a587c7574c3140c14c44a6c31d0568b6ddebe"
+        },
+        {
+          "kind": "github_path",
+          "repo": "wuwangzhang1216/DirectorSKILL",
+          "path": "LICENSE",
+          "ref": "main",
+          "pinned_commit": "c19a587c7574c3140c14c44a6c31d0568b6ddebe"
+        },
+        {
+          "kind": "github_path",
+          "repo": "kangarooking/director-skills",
+          "path": "emotion-performance-director/SKILL.md",
+          "ref": "main",
+          "pinned_commit": "f3d8df9aa037e71508a273d11cee6a6fe7f767ee"
+        },
+        {
+          "kind": "github_path",
+          "repo": "kangarooking/director-skills",
+          "path": "LICENSE",
+          "ref": "main",
+          "pinned_commit": "8ec54976945967376b8dd99a5e8367e631fb91c5"
+        }
+      ],
+      "reviewed_at": "2026-11-03",
+      "external_execution": "none; creative method only",
+      "sha256": "be56936d194ae0cf7e1858b244513dd2480588404ff0ee7fe4b9ac04c4b19b5c"
+    },
+    {
+      "id": "audio-cue-handoff",
+      "role": "original_method_adapter",
+      "update_policy": "source_watch",
+      "bundled_path": "references/integrations/audio-cue-handoff.md",
+      "bundled_version": "adapter:3.0.0-rc.7",
+      "license": "package-original adaptation; source MIT",
+      "upstream": {
+        "kind": "github_path",
+        "repo": "konradre/video-production-skills",
+        "path": "skills/spot-audio-assembly/SKILL.md",
+        "ref": "main",
+        "pinned_commit": "14e4f24b9d3a959470588e934982caa70287f66f"
+      },
+      "additional_upstreams": [
+        {
+          "kind": "github_path",
+          "repo": "konradre/video-production-skills",
+          "path": "skills/spot-audio-assembly/references/MIX-AND-QC.md",
+          "ref": "main",
+          "pinned_commit": "fe379a39ac7343d47f1835edd92a046ca07361db"
+        },
+        {
+          "kind": "github_path",
+          "repo": "konradre/video-production-skills",
+          "path": "skills/video-edit-edl/references/AUDIO-PLACEMENT.md",
+          "ref": "main",
+          "pinned_commit": "fe379a39ac7343d47f1835edd92a046ca07361db"
+        },
+        {
+          "kind": "github_path",
+          "repo": "konradre/video-production-skills",
+          "path": "LICENSE",
+          "ref": "main",
+          "pinned_commit": "386cec6504022fcbce98d88d95ea06b08e2abe1b"
+        }
+      ],
+      "reviewed_at": "2026-11-03",
+      "reviewed_repository_commit": "cd92701fd52fbfa668f2247687b32d0f85506fda",
+      "selection_basis": "substantive October maintenance and missing handoff contracts; not high-star popularity",
+      "external_execution": "none; upstream paid services and execution rules excluded",
+      "sha256": "675bd2b344f3ed348dde00a1d34ce1fe6c1fb981ce769761ef3a1415c55ba4d5"
+    },
+    {
+      "id": "narrative-edit-handoff",
+      "role": "original_method_adapter",
+      "update_policy": "source_watch",
+      "bundled_path": "references/integrations/narrative-edit-handoff.md",
+      "bundled_version": "adapter:3.0.0-rc.7",
+      "license": "package-original adaptation; source MIT",
+      "upstream": {
+        "kind": "github_path",
+        "repo": "konradre/video-production-skills",
+        "path": "skills/video-edit-edl/SKILL.md",
+        "ref": "main",
+        "pinned_commit": "cd92701fd52fbfa668f2247687b32d0f85506fda"
+      },
+      "additional_upstreams": [
+        {
+          "kind": "github_path",
+          "repo": "konradre/video-production-skills",
+          "path": "skills/video-edit-edl/references/BEATS-CONTRACT.md",
+          "ref": "main",
+          "pinned_commit": "d352d0495baed748bcc724a790db15dc8f7b9ec1"
+        },
+        {
+          "kind": "github_path",
+          "repo": "konradre/video-production-skills",
+          "path": "skills/video-edit-edl/references/AUDIO-PLACEMENT.md",
+          "ref": "main",
+          "pinned_commit": "fe379a39ac7343d47f1835edd92a046ca07361db"
+        },
+        {
+          "kind": "github_path",
+          "repo": "konradre/video-production-skills",
+          "path": "LICENSE",
+          "ref": "main",
+          "pinned_commit": "386cec6504022fcbce98d88d95ea06b08e2abe1b"
+        }
+      ],
+      "reviewed_at": "2026-11-03",
+      "reviewed_repository_commit": "cd92701fd52fbfa668f2247687b32d0f85506fda",
+      "selection_basis": "substantive October maintenance and missing handoff contracts; not high-star popularity",
+      "external_execution": "none; upstream paid services and execution rules excluded",
+      "sha256": "71c222943688074dec6aa98dc7fd6d6dea69cad1739b5a872d903a54b4942c6f"
+    },
+    {
+      "id": "creative-collaboration",
+      "role": "original_creative_orchestration",
+      "update_policy": "local_only",
+      "bundled_path": "references/integrations/creative-collaboration.md",
+      "bundled_version": "3.0.0-rc.8",
+      "license": "MIT package-original",
+      "upstream": {
+        "kind": "local_only",
+        "ref": "package-original"
+      },
+      "reviewed_at": "2026-11-03",
+      "integrity_files": {
+        "scripts/creative_handoff.py": "2c7960f729eae78123a22dda5f0df12a41da05ea8234407075bcd5afb1d3dd2d",
+        "references/support/creative-handoff.schema.json": "68b0a19a5b5b278007a6fb6ee13f6533f533a5750cd248c1658b326ff470eb80",
+        "references/support/creative-handoff.example.json": "a3cfce16f76752f9a48fdd61869a35dc33d2f3e7c8d024db08b9a645d8fe0e54",
+        "references/support/rain-letter-case.md": "392800bc426d6e840dbb9c6fea6294cc987206af080e20a73714304ba0a64c5a",
+        "references/support/rain-letter-handoff.example.json": "0c5168b61dde57ea39b54cb0ee9e5bea199385e4b59b3ae1e0b21ced1c86efe5"
+      },
+      "sha256": "78a3898429caeec660927f33ca701a3458a82c53b43cf2545add48088662d58c"
     }
   ]
 }
