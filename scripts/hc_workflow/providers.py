@@ -9,9 +9,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
+import tempfile
 import uuid
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -67,6 +69,23 @@ def _stable_node(operation: dict) -> str:
     alphabet = "0123456789abcdefghjkmnpqrstvwxyz"
     value = uuid.UUID(_stable(operation, "node")).int >> 78
     return "node_" + "".join(alphabet[(value >> shift) & 31] for shift in range(45, -1, -5))
+
+
+def _file_digest(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _publish_download(candidate: Path, path: Path, size: int, digest: str) -> None:
+    try:
+        os.link(candidate, path)
+    except FileExistsError:
+        if (path.is_symlink() or not path.is_file() or path.stat().st_size != size
+                or _file_digest(path) != digest):
+            raise ProviderError("output_already_exists", "failed", "Existing output does not match the verified download and was preserved.") from None
 
 
 def _payload(operation: dict) -> dict:
@@ -224,6 +243,11 @@ class DreaminaCanvasProvider:
         if operation.get("account") != identity["account"]:
             raise ProviderError("account_changed", "needs_setup", "Restore the originally approved account, space and profile.")
         if mutation:
+            expected_config = _payload(operation).get("execution_config_hash")
+            if expected_config is not None:
+                serialized = json.dumps(self.config, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
+                if hashlib.sha256(serialized.encode()).hexdigest() != expected_config:
+                    raise ProviderError("execution_config_changed", "needs_approval")
             authorization = operation.get("authorization", {})
             scope = authorization.get("scope", {})
             if not authorization.get("approval_id") or scope.get("provider") != self.name or scope.get("account") != identity["account"]:
@@ -373,8 +397,11 @@ class DreaminaCanvasProvider:
             raise ProviderError("frame_slot_roles_invalid", "needs_setup", "Declare start_frame alone or start_frame then end_frame. Character/style references require m2v and a newly reviewed plan.")
 
     def prepare(self, operation: dict) -> dict:
+        write_started = False
+        already_saved = False
         try:
             payload = _payload(operation)
+            already_saved = payload.get("saved") is True
             if operation.get("task_id") or payload.get("submit_attempted") or operation.get("operation_id") in self._submit_attempted:
                 return self.poll(operation)
             self._guard(operation, mutation=True, uploads=bool(payload.get("input_assets")))
@@ -383,29 +410,41 @@ class DreaminaCanvasProvider:
                 return _result("prepared", payload={**facts, "canvas_id": facts["project_id"], "saved": True}, **facts)
             plan = self._plan(operation)
             references = list(plan["references"])
-            for index, asset in enumerate(plan["input_assets"]):
-                path = Path(asset["path"] if isinstance(asset, dict) else asset).expanduser()
-                if not path.is_file() or path.is_symlink():
-                    raise ProviderError("input_asset_unavailable", "failed")
-                resource_id = _stable(operation, "upload:" + str(index))
-                uploaded = self._call(["resource", "upload", "--file", str(path.resolve()), "--project-id", facts["project_id"], "--resource-id", resource_id])
-                if uploaded.get("resourceId") != resource_id:
-                    raise ProviderError("upload_identity_mismatch", "unknown")
-                references.append("res:" + resource_id)
             for ref in references:
                 if not isinstance(ref, str) or not ref.startswith(("node:", "res:")):
                     raise ProviderError("unregistered_reference", "failed", "Import local media explicitly; temporary URLs are not recovery references.")
+            paths = []
+            for asset in plan["input_assets"]:
+                path = Path(asset["path"] if isinstance(asset, dict) else asset).expanduser()
+                if not path.is_file() or path.is_symlink():
+                    raise ProviderError("input_asset_unavailable", "failed")
+                paths.append(path.resolve())
+            for index, path in enumerate(paths):
+                resource_id = _stable(operation, "upload:" + str(index))
+                write_started = True
+                uploaded = self._call(["resource", "upload", "--file", str(path), "--project-id", facts["project_id"], "--resource-id", resource_id])
+                if uploaded.get("resourceId") != resource_id:
+                    raise ProviderError("upload_identity_mismatch", "unknown")
+                references.append("res:" + resource_id)
             args = ["node", "create", plan["stage"], "--project-id", facts["project_id"], "--node-id", facts["node_id"], "--update-id", facts["update_id"], "--title", plan["title"]]
             for name, value in plan["values"].items():
                 args += ["--" + name, str(value)]
             for ref in references:
                 args += ["--ref", ref]
+            write_started = True
             saved = self._call(args)
             if saved.get("node", {}).get("nodeId") != facts["node_id"]:
                 raise ProviderError("save_identity_unknown", "unknown")
             return _result("prepared", payload={**facts, "canvas_id": facts["project_id"], "saved": True}, **facts)
         except Exception as exc:
-            return _failure(exc)
+            result = _failure(exc)
+            if not write_started and not already_saved:
+                # A missing configuration or failed read-only preflight cannot
+                # have created a remote draft or uploaded any reference files.
+                result["payload"] = {"side_effects": "none"}
+                if result["status"] == "unknown":
+                    result["status"] = "needs_setup"
+            return result
 
     def quote(self, operation: dict) -> dict:
         try:
@@ -491,6 +530,10 @@ class DreaminaCanvasProvider:
                 nodes = self._call(["node", "show", "--project-id", facts["project_id"], "--node-id", facts["node_id"]]).get("nodes", [])
                 if any(row.get("result") == "FOUND" and row.get("node", {}).get("nodeId") == facts["node_id"] for row in nodes):
                     return _result("prepared", payload={**facts, "canvas_id": facts["project_id"], "saved": True}, **facts)
+            if operation.get("phase") == "prepare" and not operation.get("task_id"):
+                # A lookup by the derived submit ID is not a submission
+                # receipt. Keep checking the original node on later polls.
+                return _result("unknown", error_code="preparation_unresolved", **facts)
             return _result("unknown", task_id=task_id, error_code="submission_unresolved", **facts)
         except Exception as exc:
             return _failure(exc)
@@ -506,17 +549,22 @@ class DreaminaCanvasProvider:
             folder.mkdir(parents=True, exist_ok=True)
             suffix = ".png" if operation.get("stage") == "image" else ".mp4"
             path = folder / (_id(operation.get("operation_id"), "operation_id") + suffix)
-            if path.exists():
-                raise ProviderError("output_already_exists", "failed", "Choose a new output path; existing files are preserved.")
             facts = self._facts(operation)
-            result = self._call(["resource", "download", _id(resource_id, "resource_id"), "--project-id", facts["project_id"], "--output", str(path)])
-            returned = Path(result.get("path", "")).resolve()
-            if returned != path or not path.is_file() or path.stat().st_size <= 0:
-                raise ProviderError("download_unverified", "unknown")
-            digest = hashlib.sha256(path.read_bytes()).hexdigest()
-            if result.get("size") != path.stat().st_size or result.get("sha256") != digest:
-                raise ProviderError("download_checksum_mismatch", "failed")
-            return _result("downloaded", path=str(path), size=path.stat().st_size, sha256=digest, resource_id=resource_id)
+            # The CLI can leave bytes behind on a timeout or a bad checksum.
+            # Publish only a validated file and use a fresh download to verify
+            # an existing file left between publication and the DB commit.
+            with tempfile.TemporaryDirectory(prefix="download-", dir=folder) as staging:
+                candidate = Path(staging) / path.name
+                result = self._call(["resource", "download", _id(resource_id, "resource_id"), "--project-id", facts["project_id"], "--output", str(candidate)])
+                returned = Path(result.get("path", "")).resolve()
+                if returned != candidate or candidate.is_symlink() or not candidate.is_file() or candidate.stat().st_size <= 0:
+                    raise ProviderError("download_unverified", "unknown")
+                size = candidate.stat().st_size
+                digest = _file_digest(candidate)
+                if result.get("size") != size or result.get("sha256") != digest:
+                    raise ProviderError("download_checksum_mismatch", "failed")
+                _publish_download(candidate, path, size, digest)
+            return _result("downloaded", path=str(path), size=size, sha256=digest, resource_id=resource_id)
         except Exception as exc:
             return _failure(exc)
 
@@ -997,12 +1045,15 @@ class MiniMaxDesignProvider:
             folder = Path(operation.get("output_dir") or ".").resolve()
             folder.mkdir(parents=True, exist_ok=True)
             destination = folder / (_id(operation.get("operation_id"), "operation_id") + Path(source).suffix)
-            if destination.exists():
-                raise ProviderError("output_already_exists", "failed")
-            shutil.copyfile(source, destination)
-            if destination.stat().st_size <= 0:
-                raise ProviderError("empty_output", "failed")
-            return _result("downloaded", path=str(destination), size=destination.stat().st_size, sha256=hashlib.sha256(destination.read_bytes()).hexdigest())
+            with tempfile.TemporaryDirectory(prefix="download-", dir=folder) as staging:
+                candidate = Path(staging) / destination.name
+                shutil.copyfile(source, candidate)
+                size = candidate.stat().st_size
+                if size <= 0:
+                    raise ProviderError("empty_output", "failed")
+                digest = _file_digest(candidate)
+                _publish_download(candidate, destination, size, digest)
+            return _result("downloaded", path=str(destination), size=size, sha256=digest)
         except Exception as exc:
             return _failure(exc)
 

@@ -2,11 +2,13 @@ import copy
 import json
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from hc_workflow.planner import generate_plan, planning_prompt, to_engine_plan, validate_creative_plan
+from hc_workflow.engine import Engine, Limits
+from hc_workflow.planner import SCHEMA, generate_plan, planning_prompt, to_engine_plan, validate_creative_plan
 
 
 def fixture():
@@ -45,6 +47,26 @@ class PlannerTests(unittest.TestCase):
             p = fixture(); p["shots"][0][key] = value
             with self.assertRaises(ValueError):
                 validate_creative_plan(p)
+
+    def test_schema_and_planner_match_the_default_engine_shot_limit(self):
+        limit = Limits().max_shots
+        schema = json.loads(SCHEMA.read_text())
+        self.assertEqual(schema["properties"]["shots"]["maxItems"], limit)
+        plan = fixture()
+        shot = plan["shots"][0]
+        plan["shots"] = [{**shot, "id": f"S{i:02d}"} for i in range(limit)]
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            engine = Engine(root / "jobs.sqlite3", artifact_dir=root / "assets")
+            try:
+                project_id = engine.init_project("Synthetic draft")["project_id"]
+                state = engine.set_plan(project_id, to_engine_plan(plan))
+                self.assertEqual(state["status"], "plan_review")
+            finally:
+                engine.close()
+        plan["shots"].append({**shot, "id": "EXTRA"})
+        with self.assertRaisesRegex(ValueError, f"expected 1\\.\\.{limit} shots"):
+            to_engine_plan(plan)
 
     def test_isolated_command_and_valid_output(self):
         commands = []

@@ -16,14 +16,20 @@ from dataclasses import asdict
 import errno
 import importlib.util
 import json
+import logging
 import os
 from pathlib import Path
+import sqlite3
 import stat
 import threading
 import time
 from typing import Any
 
-from hc_workflow.channels import ApprovalBroker, ChannelError, ConfigurationError, create_channel
+from hc_workflow.channels import MAX_REVIEW_TTL, ApprovalBroker, ChannelError, ConfigurationError, create_channel
+from hc_workflow.engine import ApprovalBindingUnavailable, ApprovalDecisionExpired
+
+
+_LOG = logging.getLogger(__name__)
 
 
 class CoordinatorBusy(ChannelError):
@@ -197,36 +203,56 @@ class WorkflowBridge:
     def _run_once_locked(self) -> dict[str, Any]:
         if not self._coordinator_depth:
             raise ChannelError("approval consumption requires the coordinator lock")
+        broker = self.channel.broker
+        for item in broker.expired_decisions(self.project_ids):
+            applied = self.engine.decision_applied(item["challenge_id"]) is True
+            broker.settle_expired(item["id"], applied=applied)
         results = []
-        for item in self.channel.broker.drain(project_ids=self.project_ids):
-            applied = False
-            outcome_known = False
+        for item in broker.drain(project_ids=self.project_ids):
+            if item["expires_at"] <= self.clock():
+                applied = self.engine.decision_applied(item["challenge_id"]) is True
+                broker.settle_expired(item["queue_id"], applied=applied)
+                results.append({"project_id": item["project_id"], "decision": item["decision"],
+                                "applied": applied, "outcome": "applied" if applied else "expired"})
+                continue
+            outcome = "rejected"
             try:
-                if item["project_id"] not in self.project_ids or item["expires_at"] <= self.clock():
-                    raise ChannelError("approval is outside this bridge scope or expired")
+                if item["project_id"] not in self.project_ids:
+                    raise ChannelError("approval is outside this bridge scope")
                 if not item.get("binding_hash"):
                     raise ChannelError("remote approval requires a complete content binding hash")
                 actor = f"{item['channel']}:{item['sender_id']}"
                 arguments = {"stage": item["stage"], "actor": actor, "shot_ids": item["shot_ids"] or None,
-                             "expected_revision": item["revision"], "expected_binding_hash": item["binding_hash"]}
+                             "expected_revision": item["revision"], "expected_binding_hash": item["binding_hash"],
+                             "expires_at": item["expires_at"], "decision_id": item["challenge_id"]}
                 if item["decision"] == "approve":
                     self.engine.approve(item["project_id"], **arguments, budget=item["budget"],
-                        live_scope=item["live_scope"], expires_at=item["expires_at"],
-                        ttl_seconds=min(3600, item["expires_at"] - self.clock()))
+                        live_scope=item["live_scope"], ttl_seconds=MAX_REVIEW_TTL)
                 else:
                     self.engine.reject(item["project_id"], **arguments, reason="human rejected the bound channel review")
-                applied = True
-                outcome_known = True
+                outcome = "applied"
+            except ApprovalBindingUnavailable:
+                outcome = "deferred_account_verification"
+            except ApprovalDecisionExpired:
+                outcome = "expired"
+            except sqlite3.OperationalError as exc:
+                retryable_codes = (getattr(sqlite3, "SQLITE_BUSY", 5), getattr(sqlite3, "SQLITE_LOCKED", 6))
+                if (getattr(exc, "sqlite_errorcode", 0) & 0xff in retryable_codes
+                        or str(exc) in ("database is locked", "database table is locked")):
+                    outcome = "deferred_local_storage"
             except Exception:
-                # Core rechecks revision, complete hashes, scope, budgets and expiry.
-                # No arbitrary engine/provider exceptions or channel secrets logged.
-                outcome_known = True
-            finally:
-                # Ctrl-C/SystemExit/process interruption is not an explicit
-                # rejection. Retain claimed when the apply result is unknown.
-                if outcome_known:
-                    self.channel.broker.acknowledge(item["queue_id"], applied=applied)
-            results.append({"project_id": item["project_id"], "decision": item["decision"], "applied": applied})
+                # Never expose raw engine/provider errors or channel secrets.
+                pass
+            # Ctrl-C/SystemExit leave claimed for recovery. Do not extend the
+            # original deadline when the bound decision can be safely retried.
+            if outcome.startswith("deferred_"):
+                broker.defer(item["queue_id"])
+            elif outcome == "expired":
+                broker.settle_expired(item["queue_id"], applied=False)
+            else:
+                broker.acknowledge(item["queue_id"], applied=outcome == "applied")
+            results.append({"project_id": item["project_id"], "decision": item["decision"],
+                            "applied": outcome == "applied", "outcome": outcome})
         statuses = []
         if self.resume_authorized:
             for project_id in sorted(self.project_ids):
@@ -248,14 +274,20 @@ class WorkflowBridge:
             try:
                 self.channel.listen(self.stop_event)
             except Exception:
-                self._listener_failed.set()
+                pass
+            finally:
+                if not self.stop_event.is_set():
+                    self._listener_failed.set()
         listener = threading.Thread(target=listen, name="hc-review-channel", daemon=True)
         listener.start()
         try:
             while not self.stop_event.is_set():
                 if self._listener_failed.is_set():
                     raise ChannelError("review listener stopped; coordinator paused without automatically reconnecting a new account")
-                self.run_once()
+                result = self.run_once()
+                for decision in result["decisions"]:
+                    if not decision["applied"]:
+                        _LOG.warning("Review for project %s: %s", decision["project_id"], decision["outcome"])
                 self.stop_event.wait(interval)
         finally:
             self.stop_event.set()

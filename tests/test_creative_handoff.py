@@ -12,7 +12,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from creative_handoff import HandoffError, expected_source_hashes, main, to_workflow_plan, validate_packet
-from hc_workflow.engine import Engine
+from hc_workflow.engine import Engine, Limits
 
 
 class NoActionProvider:
@@ -107,6 +107,44 @@ class CreativeHandoffTests(unittest.TestCase):
                 packet = self.packet()
                 packet["project"][field] = value
                 self.assert_code(self.authored_fixture(packet), code)
+
+    def test_creative_packet_checks_default_shot_limit_before_export(self):
+        limit = Limits().max_shots
+        for count in (limit, limit + 1):
+            with self.subTest(count=count):
+                packet = self.packet()
+                board = packet["storyboard"]["board"]
+                packet["project"]["total_frames"] = board["total_frames"] = count * 25
+                beat = packet["script"]["beats"][0]
+                packet["script"]["beats"], board["beats"] = [], []
+                packet["audio"]["cues"] = []
+                direction, shot, prompt, event = (
+                    packet["direction"]["shots"][0], board["shots"][0],
+                    packet["prompts"]["shots"][0], packet["editorial"]["events"][0])
+                packet["direction"]["shots"], board["shots"] = [], []
+                packet["prompts"]["shots"], packet["editorial"]["events"] = [], []
+                for i in range(count):
+                    shot_id = f"S{i + 1:02d}"
+                    beat_id = f"B{i + 1:02d}"
+                    packet["script"]["beats"].append({**beat, "id": beat_id, "dialogue": []})
+                    board["beats"].append({"id": beat_id})
+                    window = {"start_frame": i * 25, "end_frame": (i + 1) * 25}
+                    packet["direction"]["shots"].append({**direction, "shot_id": shot_id, "beat_ids": [beat_id]})
+                    board["shots"].append({**shot, **window, "id": shot_id, "beat_ids": [beat_id], "dialogue": []})
+                    packet["prompts"]["shots"].append({**prompt, "shot_id": shot_id, "dialogue_ids": [],
+                                                        "cue_ids": [], "cue_bindings": []})
+                    packet["editorial"]["events"].append({**event, **window, "shot_id": shot_id,
+                                                          "beat_ids": [beat_id], "cue_ids": []})
+                self.authored_fixture(packet)
+                if count == limit:
+                    report = validate_packet(packet)
+                    self.assertTrue(report["valid"], report)
+                    plan = to_workflow_plan(packet)
+                    self.assertEqual(len(plan["shots"]), limit)
+                    self.assertEqual(plan["shots"][0]["duration_seconds"], 25 / 24)
+                else:
+                    report = self.assert_code(packet, "shot_count_limit")
+                    self.assertFalse(report["readiness"]["workflow_draft_exportable"])
 
     def test_cue_out_of_bounds_or_undeclared_bridge_is_refused(self):
         for operation in ("end", "bridge", "gap"):

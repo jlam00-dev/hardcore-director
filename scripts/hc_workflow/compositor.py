@@ -1,6 +1,7 @@
 """Local, order-preserving assembly. Not an autonomous creative editor."""
 from __future__ import annotations
 
+import fcntl
 import hashlib
 import json
 import math
@@ -8,6 +9,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+from contextlib import contextmanager
 from fractions import Fraction
 from pathlib import Path
 
@@ -18,6 +20,85 @@ def _hash(path: Path) -> str:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+class _AssemblyConflict(ValueError):
+    def __init__(self):
+        super().__init__("output_exists_not_overwritten")
+
+
+def _assembly_binding(operation):
+    inputs = [{key: item[key] for key in ("shot_id", "sha256", "duration_seconds", "duration_frames") if key in item}
+              for item in operation["inputs"]]
+    scope = {key: operation.get(key) for key in ("operation_id", "project_id", "revision", "plan")}
+    scope["inputs"] = inputs
+    serialized = json.dumps(scope, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
+    return hashlib.sha256(serialized.encode()).hexdigest()
+
+
+@contextmanager
+def _lock_directory(directory):
+    fd = os.open(directory, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        yield
+    finally:
+        os.close(fd)
+
+
+def _recover_assembly(directory, binding, *, staged_commit=None):
+    # Serialize the short publication/rollback section, never FFmpeg itself.
+    with _lock_directory(directory):
+        commit = directory / ".assembly-commit"
+        output, receipt = directory / "assembled.mp4", directory / "assembly-report.json"
+        pairs = ((commit / output.name, output), (commit / receipt.name, receipt))
+        if not commit.exists() and not commit.is_symlink():
+            if any(path.exists() or path.is_symlink() for path in (output, receipt)):
+                raise _AssemblyConflict()
+            if staged_commit is None:
+                return None
+            staged_commit.rename(commit)
+        if commit.is_symlink() or not all(path.is_file() and not path.is_symlink() for path, _ in pairs):
+            raise _AssemblyConflict()
+        record = json.loads(pairs[1][0].read_text(encoding="utf-8"))
+        if (not isinstance(record, dict) or record.get("status") != "succeeded"
+                or record.get("assembly_binding") != binding or record.get("path") != str(output)
+                or record.get("sha256") != _hash(pairs[0][0])):
+            raise _AssemblyConflict()
+        attempted = []
+        try:
+            for staged, public in pairs:
+                if public.exists() or public.is_symlink():
+                    if public.is_symlink() or not public.samefile(staged):
+                        raise _AssemblyConflict()
+                    continue
+                attempted.append((staged, public))
+                os.link(staged, public)
+        except Exception:
+            for staged, public in reversed(attempted):
+                try:
+                    if not public.is_symlink() and public.samefile(staged):
+                        public.unlink()
+                except OSError:
+                    pass
+            raise
+        return record
+
+
+def _publish_assembly(staged_output, directory, binding, record):
+    # Commit the checked MP4 and report together before exposing either public
+    # path. A restarted process can finish the links or reuse the exact result.
+    record = {**record, "assembly_binding": binding}
+    staged_commit = staged_output.parent / "commit"
+    staged_commit.mkdir(mode=0o700)
+    with staged_output.open("rb") as stream:
+        os.fsync(stream.fileno())
+    staged_output.rename(staged_commit / "assembled.mp4")
+    with (staged_commit / "assembly-report.json").open("x", encoding="utf-8") as stream:
+        json.dump(record, stream, ensure_ascii=False, indent=2)
+        stream.flush()
+        os.fsync(stream.fileno())
+    return _recover_assembly(directory, binding, staged_commit=staged_commit)
 
 
 def _probe(path: Path, runner=subprocess.run) -> dict:
@@ -178,14 +259,15 @@ def assemble(operation: dict, *, runner=subprocess.run) -> dict:
     output_dir = Path(operation["output_dir"]).resolve()
     output_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
     output = output_dir / "assembled.mp4"
-    if output.exists():
-        return {"status": "needs_review", "reason": "output_exists_not_overwritten"}
-    plan = operation.get("plan", {})
-    if not isinstance(plan, dict) or not plan.get("aspect_ratio") or type(plan.get("fps")) is not int:
-        return {"status": "needs_review", "reason": "explicit_approved_aspect_and_fps_required"}
     manifest = []
     native_reference = None
     try:
+        binding = _assembly_binding(operation)
+        recovered = _recover_assembly(output_dir, binding)
+        if recovered is not None:
+            return recovered
+        if not isinstance(plan, dict) or not plan.get("aspect_ratio") or type(plan.get("fps")) is not int:
+            return {"status": "needs_review", "reason": "explicit_approved_aspect_and_fps_required"}
         with tempfile.TemporaryDirectory(prefix="hc-assemble-", dir=output_dir) as temp:
             staging = Path(temp)
             for index, item in enumerate(inputs):
@@ -251,15 +333,10 @@ def assemble(operation: dict, *, runner=subprocess.run) -> dict:
             total = sum(x["observed"]["duration_seconds"] for x in manifest)
             if abs(combined["duration_seconds"] - total) > max(0.15, len(inputs) * 2 / float(Fraction(combined["fps"]))):
                 raise ValueError("assembled_duration_does_not_match_inputs")
-            # Link with exclusive creation semantics; never overwrite a concurrent delivery.
-            os.link(staged_output, output)
-        record = {"status": "succeeded", "path": str(output), "sha256": _hash(output), "simulated": False,
-                  "assembly": "ordered_stream_copy", "observed": combined,
-                  "shots": manifest, "creative_editing": False, "visual_quality_checked": False}
-        evidence = output_dir / "assembly-report.json"
-        with evidence.open("x", encoding="utf-8") as stream:
-            json.dump(record, stream, ensure_ascii=False, indent=2)
-        return record
+            record = {"status": "succeeded", "path": str(output), "sha256": _hash(staged_output), "simulated": False,
+                      "assembly": "ordered_stream_copy", "observed": combined,
+                      "shots": manifest, "creative_editing": False, "visual_quality_checked": False}
+            return _publish_assembly(staged_output, output_dir, binding, record)
     except (ValueError, OSError, KeyError, TypeError, subprocess.TimeoutExpired, json.JSONDecodeError) as exc:
         # Errors are stable codes; no child stderr, tokens or media URLs are forwarded.
         code = str(exc) if isinstance(exc, ValueError) else type(exc).__name__
@@ -273,7 +350,15 @@ def get_compositor(mode: str):
         directory = Path(operation["output_dir"])
         directory.mkdir(parents=True, exist_ok=True, mode=0o700)
         target = directory / "simulated-sequence.json"
-        with target.open("x", encoding="utf-8") as stream:
-            json.dump({"simulated": True, "not_a_video": True, "order": [x["shot_id"] for x in operation["inputs"]]}, stream)
-        return {"status": "succeeded", "path": str(target), "sha256": _hash(target), "simulated": True}
+        content = json.dumps({"simulated": True, "not_a_video": True,
+                              "order": [x["shot_id"] for x in operation["inputs"]]}).encode()
+        with tempfile.TemporaryDirectory(prefix="hc-simulate-", dir=directory) as staging:
+            candidate = Path(staging) / target.name
+            candidate.write_bytes(content)
+            try:
+                os.link(candidate, target)
+            except FileExistsError:
+                if target.is_symlink() or not target.is_file() or target.read_bytes() != content:
+                    return {"status": "needs_review", "reason": "output_exists_not_overwritten", "simulated": True}
+        return {"status": "succeeded", "path": str(target), "sha256": hashlib.sha256(content).hexdigest(), "simulated": True}
     return simulate

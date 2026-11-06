@@ -12,7 +12,7 @@
     "screenplay": {"type": "string", "minLength": 1},
     "shooting_script": {"type": "string", "minLength": 1},
     "shots": {
-      "type": "array", "minItems": 1, "maxItems": 48,
+      "type": "array", "minItems": 1, "maxItems": 24,
       "items": {
         "type": "object", "additionalProperties": false,
         "required": ["id", "duration_seconds", "purpose", "start_state", "end_state", "image_prompt", "video_prompt", "reference_assets"],
@@ -24,7 +24,13 @@
           "end_state": {"type": "string", "minLength": 1},
           "image_prompt": {"type": "string", "minLength": 1},
           "video_prompt": {"type": "string", "minLength": 1},
-          "reference_assets": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["path", "role"], "properties": {"path": {"type": "string"}, "role": {"type": "string"}}}
+          "reference_assets": {
+            "type": "array",
+            "items": {
+              "type": "object", "additionalProperties": false, "required": ["path", "role"],
+              "properties": {"path": {"type": "string"}, "role": {"type": "string"}}
+            }
+          }
         }
       }
     }

@@ -76,34 +76,9 @@ def _fraction(value):
     return Fraction(str(value))
 
 
-def _publish(staged_output, staged_report, output, evidence, record):
-    # Complete the receipt before making either public filename visible. This
-    # handles catchable process errors; it is not cross-file crash atomicity.
-    fd = os.open(staged_report, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-    with os.fdopen(fd, "w", encoding="utf-8") as stream:
-        json.dump(record, stream, ensure_ascii=False, indent=2)
-        stream.flush()
-        os.fsync(stream.fileno())
-    attempted = []
-    try:
-        for staged, public in ((staged_output, output), (staged_report, evidence)):
-            identity = staged.stat()
-            attempted.append((public, identity.st_dev, identity.st_ino))
-            os.link(staged, public)
-    except Exception:
-        for public, device, inode in reversed(attempted):
-            try:
-                current = public.lstat()
-                if (current.st_dev, current.st_ino) == (device, inode):
-                    public.unlink()
-            except OSError:
-                pass
-        raise
-
-
 def assemble_normalized(operation, *, runner=subprocess.run):
     """Normalize only the explicitly selected mode and publish a new MP4."""
-    from .compositor import _probe
+    from .compositor import _AssemblyConflict, _assembly_binding, _probe, _publish_assembly, _recover_assembly
     try:
         _require(operation.get("mode") == "live", "live_assembly_requires_live_mode")
         plan = operation.get("plan")
@@ -125,8 +100,10 @@ def assemble_normalized(operation, *, runner=subprocess.run):
         output_dir = Path(operation["output_dir"]).resolve()
         output_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
         output = output_dir / "assembled.mp4"
-        evidence = output_dir / "assembly-report.json"
-        _require(not output.exists() and not evidence.exists(), "output_exists_not_overwritten")
+        binding = _assembly_binding(operation)
+        recovered = _recover_assembly(output_dir, binding)
+        if recovered is not None:
+            return recovered
         manifest, sources, snapshots = [], [], []
         with tempfile.TemporaryDirectory(prefix="hc-normalize-", dir=output_dir) as temporary:
             staging = Path(temporary)
@@ -140,8 +117,16 @@ def assemble_normalized(operation, *, runner=subprocess.run):
                     source = Path(item["path"]).resolve(strict=True)
                     _require(source.is_file() and source.stat().st_size <= 2_000_000_000
                              and re.fullmatch(r"[a-f0-9]{64}", str(item.get("sha256", ""))), "invalid_or_unapproved_input")
-                    duration = _fraction(item["duration_seconds"])
+                    duration_seconds = item["duration_seconds"]
+                    duration = _fraction(duration_seconds)
                     frames = duration * fps
+                    if type(duration_seconds) is float and frames.denominator != 1:
+                        # Integer-frame spans in existing plans use JSON numbers.
+                        # Recover the exact span only if it rounds to the stored float.
+                        exact_duration = Fraction(round(frames), fps)
+                        if duration_seconds == float(exact_duration):
+                            duration = exact_duration
+                            frames = duration * fps
                     _require(0 < duration <= 120 and frames.denominator == 1, "normalization_nonintegral_frame_duration")
                     total_duration += duration
                     total_frames += int(frames)
@@ -297,9 +282,8 @@ def assemble_normalized(operation, *, runner=subprocess.run):
                       "normalization_binding": normalization_binding(operation), "originals_preserved": True,
                       "output_frames": total_frames, "output_fps": fps, "audio_validation": audio_proof,
                       "creative_editing": False, "visual_quality_checked": False}
-            _publish(staged_output, staging / "assembly-report.json", output, evidence, record)
-            return record
-    except _Refusal as exc:
+            return _publish_assembly(staged_output, output_dir, binding, record)
+    except (_Refusal, _AssemblyConflict) as exc:
         return {"status": "needs_review", "reason": str(exc), "simulated": False}
     except subprocess.TimeoutExpired:
         return {"status": "needs_review", "reason": "normalization_command_timeout", "simulated": False}

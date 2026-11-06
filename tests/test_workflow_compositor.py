@@ -149,9 +149,12 @@ class CompositorTests(unittest.TestCase):
 
     def test_simulation_is_not_presented_as_media(self):
         with tempfile.TemporaryDirectory() as d:
-            r = get_compositor("dry-run")({"output_dir": d, "inputs": [{"shot_id": "one"}]})
+            simulate = get_compositor("dry-run")
+            operation = {"output_dir": d, "inputs": [{"shot_id": "one"}]}
+            r = simulate(operation)
             self.assertTrue(r["simulated"])
             self.assertEqual(Path(r["path"]).suffix, ".json")
+            self.assertEqual(simulate(operation), r)
 
     def test_no_overwrite(self):
         with tempfile.TemporaryDirectory() as d:

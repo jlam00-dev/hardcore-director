@@ -1,0 +1,406 @@
+{
+  "schema_version": 1,
+  "project": {
+    "id": "MAINTENANCE_DOOR_A",
+    "name": "黄票 · A",
+    "brief": "10 秒三镜，值班员持同一张黄票走进废弃站台入口，16:9，无对白。触门时改变美术画法。",
+    "aspect_ratio": "16:9",
+    "fps": 24,
+    "total_frames": 240,
+    "locked_state": {
+      "ticket.hand": "right",
+      "ticket.color": "#F2C84B",
+      "ticket.id": "T01",
+      "art.family": "二维铅笔手绘",
+      "ticket.shape": "哑光窄矩形短边单缺口",
+      "worker.clothing": "短立领制服，深色袖口"
+    },
+    "sound_policy": {
+      "music": "forbidden",
+      "dialogue": "script_only"
+    }
+  },
+  "script": {
+    "screenplay": "值班员右手捏黄票走到检修门前；左手触门，门缓开；左手离门，他迈入废弃站台入口并停步。",
+    "shooting_script": "24fps，0–3秒停步，3–6秒开门，6–10秒进入。首次触门发生在4.5秒（108帧）。",
+    "beats": [
+      {
+        "id": "B01",
+        "scene_id": "SC01",
+        "action": "值班员右手捏住黄票，走到站台检修门前并停步。",
+        "cause": "前一拍动作",
+        "effect": "建立值班员、检修门与黄票",
+        "dialogue": []
+      },
+      {
+        "id": "B02",
+        "scene_id": "SC01",
+        "action": "右手持票保持不动；全片第108帧即4.5秒，本镜第1.5秒，左手首次触门板，门缓开。",
+        "cause": "前一拍动作",
+        "effect": "用首次触门触发开门和美术变化",
+        "dialogue": []
+      },
+      {
+        "id": "B03",
+        "scene_id": "SC01",
+        "action": "左手离开门板，右手仍持同一张票；值班员由门外向内迈一步，停在废弃站台入口。",
+        "cause": "前一拍动作",
+        "effect": "读出入口位置和踏入的结果",
+        "dialogue": []
+      }
+    ]
+  },
+  "direction": {
+    "source_hash": "5257206c5e9a2ea9aa935b218f96792d9d28378f56efb9f7f0f49b62e56c6deb",
+    "shots": [
+      {
+        "shot_id": "S01",
+        "scene_id": "SC01",
+        "beat_ids": [
+          "B01"
+        ],
+        "blocking": {
+          "start": "过道内，左手垂下。",
+          "action": "值班员右手捏住黄票，走到站台检修门前并停步。",
+          "end": "门槛外，左手垂下。",
+          "eyelines": "值班员看向检修门",
+          "prop_changes": "黄票一直在右手，左手只触门或离开",
+          "holds": "动作结束保持一拍"
+        },
+        "camera_intent": "固定中远景，同轴。冷灰过道直边，前景硬实，中景值班员短立领制服和深色袖口，后景右侧闭合检修门为方正灰块与窄硬影。",
+        "performance": {
+          "before": "确认右手持黄票",
+          "during": "值班员右手捏住黄票，走到站台检修门前并停步。",
+          "after": "停在动作结果"
+        },
+        "coverage": "建立值班员、检修门与黄票",
+        "start_state": {
+          "ticket.hand": "right",
+          "ticket.color": "#F2C84B",
+          "ticket.id": "T01",
+          "art.family": "二维铅笔手绘",
+          "door.state": "闭合",
+          "art.phase": "冷灰硬直",
+          "ticket.shape": "哑光窄矩形短边单缺口",
+          "worker.clothing": "短立领制服，深色袖口",
+          "worker.position": "过道内",
+          "worker.left_hand": "垂下"
+        },
+        "end_state": {
+          "ticket.hand": "right",
+          "ticket.color": "#F2C84B",
+          "ticket.id": "T01",
+          "art.family": "二维铅笔手绘",
+          "door.state": "闭合",
+          "art.phase": "冷灰硬直",
+          "ticket.shape": "哑光窄矩形短边单缺口",
+          "worker.clothing": "短立领制服，深色袖口",
+          "worker.position": "门槛外",
+          "worker.left_hand": "垂下"
+        }
+      },
+      {
+        "shot_id": "S02",
+        "scene_id": "SC01",
+        "beat_ids": [
+          "B02"
+        ],
+        "blocking": {
+          "start": "门槛外，左手垂下。",
+          "action": "右手持票保持不动；全片第108帧即4.5秒，本镜第1.5秒，左手首次触门板，门缓开。",
+          "end": "门槛外，左手贴门。",
+          "eyelines": "值班员看向检修门",
+          "prop_changes": "黄票一直在右手，左手只触门或离开",
+          "holds": "动作结束保持一拍"
+        },
+        "camera_intent": "固定中近景，同轴。冷灰硬边。前景右手与黄票，中景左手尚未触门，后景门板闭合，门缝无站台光。",
+        "performance": {
+          "before": "确认右手持黄票",
+          "during": "右手持票保持不动；全片第108帧即4.5秒，本镜第1.5秒，左手首次触门板，门缓开。",
+          "after": "停在动作结果"
+        },
+        "coverage": "用首次触门触发开门和美术变化",
+        "start_state": {
+          "ticket.hand": "right",
+          "ticket.color": "#F2C84B",
+          "ticket.id": "T01",
+          "art.family": "二维铅笔手绘",
+          "door.state": "闭合",
+          "art.phase": "冷灰硬直",
+          "ticket.shape": "哑光窄矩形短边单缺口",
+          "worker.clothing": "短立领制服，深色袖口",
+          "worker.position": "门槛外",
+          "worker.left_hand": "垂下"
+        },
+        "end_state": {
+          "ticket.hand": "right",
+          "ticket.color": "#F2C84B",
+          "ticket.id": "T01",
+          "art.family": "二维铅笔手绘",
+          "door.state": "敞开",
+          "art.phase": "纸白松铅笔",
+          "ticket.shape": "哑光窄矩形短边单缺口",
+          "worker.clothing": "短立领制服，深色袖口",
+          "worker.position": "门槛外",
+          "worker.left_hand": "贴门"
+        }
+      },
+      {
+        "shot_id": "S03",
+        "scene_id": "SC01",
+        "beat_ids": [
+          "B03"
+        ],
+        "blocking": {
+          "start": "门槛外，左手贴门。",
+          "action": "左手离开门板，右手仍持同一张票；值班员由门外向内迈一步，停在废弃站台入口。",
+          "end": "站台入口，左手离门。",
+          "eyelines": "值班员看向检修门",
+          "prop_changes": "黄票一直在右手，左手只触门或离开",
+          "holds": "动作结束保持一拍"
+        },
+        "camera_intent": "固定中全景，同轴。前景门框为稀疏铅笔线，门已开。中景人物双脚仍在门外，左手贴门。远柱一笔淡线，纸白留空。",
+        "performance": {
+          "before": "确认右手持黄票",
+          "during": "左手离开门板，右手仍持同一张票；值班员由门外向内迈一步，停在废弃站台入口。",
+          "after": "停在动作结果"
+        },
+        "coverage": "读出入口位置和踏入的结果",
+        "start_state": {
+          "ticket.hand": "right",
+          "ticket.color": "#F2C84B",
+          "ticket.id": "T01",
+          "art.family": "二维铅笔手绘",
+          "door.state": "敞开",
+          "art.phase": "纸白松铅笔",
+          "ticket.shape": "哑光窄矩形短边单缺口",
+          "worker.clothing": "短立领制服，深色袖口",
+          "worker.position": "门槛外",
+          "worker.left_hand": "贴门"
+        },
+        "end_state": {
+          "ticket.hand": "right",
+          "ticket.color": "#F2C84B",
+          "ticket.id": "T01",
+          "art.family": "二维铅笔手绘",
+          "door.state": "敞开",
+          "art.phase": "纸白松铅笔",
+          "ticket.shape": "哑光窄矩形短边单缺口",
+          "worker.clothing": "短立领制服，深色袖口",
+          "worker.position": "站台入口",
+          "worker.left_hand": "离门"
+        }
+      }
+    ]
+  },
+  "storyboard": {
+    "source_hash": "09f390f6bb8628cad602e723a7b94a52062b8f3a0e2475c875259a36b7d3ced3",
+    "board": {
+      "schema_version": 1,
+      "aspect_ratio": "16:9",
+      "fps": 24,
+      "total_frames": 240,
+      "limits": {
+        "max_shot_frames": 96
+      },
+      "beats": [
+        {
+          "id": "B01"
+        },
+        {
+          "id": "B02"
+        },
+        {
+          "id": "B03"
+        }
+      ],
+      "assets": [],
+      "shots": [
+        {
+          "id": "S01",
+          "scene_id": "SC01",
+          "purpose": "建立值班员、检修门与黄票",
+          "start_frame": 0,
+          "end_frame": 72,
+          "beat_ids": [
+            "B01"
+          ],
+          "references": [],
+          "start_state": {
+            "ticket.hand": "right",
+            "ticket.color": "#F2C84B",
+            "ticket.id": "T01",
+            "art.family": "二维铅笔手绘",
+            "door.state": "闭合",
+            "art.phase": "冷灰硬直",
+            "ticket.shape": "哑光窄矩形短边单缺口",
+            "worker.clothing": "短立领制服，深色袖口",
+            "worker.position": "过道内",
+            "worker.left_hand": "垂下"
+          },
+          "end_state": {
+            "ticket.hand": "right",
+            "ticket.color": "#F2C84B",
+            "ticket.id": "T01",
+            "art.family": "二维铅笔手绘",
+            "door.state": "闭合",
+            "art.phase": "冷灰硬直",
+            "ticket.shape": "哑光窄矩形短边单缺口",
+            "worker.clothing": "短立领制服，深色袖口",
+            "worker.position": "门槛外",
+            "worker.left_hand": "垂下"
+          },
+          "dialogue": []
+        },
+        {
+          "id": "S02",
+          "scene_id": "SC01",
+          "purpose": "用首次触门触发开门和美术变化",
+          "start_frame": 72,
+          "end_frame": 144,
+          "beat_ids": [
+            "B02"
+          ],
+          "references": [],
+          "start_state": {
+            "ticket.hand": "right",
+            "ticket.color": "#F2C84B",
+            "ticket.id": "T01",
+            "art.family": "二维铅笔手绘",
+            "door.state": "闭合",
+            "art.phase": "冷灰硬直",
+            "ticket.shape": "哑光窄矩形短边单缺口",
+            "worker.clothing": "短立领制服，深色袖口",
+            "worker.position": "门槛外",
+            "worker.left_hand": "垂下"
+          },
+          "end_state": {
+            "ticket.hand": "right",
+            "ticket.color": "#F2C84B",
+            "ticket.id": "T01",
+            "art.family": "二维铅笔手绘",
+            "door.state": "敞开",
+            "art.phase": "纸白松铅笔",
+            "ticket.shape": "哑光窄矩形短边单缺口",
+            "worker.clothing": "短立领制服，深色袖口",
+            "worker.position": "门槛外",
+            "worker.left_hand": "贴门"
+          },
+          "dialogue": []
+        },
+        {
+          "id": "S03",
+          "scene_id": "SC01",
+          "purpose": "读出入口位置和踏入的结果",
+          "start_frame": 144,
+          "end_frame": 240,
+          "beat_ids": [
+            "B03"
+          ],
+          "references": [],
+          "start_state": {
+            "ticket.hand": "right",
+            "ticket.color": "#F2C84B",
+            "ticket.id": "T01",
+            "art.family": "二维铅笔手绘",
+            "door.state": "敞开",
+            "art.phase": "纸白松铅笔",
+            "ticket.shape": "哑光窄矩形短边单缺口",
+            "worker.clothing": "短立领制服，深色袖口",
+            "worker.position": "门槛外",
+            "worker.left_hand": "贴门"
+          },
+          "end_state": {
+            "ticket.hand": "right",
+            "ticket.color": "#F2C84B",
+            "ticket.id": "T01",
+            "art.family": "二维铅笔手绘",
+            "door.state": "敞开",
+            "art.phase": "纸白松铅笔",
+            "ticket.shape": "哑光窄矩形短边单缺口",
+            "worker.clothing": "短立领制服，深色袖口",
+            "worker.position": "站台入口",
+            "worker.left_hand": "离门"
+          },
+          "dialogue": []
+        }
+      ]
+    }
+  },
+  "audio": {
+    "source_hash": "f3a2b18c53d1336ef863b01658165facf0affef90c01fe62fc837819a296c1c8",
+    "cues": []
+  },
+  "prompts": {
+    "source_hash": "8599d3568e7062831f7f52ff0a77d8d50b070af8839808d3c462eb59cbdcc952",
+    "platform": "generic",
+    "shots": [
+      {
+        "shot_id": "S01",
+        "image_prompt": "固定中远景，同轴。冷灰过道直边，前景硬实，中景值班员短立领制服和深色袖口，后景右侧闭合检修门为方正灰块与窄硬影。唯一的黄色给右手的哑光窄矩形黄票（#F2C84B），短边单缺口。脸型、制服、主光方向和检修门轴线一致。",
+        "video_prompt": "值班员右手捏住黄票，走到站台检修门前并停步。衣褶随步幅移动，过道和门的直线保持稳定。冷灰硬边贯穿本镜，纸白和铅笔效果留到触门时。唯一的黄色给右手的哑光窄矩形黄票（#F2C84B），短边单缺口。脸型、制服、主光方向和检修门轴线一致。无对白和音乐。",
+        "dialogue_ids": [],
+        "cue_ids": [],
+        "cue_bindings": [],
+        "reference_asset_ids": []
+      },
+      {
+        "shot_id": "S02",
+        "image_prompt": "固定中近景，同轴。冷灰硬边。前景右手与黄票，中景左手尚未触门，后景门板闭合，门缝无站台光。唯一的黄色给右手的哑光窄矩形黄票（#F2C84B），短边单缺口。脸型、制服、主光方向和检修门轴线一致。",
+        "video_prompt": "右手持票保持不动；全片第108帧即4.5秒，本镜第1.5秒，左手首次触门板，门缓开。接触前维持冷灰硬边。触门时门板非关键边缘转为断续铅笔线，纸白从门板空处向画缘展开。门轴和指尖位置连续，票边可见。唯一的黄色给右手的哑光窄矩形黄票（#F2C84B），短边单缺口。脸型、制服、主光方向和检修门轴线一致。无对白和音乐。",
+        "dialogue_ids": [],
+        "cue_ids": [],
+        "cue_bindings": [],
+        "reference_asset_ids": []
+      },
+      {
+        "shot_id": "S03",
+        "image_prompt": "固定中全景，同轴。前景门框为稀疏铅笔线，门已开。中景人物双脚仍在门外，左手贴门。远柱一笔淡线，纸白留空。唯一的黄色给右手的哑光窄矩形黄票（#F2C84B），短边单缺口。脸型、制服、主光方向和检修门轴线一致。",
+        "video_prompt": "左手离开门板，右手仍持同一张票；值班员由门外向内迈一步，停在废弃站台入口。延续纸白松铅笔。门框保持稳定，落脚处才出现短排线。纸白留在远层，脚与票边始终可读。唯一的黄色给右手的哑光窄矩形黄票（#F2C84B），短边单缺口。脸型、制服、主光方向和检修门轴线一致。无对白和音乐。",
+        "dialogue_ids": [],
+        "cue_ids": [],
+        "cue_bindings": [],
+        "reference_asset_ids": []
+      }
+    ]
+  },
+  "editorial": {
+    "source_hash": "c6338f2949d01ece92d42d86fc62553d47c39092d2e8c8a81440505e30873238",
+    "status": "planned",
+    "events": [
+      {
+        "shot_id": "S01",
+        "beat_ids": [
+          "B01"
+        ],
+        "start_frame": 0,
+        "end_frame": 72,
+        "take": null,
+        "cue_ids": [],
+        "notes": "文字计划。"
+      },
+      {
+        "shot_id": "S02",
+        "beat_ids": [
+          "B02"
+        ],
+        "start_frame": 72,
+        "end_frame": 144,
+        "take": null,
+        "cue_ids": [],
+        "notes": "文字计划。"
+      },
+      {
+        "shot_id": "S03",
+        "beat_ids": [
+          "B03"
+        ],
+        "start_frame": 144,
+        "end_frame": 240,
+        "take": null,
+        "cue_ids": [],
+        "notes": "文字计划。"
+      }
+    ]
+  }
+}

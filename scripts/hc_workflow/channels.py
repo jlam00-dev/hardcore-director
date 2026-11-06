@@ -45,6 +45,9 @@ import urllib.request
 import uuid
 
 
+MAX_REVIEW_TTL = 3600
+
+
 class ChannelError(RuntimeError):
     """Safe diagnostics: never include response bodies or credentials."""
 
@@ -237,7 +240,8 @@ class ApprovalBroker:
                 channel TEXT NOT NULL, event_id TEXT NOT NULL, PRIMARY KEY(channel,event_id));
             CREATE TABLE IF NOT EXISTS approval_queue (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, challenge_id TEXT NOT NULL,
-                payload TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'queued');
+                payload TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'queued',
+                attempts INTEGER NOT NULL DEFAULT 0, retry_at REAL NOT NULL DEFAULT 0);
             CREATE TABLE IF NOT EXISTS notifications (
                 channel TEXT NOT NULL, event_id TEXT NOT NULL, state TEXT NOT NULL,
                 PRIMARY KEY(channel,event_id));
@@ -260,10 +264,21 @@ class ApprovalBroker:
                 challenge_id TEXT NOT NULL,
                 PRIMARY KEY(channel,instance,message_id));
         """)
-        columns = {row[1] for row in self._db.execute("PRAGMA table_info(challenges)")}
-        for name, definition in (("binding_hash", "TEXT NOT NULL DEFAULT ''"), ("shot_ids", "TEXT NOT NULL DEFAULT '[]'")):
-            if name not in columns:
-                self._db.execute(f"ALTER TABLE challenges ADD COLUMN {name} {definition}")
+        self._db.execute("BEGIN IMMEDIATE")
+        try:
+            for table, additions in (
+                ("challenges", {"binding_hash": "TEXT NOT NULL DEFAULT ''", "shot_ids": "TEXT NOT NULL DEFAULT '[]'"}),
+                ("approval_queue", {"attempts": "INTEGER NOT NULL DEFAULT 0", "retry_at": "REAL NOT NULL DEFAULT 0"}),
+            ):
+                columns = {row[1] for row in self._db.execute(f"PRAGMA table_info({table})")}
+                for name, definition in additions.items():
+                    if name not in columns:
+                        self._db.execute(f"ALTER TABLE {table} ADD COLUMN {name} {definition}")
+            self._db.execute("COMMIT")
+        except BaseException:
+            self._db.execute("ROLLBACK")
+            self._db.close()
+            raise
 
     def close(self) -> None:
         with self._lock:
@@ -312,7 +327,7 @@ class ApprovalBroker:
         for shot_id in shot_ids or []:
             _identifier(shot_id, "shot_id")
         now = self._clock()
-        if type(ttl_seconds) not in (int, float) or not math.isfinite(ttl_seconds) or not 1 <= ttl_seconds <= 3600:
+        if type(ttl_seconds) not in (int, float) or not math.isfinite(ttl_seconds) or not 1 <= ttl_seconds <= MAX_REVIEW_TTL:
             raise ConfigurationError("approval TTL must be between 1 and 3600 seconds")
         if expires_at is not None and (type(expires_at) not in (int, float) or not math.isfinite(expires_at)):
             raise ConfigurationError("invalid approval expiry")
@@ -676,6 +691,18 @@ class ApprovalBroker:
                 self._db.execute("ROLLBACK")
                 raise
 
+    def expired_decisions(self, project_ids: Any) -> list[sqlite3.Row]:
+        """Find expired unfinished decisions for receipt reconciliation."""
+        projects = self._project_scope(project_ids)
+        if not projects:
+            return []
+        marks = ",".join("?" for _ in projects)
+        with self._lock:
+            return self._db.execute(
+                "SELECT q.id,q.challenge_id FROM approval_queue q JOIN challenges c ON c.id=q.challenge_id "
+                f"WHERE q.state IN ('queued','claimed') AND c.expires<=? AND c.job_id IN ({marks})",
+                (self._clock(), *projects)).fetchall()
+
     def drain(self, limit: int = 32, *, project_ids: Any = None) -> list[dict[str, Any]]:
         """Claim queue entries on the coordinator thread; engine rechecks bindings."""
         if type(limit) is not int or not 1 <= limit <= 100:
@@ -687,7 +714,8 @@ class ApprovalBroker:
         with self._lock:
             self._db.execute("BEGIN IMMEDIATE")
             try:
-                rows = self._db.execute("SELECT q.id,q.payload FROM approval_queue q JOIN challenges c ON c.id=q.challenge_id WHERE q.state='queued' AND c.status='accepted' AND c.expires>?" + scope_sql + " ORDER BY q.id LIMIT ?", (self._clock(), *(projects or []), limit)).fetchall()
+                now = self._clock()
+                rows = self._db.execute("SELECT q.id,q.payload FROM approval_queue q JOIN challenges c ON c.id=q.challenge_id WHERE q.state='queued' AND q.retry_at<=? AND c.status='accepted' AND c.expires>?" + scope_sql + " ORDER BY q.id LIMIT ?", (now, now, *(projects or []), limit)).fetchall()
                 # Decode before committing claims, so corrupt persisted payloads
                 # roll back instead of being stranded after COMMIT.
                 claimed = [dict(json.loads(row["payload"]), queue_id=row["id"]) for row in rows]
@@ -702,6 +730,20 @@ class ApprovalBroker:
     def acknowledge(self, queue_id: int, *, applied: bool) -> None:
         with self._lock:
             self._db.execute("UPDATE approval_queue SET state=? WHERE id=? AND state='claimed'", ("applied" if applied else "rejected", queue_id))
+
+    def settle_expired(self, queue_id: int, *, applied: bool) -> None:
+        with self._lock:
+            self._db.execute(
+                "UPDATE approval_queue SET state=? WHERE id=? AND state IN ('queued','claimed')",
+                ("applied" if applied else "expired", queue_id))
+
+    def defer(self, queue_id: int) -> None:
+        """Retry temporary verification failures within the original expiry."""
+        with self._lock:
+            self._db.execute(
+                "UPDATE approval_queue SET state='queued', attempts=attempts+1, "
+                "retry_at=?+MIN(60,5*(1<<MIN(attempts,4))) WHERE id=? AND state='claimed'",
+                (self._clock(), queue_id))
 
     def begin_notification(self, channel: str, event_id: str) -> str:
         _identifier(event_id, "event_id")
@@ -956,7 +998,8 @@ class ReviewChannel:
             self._send_file(chat, path)
         challenge = self.broker.issue(channel=self.config.provider, job_id=job_id, revision=revision, stage=stage,
             chat_id=chat, allowed_sender_ids=self.config.allowed_senders, live_scope=live_scope,
-            budget=budget, expires_at=expires_at, binding_hash=binding_hash, shot_ids=shot_ids)
+            budget=budget, expires_at=expires_at, ttl_seconds=MAX_REVIEW_TTL if expires_at is not None else 900,
+            binding_hash=binding_hash, shot_ids=shot_ids)
         try:
             message_id = self._send_text(chat, (summary[:4000] + "\n" if summary else "") + challenge.message())
             self.broker.mark_review_delivered(challenge.challenge_id, instance=self._instance(), message_id=message_id or "")

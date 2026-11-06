@@ -750,6 +750,130 @@ class ChannelTests(unittest.TestCase):
         self.assertFalse(bridge.run_once()["decisions"][0]["applied"])
         self.assertEqual(self.broker.drain(), [])
 
+    def live_review_fixture(self):
+        from hc_workflow.engine import Engine
+        identity = {"provider": "fixture", "account": "own-account", "live": True, "verified": True}
+        provider = SimpleNamespace(identity=lambda: dict(identity))
+        engine = Engine(self.root / "review-engine.sqlite3", {"fixture": provider},
+                        artifact_dir=self.root / "artifacts", channel=self.feishu, clock=lambda: self.now)
+        self.addCleanup(engine.close)
+        pid = engine.init_project("offline paid review", mode="live")["project_id"]
+        engine.set_plan(pid, {"providers": {"image": "fixture", "video": "fixture"},
+            "requested_live_scopes": {"image": {"stages": ["image"], "allow_uploads": True}},
+            "budget": {"amount": "3", "currency": "DREAMINA_CREDITS"},
+            "shots": [{"id": "S01", "duration_seconds": 1, "image_prompt": "test", "video_prompt": "hold"}]})
+        original_send = self.feishu.send_review
+        sent = []
+        def send_review(**kwargs):
+            sent.append(original_send(**kwargs))
+            return sent[-1]
+        patch = mock.patch.object(self.feishu, "send_review", side_effect=send_review)
+        patch.start()
+        self.addCleanup(patch.stop)
+        engine.tick(pid)
+        return engine, pid, identity, sent
+
+    def test_expired_engine_review_renews_once_with_original_scope_and_cap(self):
+        engine, pid, identity, sent = self.live_review_fixture()
+        original = sent[0]
+        self.assertEqual(original.expires_at, self.now + 3600)
+        self.now += 901
+        engine.tick(pid)
+        self.assertEqual(sent, [original])
+        with engine._tx() as db:
+            db.execute("INSERT INTO budgets VALUES (?,?,?,?)", (pid, "image", "99", "DREAMINA_CREDITS"))
+        self.now = original.expires_at
+        engine.tick(pid)
+        engine.tick(pid)
+        self.assertEqual(len(sent), 2)
+        fresh = sent[-1]
+        self.assertNotEqual(original.challenge_id, fresh.challenge_id)
+        self.assertEqual((fresh.scope, fresh.budget, fresh.binding_hash),
+                         (original.scope, original.budget, original.binding_hash))
+        self.assertFalse(self.accept(original.approve_command)["accepted"])
+        self.assertEqual(engine.db.execute("SELECT count(*) FROM approvals").fetchone()[0], 0)
+        identity["account"] = "different-account"
+        self.now = fresh.expires_at
+        engine.tick(pid)
+        self.assertEqual(len(sent), 2)
+
+    def test_bridge_retries_temporary_identity_with_original_expiry_and_budget(self):
+        engine, pid, identity, sent = self.live_review_fixture()
+        challenge = sent[0]
+        self.assertTrue(self.accept(challenge.approve_command)["accepted"])
+        account = dict(identity)
+        identity.update(account=None, verified=False, status="unknown")
+        bridge = WorkflowBridge(engine, self.feishu, [pid], clock=lambda: self.now)
+        self.assertEqual(bridge.run_once()["decisions"][0]["outcome"], "deferred_account_verification")
+        self.assertEqual(engine.db.execute("SELECT count(*) FROM approval_decisions").fetchone()[0], 0)
+        identity.clear()
+        identity.update(account)
+        self.assertEqual(bridge.run_once()["decisions"], [])
+        self.now += 5
+        restarted = WorkflowBridge(engine, self.feishu, [pid], clock=lambda: self.now)
+        self.assertEqual(restarted.run_once()["decisions"][0]["outcome"], "applied")
+        row = engine.db.execute("SELECT expires,amount,currency,scope FROM approvals").fetchone()
+        self.assertEqual((row["expires"], row["amount"], row["currency"]),
+                         (challenge.expires_at, "3", "DREAMINA_CREDITS"))
+        self.assertEqual(json.loads(row["scope"]), challenge.scope)
+        self.assertEqual(restarted.run_once()["decisions"], [])
+
+    def test_review_cannot_restore_a_lowered_budget(self):
+        engine, pid, _, sent = self.live_review_fixture()
+        challenge = sent[0]
+        with engine._tx() as db:
+            db.execute("INSERT INTO budgets VALUES (?,?,?,?)", (pid, "image", "1", "DREAMINA_CREDITS"))
+        self.assertTrue(self.accept(challenge.approve_command)["accepted"])
+        bridge = WorkflowBridge(engine, self.feishu, [pid], clock=lambda: self.now)
+        self.assertEqual(bridge.run_once()["decisions"][0]["outcome"], "rejected")
+        self.assertEqual(engine.db.execute("SELECT count(*) FROM approvals").fetchone()[0], 0)
+        self.now = challenge.expires_at
+        engine.tick(pid)
+        self.assertEqual(sent, [challenge])
+
+    def test_expired_rejected_plan_review_does_not_reappear(self):
+        engine, pid, _, sent = self.live_review_fixture()
+        challenge = sent[0]
+        self.assertTrue(self.accept(challenge.reject_command)["accepted"])
+        bridge = WorkflowBridge(engine, self.feishu, [pid], clock=lambda: self.now)
+        self.assertTrue(bridge.run_once()["decisions"][0]["applied"])
+        self.assertNotEqual(engine.status(pid)["revision"], challenge.revision)
+        self.now = challenge.expires_at
+        engine.tick(pid)
+        self.assertEqual(sent, [challenge])
+
+    def test_deferred_decision_is_never_applied_after_original_expiry(self):
+        from hc_workflow.engine import ApprovalBindingUnavailable
+        challenge = self.issue(binding_hash="a" * 64)
+        self.assertTrue(self.accept(challenge.reject_command)["accepted"])
+        engine = mock.Mock()
+        engine.reject.side_effect = ApprovalBindingUnavailable("offline fixture")
+        bridge = WorkflowBridge(engine, self.feishu, ["job-1"], clock=lambda: self.now)
+        self.assertEqual(bridge.run_once()["decisions"][0]["outcome"], "deferred_account_verification")
+        self.now = challenge.expires_at
+        engine.reject.side_effect = None
+        self.assertEqual(bridge.run_once()["decisions"], [])
+        self.assertEqual(engine.reject.call_count, 1)
+
+    def test_old_queue_migrates_and_can_defer(self):
+        path = self.root / "old-approvals.sqlite3"
+        with closing(sqlite3.connect(path)) as db:
+            db.execute("CREATE TABLE approval_queue (id INTEGER PRIMARY KEY AUTOINCREMENT, challenge_id TEXT NOT NULL, "
+                       "payload TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'queued')")
+            db.execute("INSERT INTO approval_queue VALUES (1,'legacy','{}','claimed')")
+            db.commit()
+        with closing(ApprovalBroker(path, clock=lambda: self.now)) as broker:
+            broker.defer(1)
+            row = broker._db.execute("SELECT state,attempts,retry_at FROM approval_queue").fetchone()
+            self.assertEqual(tuple(row), ("queued", 1, self.now + 5))
+
+    def test_bridge_pauses_if_listener_returns_unexpectedly(self):
+        channel = SimpleNamespace(broker=self.broker, listen=lambda stop_event: None)
+        bridge = WorkflowBridge(mock.Mock(), channel, ["job-1"], clock=lambda: self.now)
+        with self.assertRaisesRegex(ChannelError, "listener stopped"):
+            bridge.run(interval=0.5)
+        self.assertTrue(bridge.stop_event.is_set())
+
     def test_bridge_interrupt_preserves_claim_and_releases_lock_for_recovery(self):
         challenge = self.issue(binding_hash="a" * 64)
         self.accept(challenge.approve_command)
@@ -778,7 +902,7 @@ class ChannelTests(unittest.TestCase):
         bridge = WorkflowBridge(engine, self.feishu, ["job-1", "expired", "cancelled", "applied", "rejected"], clock=lambda: self.now)
         self.assertEqual([item["project_id"] for item in bridge.run_once()["decisions"]], ["job-1"])
         rows = self.broker._db.execute("SELECT c.job_id,q.state FROM approval_queue q JOIN challenges c ON c.id=q.challenge_id")
-        self.assertEqual(dict(rows), {"job-1": "applied", "job-2": "claimed", "expired": "claimed",
+        self.assertEqual(dict(rows), {"job-1": "applied", "job-2": "claimed", "expired": "expired",
                                      "cancelled": "claimed", "applied": "applied", "rejected": "rejected"})
         engine.approve.assert_called_once()
         other = WorkflowBridge(engine, self.feishu, ["job-2"], clock=lambda: self.now)
@@ -852,9 +976,10 @@ from hc_workflow.channels import ApprovalBroker
 from hc_workflow.engine import Engine
 from workflow_bridge import WorkflowBridge
 root = Path(sys.argv[2])
-b = ApprovalBroker(root / 'approvals.sqlite3', clock=lambda: 1001)
-e = Engine(root / 'jobs.sqlite3', clock=lambda: 1001, artifact_dir=root / 'assets')
-w = WorkflowBridge(e, SimpleNamespace(broker=b), ['crash-job'], clock=lambda: 1001)
+clock = lambda: 1121 if sys.argv[3] == 'reconcile' else 1001
+b = ApprovalBroker(root / 'approvals.sqlite3', clock=clock)
+e = Engine(root / 'jobs.sqlite3', clock=clock, artifact_dir=root / 'assets')
+w = WorkflowBridge(e, SimpleNamespace(broker=b), ['crash-job'], clock=clock)
 if sys.argv[3] == 'before':
  e.approve = lambda *a, **k: os._exit(71)
 elif sys.argv[3] == 'after':
@@ -871,9 +996,10 @@ print(json.dumps(result))
 b.close()
 e.close()
 '''
-        for phase, exit_code in (("before", 71), ("after", 72)):
-            with self.subTest(phase=phase):
-                root = self.root / phase
+        cases = (("before", 71, "resume"), ("after", 72, "resume"), ("after", 72, "reconcile"))
+        for phase, exit_code, recovery in cases:
+            with self.subTest(phase=phase, recovery=recovery):
+                root = self.root / f"{phase}-{recovery}"
                 root.mkdir()
                 engine = Engine(root / "jobs.sqlite3", clock=lambda: 1000, artifact_dir=root / "assets")
                 engine.init_project({"audience": "offline test"}, project_id="crash-job")
@@ -897,20 +1023,26 @@ e.close()
                 self.assertEqual(crashed.returncode, exit_code, crashed.stderr)
                 with closing(sqlite3.connect(root / "approvals.sqlite3")) as db:
                     self.assertEqual(db.execute("SELECT state FROM approval_queue").fetchone()[0], "claimed")
-                resumed = subprocess.run([*command, "resume"], capture_output=True, text=True, timeout=10)
+                resumed = subprocess.run([*command, recovery], capture_output=True, text=True, timeout=10)
                 self.assertEqual(resumed.returncode, 0, resumed.stderr)
                 proof = json.loads(resumed.stdout)
-                self.assertTrue(proof["decisions"][0]["applied"])
-                self.assertEqual(proof["status"], "storyboard_review")
-                self.assertEqual(len(proof["operations"]), 1)
-                self.assertEqual(proof["budgets"], [{"stage": "image", "amount": "0", "currency": "CNY", "reserved_or_spent": "0"}])
-                repeated = subprocess.run([*command, "resume"], capture_output=True, text=True, timeout=10)
-                self.assertEqual(repeated.returncode, 0, repeated.stderr)
-                repeat = json.loads(repeated.stdout)
-                self.assertEqual(repeat["decisions"], [])
-                self.assertEqual(repeat["operations"], proof["operations"])
+                if recovery == "reconcile":
+                    self.assertEqual(proof["decisions"], [])
+                else:
+                    self.assertTrue(proof["decisions"][0]["applied"])
+                    self.assertEqual(proof["status"], "storyboard_review")
+                    self.assertEqual(len(proof["operations"]), 1)
+                    self.assertEqual(proof["budgets"], [{"stage": "image", "amount": "0", "currency": "CNY", "reserved_or_spent": "0"}])
+                    repeated = subprocess.run([*command, "resume"], capture_output=True, text=True, timeout=10)
+                    self.assertEqual(repeated.returncode, 0, repeated.stderr)
+                    repeat = json.loads(repeated.stdout)
+                    self.assertEqual(repeat["decisions"], [])
+                    self.assertEqual(repeat["operations"], proof["operations"])
                 with closing(sqlite3.connect(root / "approvals.sqlite3")) as db:
                     self.assertEqual(db.execute("SELECT state FROM approval_queue").fetchone()[0], "applied")
+                with closing(sqlite3.connect(root / "jobs.sqlite3")) as db:
+                    self.assertEqual(db.execute("SELECT COUNT(*) FROM approvals").fetchone()[0], 1)
+                    self.assertEqual(db.execute("SELECT COUNT(*) FROM events WHERE type='approved'").fetchone()[0], 1)
 
     def test_bridge_reject_calls_core_with_revision_hash_and_selected_shots(self):
         challenge = self.issue(binding_hash="a" * 64, shot_ids=["S01"])

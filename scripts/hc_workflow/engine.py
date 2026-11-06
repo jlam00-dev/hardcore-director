@@ -16,6 +16,7 @@ import re
 import shutil
 import stat
 import sqlite3
+import tempfile
 import threading
 import time
 import uuid
@@ -25,9 +26,19 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, Callable
 
+from .channels import MAX_REVIEW_TTL
+
 
 class WorkflowError(ValueError):
     """A workflow refusal that is safe to show to a human."""
+
+
+class ApprovalBindingUnavailable(WorkflowError):
+    """A provider's temporary identity read failure, with no identity assumed."""
+
+
+class ApprovalDecisionExpired(WorkflowError):
+    """The original approval deadline passed before applying the decision."""
 
 
 @dataclass(frozen=True)
@@ -221,6 +232,8 @@ class Engine:
           CREATE TABLE IF NOT EXISTS events (
             id TEXT PRIMARY KEY, project_id TEXT NOT NULL, type TEXT NOT NULL,
             payload TEXT NOT NULL, delivered INTEGER NOT NULL DEFAULT 0, created REAL NOT NULL);
+          CREATE TABLE IF NOT EXISTS approval_decisions (
+            id TEXT PRIMARY KEY, fingerprint TEXT NOT NULL);
         """)
         self._secure_sidecars()
 
@@ -332,6 +345,12 @@ class Engine:
             old = {s["id"]: s for s in self._shots(project_id)} if preserve else {}
             db.execute("UPDATE projects SET plan=?,plan_hash=?,revision=revision+1,final_artifact=NULL,final_accepted=0,updated=? WHERE id=?",
                        (_json(plan), _hash(plan), self.clock(), project_id))
+            for draft in db.execute("SELECT id,payload FROM operations WHERE project_id=? AND provider='dreamina-canvas' "
+                                    "AND status='prepared' AND phase='prepared' AND task_id IS NULL", (project_id,)).fetchall():
+                payload = json.loads(draft["payload"])
+                if payload.get("saved") is True and not payload.get("submit_attempted"):
+                    # These abandoned drafts never entered a paid submission.
+                    db.execute("UPDATE operations SET reserved='0',currency=NULL WHERE id=?", (draft["id"],))
             db.execute("DELETE FROM shots WHERE project_id=?", (project_id,))
             for i, shot in enumerate(shots):
                 image, video = None, None
@@ -368,7 +387,9 @@ class Engine:
             raise WorkflowError(f"provider is not configured: {key}")
         provider = self.providers[key]
         identity = self._identity(provider)
-        if not isinstance(identity, dict) or not identity.get("provider") or not identity.get("account"):
+        if not identity.get("provider") or not identity.get("account"):
+            if identity.get("status") == "unknown":
+                raise ApprovalBindingUnavailable("provider account verification temporarily unavailable")
             raise WorkflowError("provider must identify its provider and account")
         return key, provider, identity
 
@@ -529,13 +550,34 @@ class Engine:
             return None
         return None
 
+    @staticmethod
+    def _record_decision(db, decision_id, decision, *context):
+        if decision_id is None:
+            return False
+        fingerprint = _hash([decision, *context])
+        receipt = db.execute("SELECT fingerprint FROM approval_decisions WHERE id=?", (decision_id,)).fetchone()
+        if receipt:
+            if receipt["fingerprint"] != fingerprint:
+                raise WorkflowError("approval decision already used for another request")
+            return True
+        db.execute("INSERT INTO approval_decisions VALUES (?,?)", (decision_id, fingerprint))
+        return False
+
+    def decision_applied(self, decision_id):
+        """Read an already committed remote decision without replaying it."""
+        return self.db.execute("SELECT 1 FROM approval_decisions WHERE id=?", (decision_id,)).fetchone() is not None
+
     def approve(self, project_id, stage="plan", actor="local", shot_ids=None,
                 ttl_seconds=None, budget=None, live_scope=None, expected_revision=None,
-                expected_binding_hash=None, expires_at=None):
+                expected_binding_hash=None, expires_at=None, decision_id=None):
         actor = self._actor(actor)
         if stage not in ("plan", "storyboard", "composition", "final"):
             raise WorkflowError("unknown approval stage")
         with self._tx() as db:
+            receipt = {"project_id": project_id, "decision_applied": True}
+            if self._record_decision(db, decision_id, "approve", project_id, stage, actor, shot_ids,
+                                     expected_revision, expected_binding_hash, expires_at, budget, live_scope):
+                return receipt
             project = self._project(project_id)
             if expected_revision is not None and expected_revision != project["revision"]:
                 raise WorkflowError("approval revision is stale")
@@ -548,15 +590,17 @@ class Engine:
                 raise WorkflowError("approval contains an unknown shot")
             if stage == "plan" and set(selected) != set(ids):
                 raise WorkflowError("plan approval covers the complete plan; review specific images at storyboard stage")
-            if stage == "storyboard" and not self._content_approval(project, "plan"):
+            if stage == "storyboard" and not self._content_approval(project, "plan", binding=self._binding(project, "plan")):
                 raise WorkflowError("approve the current plan before the storyboard")
             if stage == "final" and not project["final_artifact"]:
                 raise WorkflowError("there is no composition to accept")
             if stage == "composition":
                 if set(selected) != set(ids):
                     raise WorkflowError("local processing approval covers all ordered inputs")
-                if (not self._content_approval(project, "plan")
-                        or not all(self._content_approval(project, "storyboard", sid) for sid in ids)):
+                plan_binding = self._binding(project, "plan")
+                storyboard_binding = self._binding(project, "storyboard")
+                if (not self._content_approval(project, "plan", binding=plan_binding)
+                        or not all(self._content_approval(project, "storyboard", sid, binding=storyboard_binding) for sid in ids)):
                     raise WorkflowError("review the current plan and storyboard before local processing")
             action_stage = "image" if stage == "plan" else "video"
             plan = self._plan(project)
@@ -604,12 +648,14 @@ class Engine:
                 raise WorkflowError("approval TTL must be between 0 and 86400 seconds")
             expires = min(float(expires_at) if expires_at is not None else self.clock() + ttl, self.clock() + ttl)
             if not expires > self.clock():
-                raise WorkflowError("approval has expired")
+                raise ApprovalDecisionExpired("approval has expired")
             if stage not in ("composition", "final"):
                 previous = db.execute("SELECT * FROM budgets WHERE project_id=? AND stage=?", (project_id, action_stage)).fetchone()
                 used, used_currency = self._reserved(project_id, action_stage)
                 if previous and previous["currency"] != currency:
                     raise WorkflowError("a stage budget cannot mix currencies")
+                if decision_id is not None and previous and amount > _money(previous["amount"]):
+                    raise WorkflowError("remote review cannot raise the current stage budget")
                 if used_currency and used_currency != currency:
                     raise WorkflowError("reserved operations use a different currency")
                 if amount < used:
@@ -628,6 +674,8 @@ class Engine:
             if stage == "final":
                 db.execute("UPDATE projects SET final_accepted=1,updated=? WHERE id=?", (self.clock(), project_id))
             self._event(db, project_id, "approved", {"actor": actor, "stage": stage, "shot_ids": selected, "approval_id": aid})
+        if decision_id is not None:
+            return receipt
         return self.status(project_id)
 
     def _check_scope(self, scope, binding, stage, identity):
@@ -662,34 +710,43 @@ class Engine:
         except WorkflowError:
             return False
 
-    def reject(self, project_id, stage="storyboard", actor="local", shot_ids=None, reason="", expected_revision=None, expected_binding_hash=None):
+    def reject(self, project_id, stage="storyboard", actor="local", shot_ids=None, reason="", expected_revision=None,
+               expected_binding_hash=None, expires_at=None, decision_id=None):
         actor = self._actor(actor)
         if stage not in ("plan", "storyboard", "composition", "final"):
             raise WorkflowError("unknown rejection stage")
         with self._tx() as db:
+            receipt = {"project_id": project_id, "decision_applied": True}
+            if self._record_decision(db, decision_id, "reject", project_id, stage, actor, shot_ids,
+                                     expected_revision, expected_binding_hash, expires_at, reason):
+                return receipt
             project = self._project(project_id)
             if expected_revision is not None and expected_revision != project["revision"]:
                 raise WorkflowError("rejection revision is stale")
-            if expected_binding_hash is not None and expected_binding_hash != _hash(self._binding(project, stage)):
+            binding = self._binding(project, stage) if expected_binding_hash is not None or stage == "composition" else None
+            if expected_binding_hash is not None and expected_binding_hash != _hash(binding):
                 raise WorkflowError("rejection content changed")
             ids = [s["id"] for s in self._shots(project_id)]
             selected = list(shot_ids or ids)
             if any(s not in ids for s in selected):
                 raise WorkflowError("rejection contains unknown shots")
+            if expires_at is not None and not expires_at > self.clock():
+                raise ApprovalDecisionExpired("rejection has expired")
             if stage == "composition":
-                binding = self._binding(project, stage)
                 db.execute("UPDATE approvals SET revoked=1 WHERE project_id=? AND stage='composition'", (project_id,))
                 self._event(db, project_id, "composition_rejected", {"actor": actor, "stage": stage,
                             "shot_ids": ids, "binding_hash": _hash(binding), "reason": reason,
                             "processing_identity": _hash({key: value for key, value in binding.items() if key != "local_review_epoch"})})
-                return self.status(project_id)
-            if stage in ("storyboard", "final"):
-                for sid in selected:
-                    fields = "image=NULL,video=NULL" if stage == "storyboard" else "video=NULL"
-                    db.execute(f"UPDATE shots SET {fields} WHERE project_id=? AND id=?", (project_id, sid))
-            db.execute("UPDATE projects SET revision=revision+1,final_artifact=NULL,final_accepted=0,updated=? WHERE id=?", (self.clock(), project_id))
-            db.execute("UPDATE approvals SET revoked=1 WHERE project_id=?", (project_id,))
-            self._event(db, project_id, "rejected", {"actor": actor, "stage": stage, "shot_ids": selected, "reason": reason})
+            else:
+                if stage in ("storyboard", "final"):
+                    for sid in selected:
+                        fields = "image=NULL,video=NULL" if stage == "storyboard" else "video=NULL"
+                        db.execute(f"UPDATE shots SET {fields} WHERE project_id=? AND id=?", (project_id, sid))
+                db.execute("UPDATE projects SET revision=revision+1,final_artifact=NULL,final_accepted=0,updated=? WHERE id=?", (self.clock(), project_id))
+                db.execute("UPDATE approvals SET revoked=1 WHERE project_id=?", (project_id,))
+                self._event(db, project_id, "rejected", {"actor": actor, "stage": stage, "shot_ids": selected, "reason": reason})
+        if decision_id is not None:
+            return receipt
         return self.status(project_id)
 
     def resume(self, project_id, operation_id, actor="local"):
@@ -704,29 +761,44 @@ class Engine:
         op = self._op(operation_id)
         if op["project_id"] != project_id:
             raise WorkflowError("operation belongs to another project")
-        if op["status"] not in ("needs_approval", "needs_setup", "needs_project_selection", "unknown"):
-            raise WorkflowError("only refused or uncertain operations can be resumed")
         proof = {**op["result"], **op["payload"]}
         no_submission = not op["task_id"] and not proof.get("submit_attempted")
+        # The original release emitted this exact internal error before it
+        # could make a remote mutation. CLI errors use a different message.
+        legacy_model_preflight = (op["provider"] == "dreamina-canvas" and op["status"] == "needs_setup"
+                                  and proof.get("error_code") == "model_selection_required"
+                                  and proof.get("message") == "Choose a model and mode from the live catalog.")
+        no_prepare_write = (op["phase"] == "prepare" and (proof.get("side_effects") == "none" or legacy_model_preflight)
+                            and no_submission and not proof.get("saved"))
+        if (op["status"] not in ("needs_approval", "needs_setup", "needs_project_selection", "unknown")
+                and not (op["status"] == "failed" and no_prepare_write)):
+            raise WorkflowError("only refused or uncertain operations can be resumed")
+        payload = op["payload"]
         if op["phase"] == "planned" and no_submission:
-            self._authorized(op)
+            approval = self._authorized(op, allow_rebind=True)
             state, phase, action = "planned", "planned", "quote_only_preflight"
         elif (proof.get("saved") is True and proof.get("not_submitted") is True
               and proof.get("awaiting_confirmation") is True and no_submission):
             self._authorized(op)
             state, phase, action = "prepared", "prepared", "same_saved_node_after_approval"
-        elif proof.get("side_effects") == "none" and op["phase"] == "prepare" and no_submission and not proof.get("saved"):
-            self._authorized(op)
+        elif no_prepare_write:
+            approval = self._authorized(op, allow_rebind=True)
             state, phase, action = "planned", "planned", "provider_proved_no_side_effects"
         else:
             # Recovery polling may outlive an approval; it cannot incur a new
             # generation. The provider still verifies its original account.
             state, phase, action = "unknown", op["phase"], "poll_only_no_write_retry"
+        if state == "planned" and op["provider"] == "dreamina-canvas":
+            payload = dict(payload)
+            payload.pop("canvas_id", None)
+            identity = json.loads(approval["binding"])["providers"][op["stage"]]
+            payload.update(self._execution_binding(identity, self.providers[op["provider_key"]]))
         with self._tx() as db:
             current = db.execute("SELECT status FROM operations WHERE id=?", (operation_id,)).fetchone()
             if current["status"] != op["status"]:
                 raise WorkflowError("operation changed during recovery")
-            db.execute("UPDATE operations SET status=?,phase=?,error=NULL,updated=? WHERE id=?", (state, phase, self.clock(), operation_id))
+            db.execute("UPDATE operations SET status=?,phase=?,payload=?,error=NULL,updated=? WHERE id=?",
+                       (state, phase, _json(payload), self.clock(), operation_id))
             self._event(db, project_id, "operation_resumed", {"actor": actor, "operation_id": operation_id, "recovery": action})
         result = self.status(project_id)
         result["resume_action"] = action
@@ -743,7 +815,7 @@ class Engine:
             total += _money(row["reserved"])
         return total, currency
 
-    def _event(self, db, project_id, kind, extra=None, *, event_id=None):
+    def _event(self, db, project_id, kind, extra=None, *, event_id=None, review_binding=None, renewal=None):
         project = self._project(project_id)
         event_id = event_id or "event-" + uuid.uuid4().hex
         payload = {"event_id": event_id, "project_id": project_id, "job_id": project_id,
@@ -752,27 +824,28 @@ class Engine:
         review_stage = payload.get("stage")
         if kind.endswith("_review") and review_stage in ("plan", "storyboard", "composition", "final"):
             try:
-                binding = self._binding(project, review_stage)
-                if review_stage == "composition":
+                binding = review_binding or self._binding(project, review_stage)
+                payload.update({"binding_hash": _hash(binding),
+                                "expires_at": self.clock() + min(self.limits.approval_ttl, MAX_REVIEW_TTL)})
+                if renewal:
+                    payload.update({"approval_scope": renewal["approval_scope"], "budget": renewal["budget"]})
+                elif review_stage == "composition":
                     payload.update({"approval_scope": self._local_composition_scope(binding),
-                                    "budget": {"amount": "0", "currency": "CNY"},
-                                    "binding_hash": _hash(binding), "expires_at": self.clock() + self.limits.approval_ttl})
-                    db.execute("INSERT OR IGNORE INTO events VALUES(?,?,?,?,0,?)", (event_id, project_id, kind, _json(payload), self.clock()))
-                    return
-                action_stage = "image" if review_stage == "plan" else "video"
-                identity = self._provider(self._plan(project), action_stage)[2]
-                scope = {} if review_stage == "final" else dict(self._plan(project).get("requested_live_scopes", {}).get(action_stage, {}))
-                scope.update({"revision": project["revision"], "plan_hash": binding["plan_hash"], "asset_hash": binding["asset_hash"]})
-                scope.setdefault("stages", [])
-                scope.setdefault("provider", identity["provider"])
-                scope.setdefault("account", identity["account"])
-                scope.setdefault("allow_uploads", False)
-                budget = self.db.execute("SELECT amount,currency FROM budgets WHERE project_id=? AND stage=?", (project_id, action_stage)).fetchone()
-                cap = dict(budget) if budget else self._plan(project).get("budget", {"amount": "0", "currency": "CNY"})
-                if review_stage == "final" or (scope.get("stages") == [] and scope.get("allow_uploads") is False):
-                    cap = {"amount": "0", "currency": cap["currency"]}
-                payload.update({"approval_scope": scope, "budget": cap,
-                                "binding_hash": _hash(binding), "expires_at": self.clock() + self.limits.approval_ttl})
+                                    "budget": {"amount": "0", "currency": "CNY"}})
+                else:
+                    action_stage = "image" if review_stage == "plan" else "video"
+                    identity = binding["providers"][action_stage]
+                    scope = {} if review_stage == "final" else dict(self._plan(project).get("requested_live_scopes", {}).get(action_stage, {}))
+                    scope.update({"revision": project["revision"], "plan_hash": binding["plan_hash"], "asset_hash": binding["asset_hash"]})
+                    scope.setdefault("stages", [])
+                    scope.setdefault("provider", identity["provider"])
+                    scope.setdefault("account", identity["account"])
+                    scope.setdefault("allow_uploads", False)
+                    budget = self.db.execute("SELECT amount,currency FROM budgets WHERE project_id=? AND stage=?", (project_id, action_stage)).fetchone()
+                    cap = dict(budget) if budget else self._plan(project).get("budget", {"amount": "0", "currency": "CNY"})
+                    if review_stage == "final" or (scope.get("stages") == [] and scope.get("allow_uploads") is False):
+                        cap = {"amount": "0", "currency": cap["currency"]}
+                    payload.update({"approval_scope": scope, "budget": cap})
             except WorkflowError as exc:
                 payload["review_error"] = str(exc)
         db.execute("INSERT OR IGNORE INTO events VALUES(?,?,?,?,0,?)", (event_id, project_id, kind, _json(payload), self.clock()))
@@ -851,13 +924,26 @@ class Engine:
                        "aspect_ratio": plan.get("aspect_ratio", "16:9"), "ratio": plan.get("aspect_ratio", "16:9"), "fps": plan.get("fps", 24)}
             if stage == "video":
                 payload["duration"] = spec["duration_seconds"]
+            if identity.get("live"):
+                payload.update(self._execution_binding(identity, provider))
             if design_mapping is not None:
                 payload.update(design_mapping)
             db.execute("INSERT INTO operations(id,project_id,revision,stage,shot_id,attempt,provider_key,provider,account,live,status,phase,payload,created,updated) VALUES(?,?,?,?,?,?,?,?,?,?,'planned','planned',?,?,?)",
                        (oid, project["id"], project["revision"], stage, shot["id"], attempt, key, identity["provider"], identity["account"], int(bool(identity.get("live"))), _json(payload), self.clock(), self.clock()))
             return oid
 
-    def _authorized(self, op):
+    @staticmethod
+    def _execution_binding(identity, provider):
+        config = getattr(provider, "config", {})
+        fingerprint = identity["execution_config_hash"]
+        if _hash(config) != fingerprint:
+            raise WorkflowError("provider configuration changed while recording the operation")
+        binding = {"execution_config_hash": fingerprint}
+        if identity["provider"] == "dreamina-canvas" and isinstance(config, dict) and config.get("project_id"):
+            binding["canvas_id"] = config["project_id"]
+        return binding
+
+    def _authorized(self, op, *, allow_rebind=False):
         project = self._project(op["project_id"])
         if project["revision"] != op["revision"]:
             raise WorkflowError("operation belongs to a superseded revision")
@@ -873,7 +959,20 @@ class Engine:
         if op["live"]:
             if project["mode"] != "live":
                 raise WorkflowError("live mode was not authorized")
-            self._check_scope(json.loads(approval["scope"]), json.loads(approval["binding"]), op["stage"], identity)
+            binding = json.loads(approval["binding"])
+            if binding["providers"].get(op["stage"]) != identity:
+                raise WorkflowError("provider configuration changed after approval lookup")
+            self._check_scope(json.loads(approval["scope"]), binding, op["stage"], identity)
+            # Older databases recorded the original execution configuration
+            # only in the approval selected before the remote write.
+            original = op["payload"].get("execution_config_hash")
+            if original is None:
+                original = op.get("authorization", {}).get("providers", {}).get(op["stage"], {}).get("execution_config_hash")
+            if not (allow_rebind and op["provider"] == "dreamina-canvas"):
+                if original is None and op["phase"] != "planned":
+                    raise WorkflowError("original execution configuration is unavailable; replan before any new write")
+                if original is not None and original != identity["execution_config_hash"]:
+                    raise WorkflowError("provider execution configuration changed; replan before reusing this operation")
         return approval
 
     def _reserve(self, op, quote, approval):
@@ -884,6 +983,10 @@ class Engine:
             raise WorkflowError("provider quote and approved budget currencies differ")
         amount = _money(quote["amount"]) if quote.get("amount") is not None else None
         with self._tx() as db:
+            if self._project(op["project_id"])["revision"] != op["revision"]:
+                raise WorkflowError("operation belongs to a superseded revision")
+            if self._op(op["id"])["status"] != op["status"]:
+                raise WorkflowError("operation changed while reserving its budget")
             budget = db.execute("SELECT * FROM budgets WHERE project_id=? AND stage=?", (op["project_id"], op["stage"])).fetchone()
             if not budget or budget["currency"] != currency:
                 raise WorkflowError("no matching stage budget")
@@ -925,6 +1028,9 @@ class Engine:
                     if key in result:
                         merged[key] = result[key]
                 db.execute("UPDATE operations SET payload=? WHERE id=?", (_json(merged), oid))
+                if (op["phase"] == "prepare" and patch.get("side_effects") == "none"
+                        and not op["task_id"] and not merged.get("saved") and not merged.get("submit_attempted")):
+                    db.execute("UPDATE operations SET reserved='0',currency=NULL WHERE id=?", (oid,))
         return True
 
     def _snapshot_inputs(self, op):
@@ -935,9 +1041,18 @@ class Engine:
         for index, asset in enumerate(op["input_assets"]):
             source = Path(asset["path"])
             target = directory / (f"input-{index:03}" + source.suffix.lower())
-            if not target.exists():
-                with source.open("rb") as incoming, target.open("xb") as outgoing:
-                    shutil.copyfileobj(incoming, outgoing)
+            if not target.exists() and not target.is_symlink():
+                with tempfile.TemporaryDirectory(prefix="snapshot-", dir=directory) as staging:
+                    candidate = Path(staging) / target.name
+                    shutil.copyfile(source, candidate)
+                    if _file(str(candidate))["sha256"] != asset["sha256"]:
+                        raise WorkflowError("approved input changed before upload")
+                    try:
+                        os.link(candidate, target)
+                    except FileExistsError:
+                        pass
+            if target.is_symlink():
+                raise WorkflowError("input snapshot cannot be a symlink")
             actual = _file(str(target))
             if actual["sha256"] != asset["sha256"]:
                 raise WorkflowError("approved input changed before upload")
@@ -965,6 +1080,18 @@ class Engine:
         op = self._op(oid)
         provider = self.providers[op["provider_key"]]
         if op["status"] in self.ACTIVE:
+            if (op["provider"] == "dreamina-canvas" and op["phase"] == "prepare"
+                    and op["task_id"] and not op["payload"].get("submit_attempted")
+                    and op["result"].get("error_code") == "submission_unresolved"
+                    and op["result"].get("submit_id") == op["task_id"]):
+                # 3.0.0 persisted a lookup key as a task ID when neither
+                # operation nor node was found. It was never a write receipt.
+                with self._tx() as db:
+                    changed = db.execute("UPDATE operations SET task_id=NULL WHERE id=? AND status=? AND phase='prepare' AND result=?",
+                                         (oid, op["status"], _json(op["result"]))).rowcount
+                if not changed:
+                    return
+                op = self._op(oid)
             # No prepare or submit here, even when a process died between the
             # persisted intent and the network write. Recovery is read-only.
             try:
@@ -986,15 +1113,20 @@ class Engine:
             approval = self._authorized(op)
             quote = provider.quote(op)  # may report amount=None until a draft exists
             if quote.get("status") in ("failed", "needs_setup", "unknown"):
-                self._record(oid, quote["status"], "planned", quote)
+                self._record(oid, "needs_setup", "planned", quote, expected_status="planned")
                 return
             self._reserve(op, quote, approval)
             with self._tx() as db:
+                if self._project(op["project_id"])["revision"] != op["revision"]:
+                    return
                 active = db.execute("SELECT COUNT(*) FROM operations WHERE status IN ('preparing','submitting','submitted','running','unknown')").fetchone()[0]
                 if active >= self.limits.max_concurrent:
                     return
                 # Compare-and-set means another process cannot claim this write.
                 clean = dict(self._op(oid)["payload"])
+                if op["live"] and "execution_config_hash" not in clean:
+                    identity = json.loads(approval["binding"])["providers"][op["stage"]]
+                    clean.update(self._execution_binding(identity, provider))
                 for evidence in ("not_submitted", "awaiting_confirmation", "side_effects"):
                     clean.pop(evidence, None)
                 changed = db.execute("UPDATE operations SET status='preparing',phase='prepare',payload=?,result=NULL,error=NULL,updated=? WHERE id=? AND status='planned'", (_json(clean), self.clock(), oid)).rowcount
@@ -1005,6 +1137,12 @@ class Engine:
                 self._authorized(op)
                 self._snapshot_inputs(op)
                 op = self._op(oid)
+            except Exception as exc:
+                self._record(oid, "needs_setup", "prepare", {"payload": {"side_effects": "none"}},
+                             error=f"prepare preflight: {type(exc).__name__}; no provider write attempted",
+                             expected_status="preparing")
+                return
+            try:
                 result = provider.prepare(op)
             except Exception as exc:
                 self._record(oid, "unknown", error=f"prepare: {type(exc).__name__}; outcome unknown, poll only", expected_status="preparing")
@@ -1021,6 +1159,8 @@ class Engine:
             if amount is None:
                 raise WorkflowError("provider has no usable quote; spending remains blocked")
             with self._tx() as db:
+                if self._project(op["project_id"])["revision"] != op["revision"]:
+                    return
                 active = db.execute("SELECT COUNT(*) FROM operations WHERE status IN ('preparing','submitting','submitted','running','unknown')").fetchone()[0]
                 if active >= self.limits.max_concurrent:
                     return
@@ -1053,11 +1193,16 @@ class Engine:
                     raise WorkflowError(result.get("message", "download unavailable"))
                 path = result.get("path") or op["result"].get("path")
                 asset = {**result, **_file(path), "operation_id": oid, "simulated": not bool(op["live"])}
+                if result.get("sha256") and result["sha256"] != asset["sha256"]:
+                    raise WorkflowError("download changed before the asset was recorded")
             except Exception as exc:
                 # Downloads may be retried, but never turn back into submissions.
-                self._record(oid, "generated", "download", error=f"download: {type(exc).__name__}; no generation retried")
+                self._record(oid, "generated", "download", error=f"download: {type(exc).__name__}; no generation retried",
+                             expected_status="generated")
                 return
             with self._tx() as db:
+                if self._op(oid)["status"] != "generated":
+                    return
                 project = self._project(op["project_id"])
                 if project["revision"] == op["revision"]:
                     db.execute(f"UPDATE shots SET {op['stage']}=? WHERE project_id=? AND id=?", (_json(asset), op["project_id"], op["shot_id"]))
@@ -1152,17 +1297,23 @@ class Engine:
                 latest = self._project(project["id"])
                 if latest["revision"] != project["revision"] or latest["plan_hash"] != project["plan_hash"]:
                     raise WorkflowError("plan changed while composing")
+                if latest["final_artifact"]:
+                    return
                 self._event(db, project["id"], "composition_failed", {
                     "message": "本地成片合成需要处理，请回电脑检查素材规格并选择处理方式。", "reason": reason,
                 }, event_id=event_id)
             raise WorkflowError(reason)
         asset = {**result, **_file(result["path"]), "operation_id": operation["operation_id"]}
+        if result.get("sha256") and result["sha256"] != asset["sha256"]:
+            raise WorkflowError("composed media changed before the asset was recorded")
         if project["mode"] != "live" and asset.get("simulated") is not True:
             raise WorkflowError("a mock/dry-run composition must identify itself as simulated")
         with self._tx() as db:
             latest = self._project(project["id"])
             if latest["revision"] != project["revision"] or latest["plan_hash"] != project["plan_hash"]:
                 raise WorkflowError("plan changed while composing")
+            if latest["final_artifact"]:
+                return
             if normalization_binding_at_start is not None:
                 try:
                     current_binding = self._binding(latest, "composition")
@@ -1176,34 +1327,77 @@ class Engine:
             self._event(db, project["id"], "final_review", {"stage": "final", "artifacts": [asset["path"]],
                          "message": "Sequential composition awaits human final review; no creative edit was applied."})
 
+    def _review_needed(self, event, project, binding):
+        stage = event["stage"]
+        if stage == "final":
+            return bool(project["final_artifact"]) and not project["final_accepted"]
+        if stage == "composition":
+            return not self._composition_rejected(project, binding) and not self._composition_approval(project, binding)
+        cap = event.get("budget")
+        if cap and _money(cap["amount"]) > 0:
+            action = "image" if stage == "plan" else "video"
+            stored = self.db.execute("SELECT amount,currency FROM budgets WHERE project_id=? AND stage=?",
+                                     (project["id"], action)).fetchone()
+            if stored and (cap["currency"] != stored["currency"] or _money(cap["amount"]) > _money(stored["amount"])):
+                return False
+        if stage == "plan":
+            return not self._content_approval(project, stage, binding=binding)
+        requested = event.get("shot_ids") or [shot["id"] for shot in self._shots(project["id"])]
+        return any(not self._content_approval(project, stage, sid, binding=binding) for sid in requested)
+
+    def _refresh_expired_reviews(self, project):
+        # Renew review requests, never authorization. Composition review is
+        # requested by the scheduler after validating its own ordered inputs.
+        seen, bindings = set(), {}
+        for row in self.db.execute(
+                "SELECT id,type,payload FROM events WHERE project_id=? AND type IN "
+                "('plan_review','storyboard_review','final_review') ORDER BY rowid DESC", (project["id"],)).fetchall():
+            event = json.loads(row["payload"])
+            if event["revision"] != project["revision"]:
+                continue
+            stage = event["stage"]
+            scope_key = (stage, tuple(sorted(event.get("shot_ids") or [])))
+            if scope_key in seen:
+                continue
+            seen.add(scope_key)
+            if event.get("expires_at", 0) > self.clock():
+                continue
+            if stage not in bindings:
+                try:
+                    bindings[stage] = self._binding(project, stage)
+                except WorkflowError:
+                    bindings[stage] = None
+            binding = bindings[stage]
+            previous = event.get("binding_hash")
+            if not binding or (previous and previous != _hash(binding)) or not self._review_needed(event, project, binding):
+                continue
+            extra = {key: value for key, value in event.items()
+                     if key not in {"event_id", "expires_at", "review_error", "binding_hash", "approval_scope", "budget"}}
+            with self._tx() as db:
+                current = self._project(project["id"])
+                if current["revision"] == project["revision"] and current["plan_hash"] == project["plan_hash"]:
+                    self._event(db, project["id"], row["type"], extra,
+                                event_id="renew-" + _hash(row["id"]), review_binding=binding,
+                                renewal=event if previous else None)
+
     def _should_notify(self, event, project):
         kind = event.get("type", "")
         if kind.endswith("_review"):
             stage = event.get("stage")
-            if event.get("revision") != project["revision"]:
+            if (event.get("revision") != project["revision"] or event.get("expires_at", 0) <= self.clock()
+                    or not event.get("binding_hash")):
                 return False
             if event.get("approval_scope", {}).get("plan_hash", project["plan_hash"]) != project["plan_hash"]:
                 return False
-            if stage == "final" and project["final_accepted"]:
+            if stage == "final" and (project["final_accepted"] or not project["final_artifact"]):
                 return False
-            if stage == "composition":
-                try:
-                    binding = self._binding(project, "composition")
-                    if (event.get("expires_at", 0) <= self.clock()
-                            or event.get("binding_hash") != _hash(binding) or self._composition_rejected(project, binding)):
-                        return False
-                except WorkflowError:
-                    return False
-            binding_hash = event.get("binding_hash")
-            if binding_hash:
-                requested = set(event.get("shot_ids") or [shot["id"] for shot in self._shots(project["id"])])
-                accepted = set()
-                for row in self.db.execute("SELECT shot_ids FROM approvals WHERE project_id=? AND stage=? AND revision=? AND binding_hash=? AND revoked=0 AND expires>?",
-                                           (project["id"], stage, project["revision"], binding_hash, self.clock())):
-                    accepted.update(json.loads(row["shot_ids"]))
-                if requested and requested <= accepted:
-                    return False
-            return True
+            try:
+                binding = self._binding(project, stage)
+            except ApprovalBindingUnavailable:
+                raise
+            except WorkflowError:
+                return False
+            return event["binding_hash"] == _hash(binding) and self._review_needed(event, project, binding)
         # Keep every internal audit row without sending it to a human. Explicit
         # failures remain actionable even if a generation itself has stopped.
         return (kind == "account_changed" or kind.endswith(("_failed", "_error"))
@@ -1212,9 +1406,14 @@ class Engine:
     def _deliver(self, project_id):
         if self.channel is None:
             return
-        for row in self.db.execute("SELECT * FROM events WHERE project_id=? AND delivered=0 ORDER BY created", (project_id,)).fetchall():
+        self._refresh_expired_reviews(self._project(project_id))
+        for row in self.db.execute("SELECT * FROM events WHERE project_id=? AND delivered=0 ORDER BY created,rowid", (project_id,)).fetchall():
             event = json.loads(row["payload"])
-            if not self._should_notify(event, self._project(project_id)):
+            try:
+                should_notify = self._should_notify(event, self._project(project_id))
+            except ApprovalBindingUnavailable:
+                continue
+            if not should_notify:
                 with self._tx() as db:
                     db.execute("UPDATE events SET delivered=1 WHERE id=?", (row["id"],))
                 continue

@@ -1,9 +1,9 @@
 ---
 name: hardcore-director
-description: 硬核导演，影视与视频创作总控技能。用于故事开发、电影/短片/剧集/竖屏短剧编剧、角色与场景、导演判断、分镜、AI视频提示词、视听设计、拉片、实拍剪辑与微信/飞书审核制作工作流。用户要求从创意到可制作的视频方案，或点名硬核导演、剧本、分镜、Seedance、Wan、MiniMax、即梦、可灵、海螺及手机审核时使用；不要用于只需执行单一确定性媒体命令且已有专用工具的任务。
+description: 硬核导演，影视与视频创作总控技能。用于故事开发、电影/短片/剧集/竖屏短剧编剧、角色与场景、动画美术设定、导演判断、分镜、AI视频提示词、视听设计、拉片、实拍剪辑与微信/飞书审核制作工作流。用户要求从创意到可制作的视频方案，或点名硬核导演、剧本、分镜、Seedance、Wan、MiniMax、即梦、可灵、海螺及手机审核时使用；不要用于只需执行单一确定性媒体命令且已有专用工具的任务。
 license: MIT
 metadata:
-  version: "3.0.0"
+  version: "3.1.0"
 ---
 
 # 硬核导演
@@ -82,6 +82,7 @@ metadata:
 - 已锁剧本需要转成可执行的站位、行动、表演和镜头覆盖：读取 [导演调度与镜头覆盖](references/integrations/director-blocking-coverage.md)，沿用角色DNA与对白，交付给分镜；表演只补可观察行为，不改人物身份或已确认台词。
 - 角色 DNA、群像、姿态、Blocking、一致性：读取 [character-design.md](references/character-design.md)。
 - 场景、世界观、建筑空间、光影、场景板：读取 [ai-scene-design.md](references/ai-scene-design.md)。该文件较长，先按用户需求搜索对应标题再读取相关段落。
+- 动画美术开发、跨世界画法、多镜视觉一致性或动画案例转项目规则：读取 [动画美术导演](references/integrations/animation-art-direction.md)，在视觉圣经与分镜之间交接全片锁定项、分场变化及单镜例外。
 - 构图与空间关系：读取 [composition-to-prompt.md](references/composition-to-prompt.md)。
 
 ### 导演美学

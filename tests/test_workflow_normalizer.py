@@ -1,6 +1,7 @@
 import copy
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -176,6 +177,18 @@ class NormalizationMediaTests(unittest.TestCase):
         self.assertEqual(result["reason"], "normalization_av_start_offset")
         item["duration_seconds"] = .1
         self.assertEqual(assemble(self.operation([item], name="fractional"))["reason"], "normalization_nonintegral_frame_duration")
+
+    def test_existing_json_duration_for_an_integer_frame_span_is_normalized(self):
+        item = self.source("integer-span", duration=25 / 24, audio=False, vfr=False)
+        item = json.loads(json.dumps(item))
+        result = assemble(self.operation([item]))
+        self.assertEqual(result["status"], "succeeded", result)
+        self.assertEqual(result["output_frames"], 25)
+        self.assertEqual(hashlib.sha256(Path(item["path"]).read_bytes()).hexdigest(), item["sha256"])
+
+        item["duration_seconds"] = math.nextafter(item["duration_seconds"], math.inf)
+        result = assemble(self.operation([item], name="nearby-fractional"))
+        self.assertEqual(result["reason"], "normalization_nonintegral_frame_duration")
 
     def test_staged_receipt_write_or_sync_failure_publishes_neither_file(self):
         item = self.source("base", audio=False)

@@ -18,7 +18,7 @@ import tempfile
 from typing import Any
 
 from validate_storyboard import validate as validate_storyboard
-from hc_workflow.planner import validate_creative_plan, to_engine_plan
+from hc_workflow.planner import DEFAULT_MAX_SHOTS, to_engine_plan, validate_creative_plan
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -141,6 +141,8 @@ def validate_packet(packet: Any, *, references: list[dict] | None = None) -> dic
     board = packet["storyboard"]["board"]
     if project["total_frames"] / project["fps"] > 3600:
         fail("project", "duration_limit", "project exceeds the one-hour planning limit")
+    if len(board["shots"]) > DEFAULT_MAX_SHOTS:
+        fail("storyboard", "shot_count_limit", f"workflow draft supports at most {DEFAULT_MAX_SHOTS} shots")
     board_result = validate_storyboard(board, expected_aspect_ratio=project["aspect_ratio"],
                                        expected_total_frames=project["total_frames"])
     for error in board_result["errors"]:

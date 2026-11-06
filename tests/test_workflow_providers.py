@@ -256,8 +256,12 @@ class DreaminaTests(unittest.TestCase):
             self.operation["output_dir"] = folder
             result = self.provider.download(self.operation)
             self.assertEqual(result["status"], "downloaded")
-            self.assertTrue(Path(result["path"]).is_file())
+            path = Path(result["path"])
+            self.assertTrue(path.is_file())
+            self.assertEqual(self.provider.download(self.operation), result)
+            path.write_bytes(b"a foreign file must survive recovery")
             self.assertEqual(self.provider.download(self.operation)["error_code"], "output_already_exists")
+            self.assertEqual(path.read_bytes(), b"a foreign file must survive recovery")
 
     def test_structured_cli_errors_do_not_leak_messages(self):
         self.cli.override[("auth", "status")] = {"ok": False, "error": {

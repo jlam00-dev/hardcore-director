@@ -2,12 +2,12 @@
   "schema_version": 2,
   "package": {
     "name": "hardcore-director",
-    "version": "3.0.0",
+    "version": "3.1.0",
     "baseline_repository": "jlam00-dev/hardcore-director",
     "baseline_commit": "52687dbaed4249886fd870d943481175f2809c08",
-    "assembled_at": "2026-11-04",
-    "upgrade_base_commit": "ef213d6e90f2f27269fb722753d1dd2caf77e86d",
-    "release_status": "release"
+    "assembled_at": "2026-11-06",
+    "upgrade_base_commit": "fa9cd63a3fefeda23fdd54829360bf902425af4d",
+    "release_status": "local_release"
   },
   "inventory_summary": {
     "v1_top_level_modules": 36,
@@ -15,12 +15,13 @@
     "v1_local_or_internal": 21,
     "v2_1_new_top_level_modules": 9,
     "v2_1_top_level_modules": 45,
-    "top_level_modules": 53,
-    "new_modules_since_v2_1": 8,
+    "top_level_modules": 54,
+    "new_modules_since_v2_1": 9,
     "v2_2_top_level_modules": 47,
-    "new_modules_since_v2_2": 6,
+    "new_modules_since_v2_2": 7,
     "v3_0_new_creative_methods_this_iteration": 4,
-    "v3_0_new_creative_collaboration_layers_this_iteration": 1
+    "v3_0_new_creative_collaboration_layers_this_iteration": 1,
+    "v3_1_new_creative_methods": 1
   },
   "components": [
     {
@@ -982,8 +983,8 @@
       "role": "original_runtime_adapter",
       "update_policy": "source_watch",
       "bundled_path": "references/integrations/remote-production-workflow.md",
-      "sha256": "3bffa8c25d196016ecf246e50bd90c43242ca7fe172a4fb6cc0beecf5aeeda2e",
-      "bundled_version": "3.0.0",
+      "sha256": "87351804bc4f7d8f206fc93b188c16e4b61ce90a738e19a8ee502b9b16a7a23c",
+      "bundled_version": "3.0.1",
       "license": "MIT original implementation; optional official SDKs and service terms remain separate",
       "upstream": {
         "kind": "github_path",
@@ -1018,22 +1019,24 @@
       },
       "integrity_files": {
         "scripts/hc_workflow/__init__.py": "d02aaf2c7536f521a3fc87214949daf80c5dddccc24ea470edbf51960228bb33",
-        "scripts/hc_workflow/channels.py": "b872e36c36427628f8dbd5c5766d8f762beec41f3a993a8faf3dfbba9733706d",
-        "scripts/hc_workflow/compositor.py": "000ab2f3f53f4293920d0091506354f63e0b878ff119b5d65c983d9e6f4b6e74",
-        "scripts/hc_workflow/normalizer.py": "148d90104431457e2e2c1f18f2a2ee6c0748858bfe24999e1ba0c015bf63feff",
-        "scripts/hc_workflow/engine.py": "fd39e1c3c2f21d08f9abf557e780bb8bdab5cfeb63e52063d7a81de846d0b0de",
-        "scripts/hc_workflow/planner.py": "3465ba39feca9deb61a43928851fcb4f22e45cecb2afc3ef0a128339976cafaa",
-        "scripts/hc_workflow/providers.py": "485fd5d9f9af44406e4783b8f84314e4fb51ed63d72655f78b41a96a230bdd12",
+        "scripts/hc_workflow/channels.py": "ab31d203e6c5d2adec840c607dbb6937c38febd6d6f36465bd4056682e9b9751",
+        "scripts/hc_workflow/compositor.py": "7ffa5d8cf5eaff080e5808d3d2f7ea93a76096315d0e1f52692ed44eebdfd078",
+        "scripts/hc_workflow/normalizer.py": "69993ad5e3a75bb3fd115621b591387afb8437d7f749daad618da24d624361f7",
+        "scripts/hc_workflow/engine.py": "fb63946fc6cc77e641aa1004933b0c6f05631dd3a6391c5af386e4084c39e6df",
+        "scripts/hc_workflow/planner.py": "dd9902c6d9ff619803c832413be7a6a1a1804b7860dfe81363a336d8ab05d545",
+        "scripts/hc_workflow/providers.py": "d9fb8445dbd98d83598cc4e2dc344c801ab6cc733770b27426cb26264386323a",
         "scripts/director_workflow.py": "c8e97c94fcb5642c6135eb382d0362112ee5cf7f1fb4934dd4d4e374e5ccd857",
-        "scripts/workflow_bridge.py": "bf84c4548ff01d7030cef7e517139419c4116d89f4974d122dec617bea46c656",
+        "scripts/workflow_bridge.py": "151a57404f88e086799b5ed2c3c1e312a00f13fc76c32ad2fcae022a4d087bb0",
         "scripts/workflow_login.py": "a94a71c45c758a10fe9f4067daff2c4197ec25fcbfa1b332370ec2930f0608a9",
         "scripts/feishu_setup.py": "f41f98772bffd4dcc6c7399900992e5de6457bff10c4817787e386bb366aabc9",
-        "references/support/workflow-plan.schema.json": "e9b6a603439d7b7068898c9039beb539e06b9ca52cff9ff3e667c44a4d5b2c7e",
+        "references/support/workflow-plan.schema.json": "69a69bd2863604e3504367e16129ed6b34fd4ba4b4674cf9cd19426cf0bcc7e7",
         "references/support/workflow-plan.example.json": "f4a0c3b169f7945b9d8a1da9ff54f5c4c4c3f14de47cd246212759995b74996d",
         "scripts/check_updates.py": "aa89f2a1897a9e05ddf8bbdd14efc6720ade54037ec81d2993ddbfbb809ee205",
         "scripts/validate_package.py": "306d3ff5aa2cf72e185c231e5b4ded14a64bcb0bb218e8353fab5908c7fb427b",
-        "references/support/user-guide.md": "9da9551f15e49c049bf50d87687966e24305cca0f92aefac540cbc3a2e0e1d5b",
-        "references/support/remote-setup-guide.md": "7cbb1b949b6a8731d88812c363c75d4f0db236b03a83d06e5c9f2324a2375a10"
+        "references/support/user-guide.md": "052d7f70f23675a4d6af155e7c49dbadd4ded693608bbadc25294f8378d0943b",
+        "references/support/remote-setup-guide.md": "8db4202287655ce24141481a1cdea079c2ec2616ae8ca7fbd43c44ea38ceed77",
+        "references/support/launchd-supervision.md": "ad1bc9965d7dbf214d084e773179ebd863a589d56e15983d2fccc99516388661",
+        "references/support/user-manual.txt": "ab05e5698c97f414fc33b095ee45bcdc9a74ab417787d0c70fb7a4c90e5f2a0e"
       }
     },
     {
@@ -1216,7 +1219,7 @@
       "role": "original_creative_orchestration",
       "update_policy": "local_only",
       "bundled_path": "references/integrations/creative-collaboration.md",
-      "bundled_version": "3.0.0-rc.8",
+      "bundled_version": "3.1.0",
       "license": "MIT package-original",
       "upstream": {
         "kind": "local_only",
@@ -1224,13 +1227,33 @@
       },
       "reviewed_at": "2026-11-03",
       "integrity_files": {
-        "scripts/creative_handoff.py": "2c7960f729eae78123a22dda5f0df12a41da05ea8234407075bcd5afb1d3dd2d",
+        "scripts/creative_handoff.py": "851ecbd1ab2e1ba5c11950d4cb927a8f02e9a68d25abba302c7cb399afec4e04",
         "references/support/creative-handoff.schema.json": "68b0a19a5b5b278007a6fb6ee13f6533f533a5750cd248c1658b326ff470eb80",
         "references/support/creative-handoff.example.json": "a3cfce16f76752f9a48fdd61869a35dc33d2f3e7c8d024db08b9a645d8fe0e54",
         "references/support/rain-letter-case.md": "392800bc426d6e840dbb9c6fea6294cc987206af080e20a73714304ba0a64c5a",
         "references/support/rain-letter-handoff.example.json": "0c5168b61dde57ea39b54cb0ee9e5bea199385e4b59b3ae1e0b21ced1c86efe5"
       },
-      "sha256": "78a3898429caeec660927f33ca701a3458a82c53b43cf2545add48088662d58c"
+      "sha256": "4b93929f640568c48d85c5278c517ff4824aea9e229525c0de8ff3cb9e7dac08"
+    },
+    {
+      "id": "animation-art-direction",
+      "role": "original_creative_method",
+      "update_policy": "local_only",
+      "bundled_path": "references/integrations/animation-art-direction.md",
+      "bundled_version": "3.1.0",
+      "license": "MIT package-original prose, template and examples",
+      "upstream": {
+        "kind": "local_only",
+        "ref": "package-original"
+      },
+      "reviewed_at": "2026-11-06",
+      "sha256": "95e96fa0a113f9e7b2b9ccaf480db163b175abc7a0d63ec127ee54840908c255",
+      "integrity_files": {
+        "references/support/animation-art-brief-template.md": "5ad855e7fd0fc4ff34c9992adbd1953e99c105049f94bbe774989249381b6f95",
+        "references/support/animation-art-direction.example.md": "779934d66e8268c227f35148421c6ecdd8ce17ab5701c8e8e5e6f4380d105cc4",
+        "references/support/animation-art-direction-a.example.json": "ce3c460f9477bb30c9f27ad8243454fb4fd90d46a4219112f96d5df47fe1b5d1",
+        "references/support/animation-art-direction-b.example.json": "ed56dbb4c4c4f018bd7465afa9031eaf483fa182e6705777ce34171ed73342a7"
+      }
     }
   ]
 }

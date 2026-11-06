@@ -10,6 +10,7 @@
 | --- | --- | --- | --- | --- |
 | 剧本诊断与修改 | [剧本诊断](screenplay-diagnosis.md)、原有编剧主模块 | 已锁简报、原文、人物目标与因果 | `script.screenplay/shooting_script/beats`；逐句对白ID及原文 | 导演 |
 | 调度、表演与覆盖 | [导演调度与覆盖](director-blocking-coverage.md)、角色/场景模块 | `project+script` | `direction.shots` 的站位、视线、动作、表演、摄影目的与起止状态 | 分镜 |
+| 动画美术交接（按需） | [动画美术导演](animation-art-direction.md) | 视觉圣经、叙事触发点、既有调度及已选参考职责 | 全片不变量写入 `project.locked_state`，可见的分场变化和镜级例外写入对应镜号的导演与分镜状态 | 分镜、图像与视频提示词 |
 | 可执行分镜 | [既有分镜门禁](storyboard-quality-gates.md) | 剧本与导演交接 | `storyboard.board`，沿用原分镜结构，增加对白 `line_id` | 声音、提示词与剪辑 |
 | 声音cue | [声音交接](audio-cue-handoff.md)、声音设计与配乐模块 | 已锁镜序、对白、角色与环境 | `audio.cues`；区分模型生成与后期消费 | 唯一平台提示词、EDL |
 | 平台提示词 | [模型路由](../prompt-tools/model-router.md)及一个目标适配器 | 上述全部内容 | `prompts.platform`；每镜一对提示词及实际声音文本投影 | 制作草稿、剪辑交接 |
@@ -46,6 +47,8 @@ python3 scripts/creative_handoff.py references/support/creative-handoff.example.
 ```
 
 `--digests` 只报告当前内容对应的期望摘要。返回码0仅表示摘要算出；输出的 `valid` 仍可能为false，不能当作交接通过。普通检查/导出必须 `valid=true`。导出文件必须是新路径，采用独占创建，已有文件不覆盖；检查失败不会产出制作计划。
+
+制作草稿与默认工作流的镜数上限都是每个项目24镜。超过上限时，先把分镜按可独立制作的段落拆成多个项目，再分别导出。
 
 有参考素材时，调用方另用 `--references /绝对路径/允许清单.json` 提供 `[{"path":"/调用方明确选定的素材.png","role":"identity"}]`。packet不能给自己授权；已提供素材的路径与职责必须精确匹配清单，规划中的素材不能冒充生成输入。工具不检查文件存在、真实哈希或媒体内容；这些仍由后续实际素材检查和审批负责。
 

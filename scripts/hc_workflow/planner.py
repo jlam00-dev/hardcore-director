@@ -9,8 +9,11 @@ import tempfile
 from pathlib import Path
 from typing import Any, Callable
 
+from .engine import Limits
+
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = ROOT / "references/support/workflow-plan.schema.json"
+DEFAULT_MAX_SHOTS = Limits().max_shots
 _ID = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$")
 
 
@@ -56,8 +59,8 @@ def validate_creative_plan(data: Any, *, references: list[dict] | None = None) -
     if not ratio or type(data["fps"]) is not int or not 1 <= data["fps"] <= 120:
         raise ValueError("invalid aspect ratio or fps")
     shots = data["shots"]
-    if not isinstance(shots, list) or not 1 <= len(shots) <= 48:
-        raise ValueError("expected 1..48 shots")
+    if not isinstance(shots, list) or not 1 <= len(shots) <= DEFAULT_MAX_SHOTS:
+        raise ValueError(f"expected 1..{DEFAULT_MAX_SHOTS} shots")
     allowed = {json.dumps(x, sort_keys=True, ensure_ascii=False) for x in references or []}
     seen: set[str] = set()
     total = 0.0
